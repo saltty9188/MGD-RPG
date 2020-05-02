@@ -12,6 +12,7 @@ import com.mygdx.game.Screens.TitleScreen;
 
 public class RPGGame extends Game implements ApplicationListener {
 
+	public static final float PPM = 100;
 	public static GameScreen gameScreen;
 	public static TitleScreen titleScreen;
 
@@ -19,7 +20,7 @@ public class RPGGame extends Game implements ApplicationListener {
 	public void create () {
 		gameScreen = new GameScreen(this);
 		titleScreen = new TitleScreen(this);
-		setScreen(titleScreen);
+		setScreen(gameScreen);
 	}
 
 	@Override
