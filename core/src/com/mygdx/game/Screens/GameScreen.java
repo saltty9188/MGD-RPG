@@ -6,10 +6,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mygdx.game.Character.Player;
 import com.mygdx.game.RPGGame;
 
 public class GameScreen implements Screen {
@@ -22,7 +22,7 @@ public class GameScreen implements Screen {
     private Texture playerSheet;
     private TextureRegion walkDown,walkRight,walkUp,walkLeft;
     private Animation<TextureRegion> animation;
-    private Sprite player;
+    private Player player;
     private OrthographicCamera gameCam;
     private FitViewport gamePort;
 
@@ -39,13 +39,7 @@ public class GameScreen implements Screen {
 
         spriteBatch = new SpriteBatch();
 
-        playerSheet = new Texture("character.png");
-
-        walkDown = new TextureRegion(playerSheet,0,0,16,32);
-
-        player = new Sprite(walkDown); player.setPosition(0,0);
-
-        player.setSize(64,128);
+        player = new Player(); player.setPosition(100,100);
 
         gameCam.position.set(player.getX(), player.getY(), 0);
     }
@@ -56,6 +50,7 @@ public class GameScreen implements Screen {
     public void update(float delta){
         gameCam.position.x = player.getX();
         gameCam.update();
+        player.update(delta);
     }
 
     @Override
@@ -65,7 +60,7 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         //spriteBatch.setProjectionMatrix(gameCam.combined);
         spriteBatch.begin();
-        player.draw(spriteBatch);
+        spriteBatch.draw(player, player.getX(), player.getY());
         spriteBatch.end();
     }
 

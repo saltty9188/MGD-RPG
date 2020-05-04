@@ -12,8 +12,8 @@ import com.mygdx.game.Screens.TitleScreen;
 
 public class RPGGame extends Game implements ApplicationListener {
 
-	public static final int WIDTH = 800;
-	public static final int HEIGHT = 480;
+	public static final int WIDTH = 400;
+	public static final int HEIGHT = 240;
 	public static final float PPM = 100;
 	public static GameScreen gameScreen;
 	public static TitleScreen titleScreen;
