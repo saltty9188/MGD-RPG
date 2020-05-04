@@ -11,4 +11,7 @@ public class Character extends Sprite {
     // The sprite sheet holding the Character's sprite(s).
     private Texture spriteSheet;
 
+    public Character(Texture spriteSheet) {
+        this.spriteSheet = spriteSheet;
+    }
 }
