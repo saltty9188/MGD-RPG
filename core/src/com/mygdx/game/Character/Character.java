@@ -6,15 +6,9 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 /**
  * The base class for all the Characters of the game.
  */
-public class Character {
-    /**
-     * The Sprite that will hold the Character's texture and position information.
-     */
-    private Sprite sprite;
+public class Character extends Sprite {
 
-    /**
-     * The sprite sheet holding the Character's sprite(s).
-     */
+    // The sprite sheet holding the Character's sprite(s).
     private Texture spriteSheet;
 
 }
