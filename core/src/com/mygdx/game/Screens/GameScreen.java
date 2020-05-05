@@ -131,6 +131,10 @@ public class GameScreen implements Screen {
                     player.getY() + player.getHeight(),
                     player.getY() + player.getHeight() + playerDelta.y
             ));
+
+            //Makes it so the Player's "body" is stopped by collision and not their head when checking the top
+            top -= player.getHeight() * 2 / 3;
+
             int left = (int)Math.floor(Math.min(
                     player.getX(),
                     player.getX() + playerDelta.x

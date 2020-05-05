@@ -9,7 +9,7 @@ public class Player extends Character {
     Animation<TextureRegion> itsAllAboutThePirouettes;
 
     public Player(){
-        super(new Texture("character.png"), new TextureRegion(new Texture("character.png"), 0, 0, 16,32));
+        super(new Texture("character.png"), new TextureRegion(new Texture("character.png"), 1, 5, 15, 23));
         stateTimer = 0.0f;
         genAnimations();
         currentAni = itsAllAboutThePirouettes;
@@ -27,32 +27,32 @@ public class Player extends Character {
     //character specific for sprite sheet dimensions
     private void genAnimations(){
         //Walk Down Animation
-        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 0, 0, 16, 32),
-                new TextureRegion(spriteSheet, 16, 0, 16, 32),
-                new TextureRegion(spriteSheet, 32, 0, 16, 32),
-                new TextureRegion(spriteSheet, 48, 0, 16, 32)};
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 1, 5, 15, 23),
+                new TextureRegion(spriteSheet, 17, 5, 15, 23),
+                new TextureRegion(spriteSheet, 33, 5, 15, 23),
+                new TextureRegion(spriteSheet, 49, 5, 15, 23)};
         walkDownAni = new Animation<TextureRegion>(AFS, fFrames);
         //Walk Right Animation
-        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 0, 32, 16,32),
-                new TextureRegion(spriteSheet, 16,32, 16, 32),
-                new TextureRegion(spriteSheet, 32, 32, 16, 32),
-                new TextureRegion(spriteSheet, 48, 32, 16, 32)};
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 2, 38, 15,23),
+                new TextureRegion(spriteSheet, 18,38, 15, 23),
+                new TextureRegion(spriteSheet, 34, 38, 15, 23),
+                new TextureRegion(spriteSheet, 50, 38, 15, 23)};
         walkRightAni = new Animation<TextureRegion>(AFS, fFrames);
         //Walk Left Animation
-        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 0, 96, 16,32),
-                new TextureRegion(spriteSheet, 16,96, 16, 32),
-                new TextureRegion(spriteSheet, 32, 96, 16, 32),
-                new TextureRegion(spriteSheet, 48, 96, 16, 32)};
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 1, 102, 15,23),
+                new TextureRegion(spriteSheet, 17,102, 15, 23),
+                new TextureRegion(spriteSheet, 33, 102, 15, 23),
+                new TextureRegion(spriteSheet, 49, 102, 15, 23)};
         walkLeftAni = new Animation<TextureRegion>(AFS, fFrames);
         //Walk Up Animation
-        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 0, 64, 16,32),
-                new TextureRegion(spriteSheet, 16,64, 16, 32),
-                new TextureRegion(spriteSheet, 32, 64, 16, 32),
-                new TextureRegion(spriteSheet, 48, 64, 16, 32)};
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 0, 69, 15,23),
+                new TextureRegion(spriteSheet, 16,69, 15, 23),
+                new TextureRegion(spriteSheet, 32, 69, 15, 23),
+                new TextureRegion(spriteSheet, 48, 69, 15, 23)};
         walkUpAni = new Animation<TextureRegion>(AFS, fFrames);
         //Idle Animation
-        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 0, 0, 16,32),
-                new TextureRegion(spriteSheet, 80,0, 16, 32)};
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 1, 5, 15,23),
+                new TextureRegion(spriteSheet, 81,5, 15, 23)};
         idleAni  = new Animation<TextureRegion>(0.5f, fFrames);
         //SpinnyBOY
         fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 32, 128, 32, 32),
