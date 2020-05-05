@@ -30,12 +30,7 @@ public class GameScreen implements Screen {
 
     //Game
     private RPGGame game;
-
     private SpriteBatch spriteBatch;
-
-    private Texture playerSheet;
-    private TextureRegion walkDown,walkRight,walkUp,walkLeft;
-    private Animation<TextureRegion> animation;
     private Player player;
     private Fountain fountain;
     private OrthographicCamera gameCam;
@@ -52,7 +47,6 @@ public class GameScreen implements Screen {
     }
 
     private void create() {
-
         spriteBatch = new SpriteBatch();
 
         TmxMapLoader temp = new TmxMapLoader();
@@ -83,7 +77,6 @@ public class GameScreen implements Screen {
         player.setCenter(playerSpawn.getRectangle().x, playerSpawn.getRectangle().y);
         fountain.setCenter(fountainSpawn.getRectangle().x, fountainSpawn.getRectangle().y);
         gameCam.position.set(player.getX(), player.getY(), 0);
-
     }
 
     @Override
@@ -194,11 +187,8 @@ public class GameScreen implements Screen {
         update(delta);
         Gdx.gl.glClearColor(0,0,0,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        //gameCam.update();
         renderer.setView(gameCam);
         renderer.render();
-
         spriteBatch.begin();
         spriteBatch.setProjectionMatrix(gameCam.combined);
         player.draw(spriteBatch);

@@ -26,7 +26,6 @@ public class Enemy extends Character {
 
     public Enemy(Texture spriteSheet, Texture battleSprite, String name, int maxHP, int strength, int defence, int speed,
                  Attack... attacks) {
-
         super(spriteSheet, null);
         this.battleSprite = battleSprite;
         this.name = name;
@@ -43,7 +42,6 @@ public class Enemy extends Character {
      * @return The amount of damage this attack will do to the Player.
      */
     public int attack() {
-
         Attack attack = attacks[((int) Math.random()) % attacks.length];
         attack.decrementPP();
         //Change to battlescreen output when we do that stuff

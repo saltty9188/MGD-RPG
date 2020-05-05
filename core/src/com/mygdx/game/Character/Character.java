@@ -12,14 +12,15 @@ public class Character extends Sprite {
 
     // The sprite sheet holding the Character's sprite(s).
     protected Texture spriteSheet;
-
     protected float stateTimer;
     public static final float AFS = 0.15f;
     protected TextureRegion[] fFrames;
-    protected Animation<TextureRegion> currentAni, idleAni, walkDownAni, walkRightAni, walkLeftAni, walkUpAni;
+    protected Animation<TextureRegion> currentAni, idleAni, walkDownAni, walkRightAni, walkLeftAni,
+            walkUpAni;
 
     public Character() {
-
+        currentAni = idleAni;
+        stateTimer = 0.0f;
     }
 
     public Character(Texture spriteSheet, TextureRegion baseSprite) {
@@ -34,6 +35,7 @@ public class Character extends Sprite {
     public void setAnimation(int i){
         switch (i){
             case 0:
+                this.setSize(15,23);
                 currentAni = idleAni;
                 break;
             case 1:
