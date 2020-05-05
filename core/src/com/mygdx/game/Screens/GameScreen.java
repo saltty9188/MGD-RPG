@@ -68,7 +68,7 @@ public class GameScreen implements Screen {
         }
     }
 
-    public void update(float delta){
+    public void update(float delta) {
         handleInput(delta);
         gameCam.position.x = player.getX();
         gameCam.update();
