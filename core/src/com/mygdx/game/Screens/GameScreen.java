@@ -59,7 +59,6 @@ public class GameScreen implements Screen {
             player.setX(player.getX() + (20*delta));
         } else if (Gdx.input.isKeyPressed(Input.Keys.X)){
             player.setAnimation(9);
-            player.setY(player.getY() + (20*delta));
         } else {
             player.setAnimation(0);
         }
