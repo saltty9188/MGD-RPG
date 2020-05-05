@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -16,6 +18,8 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Character.Player;
 import com.mygdx.game.RPGGame;
+
+import java.awt.Rectangle;
 
 public class GameScreen implements Screen {
 
@@ -59,11 +63,12 @@ public class GameScreen implements Screen {
         gamePort = new FitViewport(RPGGame.WIDTH / RPGGame.PPM,
                 RPGGame.HEIGHT / RPGGame.PPM);
 
-        player = new Player(); player.setPosition(0,0);
+        player = new Player();
 
+        MapLayer objectLayer = loader.getLayers().get("Spawns");
+        RectangleMapObject playerSpawn = (RectangleMapObject)objectLayer.getObjects().get("Player");
+        player.setCenter(playerSpawn.getRectangle().x, playerSpawn.getRectangle().y);
         gameCam.position.set(player.getX(), player.getY(), 0);
-
-
     }
 
     @Override
@@ -77,16 +82,16 @@ public class GameScreen implements Screen {
     public void handleInput(float delta){
         if (Gdx.input.isKeyPressed(Input.Keys.W)){
             player.setAnimation(1);
-            player.setY(player.getY() + (20*delta));
+            player.setY(player.getY() + (98*delta));
         } else if (Gdx.input.isKeyPressed(Input.Keys.A)){
             player.setAnimation(2);
-            player.setX(player.getX() - (20*delta));
+            player.setX(player.getX() - (98*delta));
         } else if (Gdx.input.isKeyPressed(Input.Keys.S)){
             player.setAnimation(3);
-            player.setY(player.getY() - (20*delta));
+            player.setY(player.getY() - (98*delta));
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)){
             player.setAnimation(4);
-            player.setX(player.getX() + (20*delta));
+            player.setX(player.getX() + (98*delta));
         } else if (Gdx.input.isKeyPressed(Input.Keys.X)){
             player.setAnimation(9);
         } else {
