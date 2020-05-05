@@ -10,14 +10,17 @@ public class Player extends Character {
 
     public Player(){
         super(new Texture("character.png"), new TextureRegion(new Texture("character.png"), 0, 0, 16,32));
-        stateTimer = 0.0f; genAnimations(); currentAni = itsAllAboutThePirouettes;
+        stateTimer = 0.0f;
+        genAnimations();
+        currentAni = itsAllAboutThePirouettes;
     }
 
     public void setAnimation(int i) {
         super.setAnimation(i);
         switch(i) {
-            case 9: currentAni = itsAllAboutThePirouettes;
-                    break;
+            case 9:
+                currentAni = itsAllAboutThePirouettes;
+                break;
         }
     }
 

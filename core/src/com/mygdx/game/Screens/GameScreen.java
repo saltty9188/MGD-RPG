@@ -7,19 +7,21 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Character.Player;
 import com.mygdx.game.RPGGame;
-
-import java.awt.Rectangle;
 
 public class GameScreen implements Screen {
 
@@ -34,8 +36,11 @@ public class GameScreen implements Screen {
     private Player player;
     private OrthographicCamera gameCam;
     private FitViewport gamePort;
+    private Rectangle tileRectangle, playerDeltaRectangle;
 
-    private TiledMap loader;
+    private Vector2 playerDelta;
+
+    private TiledMap map;
     private TiledMapRenderer renderer;
 
     public GameScreen(RPGGame game) {
@@ -48,8 +53,8 @@ public class GameScreen implements Screen {
 
         TmxMapLoader temp = new TmxMapLoader();
 
-        loader = temp.load("Town.tmx");
-        renderer = new OrthogonalTiledMapRenderer(loader);
+        map = temp.load("Town.tmx");
+        renderer = new OrthogonalTiledMapRenderer(map);
 
         //create can used to follow Character through the game world
         float w = Gdx.graphics.getWidth();
@@ -64,11 +69,14 @@ public class GameScreen implements Screen {
                 RPGGame.HEIGHT / RPGGame.PPM);
 
         player = new Player();
+        playerDelta = new Vector2();
+        playerDeltaRectangle = new Rectangle(0, 0, player.getWidth(), player.getHeight());
 
-        MapLayer objectLayer = loader.getLayers().get("Spawns");
+        MapLayer objectLayer = map.getLayers().get("Spawns");
         RectangleMapObject playerSpawn = (RectangleMapObject)objectLayer.getObjects().get("Player");
         player.setCenter(playerSpawn.getRectangle().x, playerSpawn.getRectangle().y);
         gameCam.position.set(player.getX(), player.getY(), 0);
+
     }
 
     @Override
@@ -90,7 +98,7 @@ public class GameScreen implements Screen {
         } else if (Gdx.input.isKeyPressed(Input.Keys.S)){
             player.setAnimation(3);
             player.setY(player.getY() - (98*delta));
-            gameCam.translate(0, -(98*delta));
+            gameCam.translate(0, - (98*delta));
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)){
             player.setAnimation(4);
             player.setX(player.getX() + (98*delta));
@@ -98,6 +106,63 @@ public class GameScreen implements Screen {
             player.setAnimation(9);
         } else {
             player.setAnimation(0);
+        }
+
+        playerDelta.x = player.getX() * 98 * delta;
+        playerDelta.y = player.getY() * 98 * delta;
+
+        if(playerDelta.len2() > 0) {
+            tileRectangle = new Rectangle();
+            MapLayer collisionLayer = map.getLayers().get("Collision");
+            TiledMapTileLayer tileLayer = (TiledMapTileLayer) collisionLayer;
+            tileRectangle.width = tileLayer.getTileWidth();
+            tileRectangle.height = tileLayer.getTileHeight();
+
+            int right = (int)Math.ceil(Math.max(
+                    player.getX() + player.getWidth(),
+                    player.getX() + player.getWidth() + playerDelta.x
+            ));
+            int top = (int)Math.ceil(Math.max(
+                    player.getY() + player.getHeight(),
+                    player.getY() + player.getHeight() + playerDelta.y
+            ));
+            int left = (int)Math.floor(Math.min(
+                    player.getX(),
+                    player.getX() + playerDelta.x
+            ));
+            int bottom = (int)Math.floor(Math.min(
+                    player.getY(),
+                    player.getY() + playerDelta.y
+            ));
+
+            right /= tileLayer.getTileWidth();
+            top /= tileLayer.getTileHeight();
+            left /= tileLayer.getTileWidth();
+            bottom /= tileLayer.getTileHeight();
+
+            for(int y = bottom; y <= top; y++) {
+                for(int x = left; x <= right; x++) {
+                    TiledMapTileLayer.Cell targetCell = tileLayer.getCell(x, y);
+                    if(targetCell == null) {
+                        continue;
+                    }
+                    tileRectangle.x = x * tileLayer.getTileWidth();
+                    tileRectangle.y = y * tileLayer.getTileHeight();
+
+                    playerDeltaRectangle.x = player.getX() + playerDelta.x;
+                    playerDeltaRectangle.y = player.getY();
+
+                    if(tileRectangle.overlaps(playerDeltaRectangle)) {
+                        playerDelta.x = 0;
+                    }
+
+                    playerDeltaRectangle.x = player.getX();
+                    playerDeltaRectangle.y = player.getY() + playerDelta.y;
+                    if(tileRectangle.overlaps(playerDeltaRectangle)) {
+                        playerDelta.y = 0;
+                    }
+                }
+            }
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
@@ -118,7 +183,7 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0,0,0,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        gameCam.update();
+        //gameCam.update();
         renderer.setView(gameCam);
         renderer.render();
 
