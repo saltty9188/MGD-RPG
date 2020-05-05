@@ -83,12 +83,14 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.W)){
             player.setAnimation(1);
             player.setY(player.getY() + (98*delta));
+            gameCam.translate(0, (98*delta));
         } else if (Gdx.input.isKeyPressed(Input.Keys.A)){
             player.setAnimation(2);
             player.setX(player.getX() - (98*delta));
         } else if (Gdx.input.isKeyPressed(Input.Keys.S)){
             player.setAnimation(3);
             player.setY(player.getY() - (98*delta));
+            gameCam.translate(0, -(98*delta));
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)){
             player.setAnimation(4);
             player.setX(player.getX() + (98*delta));
