@@ -26,6 +26,8 @@ import com.mygdx.game.RPGGame;
 
 public class GameScreen implements Screen {
 
+    public static final int PLAYER_SPEED = 98;
+
     //Game
     private RPGGame game;
 
@@ -93,28 +95,26 @@ public class GameScreen implements Screen {
     }
 
     public void handleInput(float delta){
+        playerDelta.x = 0;
+        playerDelta.y = 0;
+
         if (Gdx.input.isKeyPressed(Input.Keys.W)){
             player.setAnimation(1);
-            player.setY(player.getY() + (98*delta));
-            gameCam.translate(0, (98*delta));
+            playerDelta.y = PLAYER_SPEED * delta;
         } else if (Gdx.input.isKeyPressed(Input.Keys.A)){
             player.setAnimation(2);
-            player.setX(player.getX() - (98*delta));
+            playerDelta.x = -1 * PLAYER_SPEED * delta;
         } else if (Gdx.input.isKeyPressed(Input.Keys.S)){
             player.setAnimation(3);
-            player.setY(player.getY() - (98*delta));
-            gameCam.translate(0, - (98*delta));
+            playerDelta.y = -1 * PLAYER_SPEED * delta;
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)){
             player.setAnimation(4);
-            player.setX(player.getX() + (98*delta));
+            playerDelta.x = PLAYER_SPEED * delta;
         } else if (Gdx.input.isKeyPressed(Input.Keys.X)){
             player.setAnimation(9);
         } else {
             player.setAnimation(0);
         }
-
-        playerDelta.x = player.getX() * 98 * delta;
-        playerDelta.y = player.getY() * 98 * delta;
 
         if(playerDelta.len2() > 0) {
             tileRectangle = new Rectangle();
@@ -170,6 +170,9 @@ public class GameScreen implements Screen {
             }
         }
 
+        player.translate(playerDelta.x, playerDelta.y);
+        gameCam.translate(playerDelta);
+
         if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
             gameCam.zoom += 1;
         }
@@ -177,7 +180,6 @@ public class GameScreen implements Screen {
 
     public void update(float delta) {
         handleInput(delta);
-        gameCam.position.x = player.getX();
         gameCam.update();
         player.update(delta);
         fountain.update(delta);
