@@ -18,6 +18,10 @@ public class Character extends Sprite {
     protected TextureRegion[] fFrames;
     protected Animation<TextureRegion> currentAni, idleAni, walkDownAni, walkRightAni, walkLeftAni, walkUpAni;
 
+    public Character() {
+
+    }
+
     public Character(Texture spriteSheet) {
         this.spriteSheet = spriteSheet;
     }
@@ -28,11 +32,21 @@ public class Character extends Sprite {
 
     public void setAnimation(int i){
         switch (i){
-            case 0: currentAni = idleAni; break;
-            case 1: currentAni = walkUpAni; break;
-            case 2: currentAni = walkLeftAni; break;
-            case 3: currentAni = walkDownAni; break;
-            case 4: currentAni = walkRightAni; break;
+            case 0:
+                currentAni = idleAni;
+                break;
+            case 1:
+                currentAni = walkUpAni;
+                break;
+            case 2:
+                currentAni = walkLeftAni;
+                break;
+            case 3:
+                currentAni = walkDownAni;
+                break;
+            case 4:
+                currentAni = walkRightAni;
+                break;
         }
     }
 

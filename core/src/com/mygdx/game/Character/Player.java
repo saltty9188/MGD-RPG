@@ -16,7 +16,8 @@ public class Player extends Character {
     public void setAnimation(int i) {
         super.setAnimation(i);
         switch(i) {
-            case 9: currentAni = itsAllAboutThePirouettes; break;
+            case 9: currentAni = itsAllAboutThePirouettes;
+            break;
         }
     }
 
