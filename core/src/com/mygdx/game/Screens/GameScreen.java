@@ -9,6 +9,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Character.Player;
 import com.mygdx.game.RPGGame;
@@ -27,8 +31,14 @@ public class GameScreen implements Screen {
     private OrthographicCamera gameCam;
     private FitViewport gamePort;
 
+    private TiledMap loader;
+    private TiledMapRenderer renderer;
+
     public GameScreen(RPGGame game) {
         this.game = game;
+    }
+
+    private void create() {
         //create can used to follow Character through the game world
         gameCam = new OrthographicCamera();
         //create a FitViewport to maintain virtual aspect ratio despite screen size
@@ -39,10 +49,14 @@ public class GameScreen implements Screen {
         player = new Player(); player.setPosition(0,0);
 
         gameCam.position.set(player.getX(), player.getY(), 0);
+
+        loader = new TmxMapLoader().load("Town.tmx");
+        renderer = new OrthogonalTiledMapRenderer(loader);
     }
 
     @Override
     public void show() {
+        create();
         if (Gdx.graphics.getHeight() != 1080){
             Gdx.graphics.setWindowedMode(1920,1080);
         }
@@ -80,6 +94,9 @@ public class GameScreen implements Screen {
         update(delta);
         Gdx.gl.glClearColor(0,0,0,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        gameCam.update();
+        renderer.setView(gameCam);
+        renderer.render();
         spriteBatch.begin();
         spriteBatch.draw(player, player.getX(), player.getY());
         spriteBatch.end();
