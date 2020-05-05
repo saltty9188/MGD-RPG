@@ -42,7 +42,11 @@ public class GameScreen implements Screen {
     }
 
     @Override
-    public void show() {}
+    public void show() {
+        if (Gdx.graphics.getHeight() != 1080){
+            Gdx.graphics.setWindowedMode(1920,1080);
+        }
+    }
 
     public void handleInput(float delta){
         if (Gdx.input.isKeyPressed(Input.Keys.W)){
@@ -65,9 +69,6 @@ public class GameScreen implements Screen {
     }
 
     public void update(float delta){
-        if (Gdx.graphics.getHeight() != 1080){
-            Gdx.graphics.setWindowedMode(1920,1080);
-        }
         handleInput(delta);
         gameCam.position.x = player.getX();
         gameCam.update();
