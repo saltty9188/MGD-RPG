@@ -3,15 +3,15 @@ package com.mygdx.game;
 public class Attack {
 
     // The strength of this attack
-    private int attack;
+    private int damage;
     // Stat for determining how many uses the Attack has left
     private int maxPP;
     private int PP;
 
     private String name;
 
-    public Attack(int attack, int maxPP, String name) {
-        this.attack = attack;
+    public Attack(int damage, int maxPP, String name) {
+        this.damage = damage;
         this.maxPP = maxPP;
         this.PP = maxPP;
         this.name = name;
@@ -32,5 +32,18 @@ public class Attack {
     public void restorePP(int amount) {
         PP += amount;
         if(PP > maxPP) PP = maxPP;
+    }
+
+    /**
+     * A simple battle message to be displayed when this Attack is used in battle.
+     * @param name The name of the character using this attack.
+     * @return The battle message.
+     */
+    public String battleMessage(String name) {
+        return name + " used " + this.name;
+    }
+
+    public int getDamage() {
+        return damage;
     }
 }
