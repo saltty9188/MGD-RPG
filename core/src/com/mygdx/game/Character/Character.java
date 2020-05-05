@@ -22,7 +22,8 @@ public class Character extends Sprite {
 
     }
 
-    public Character(Texture spriteSheet) {
+    public Character(Texture spriteSheet, TextureRegion baseSprite) {
+        super(baseSprite);
         this.spriteSheet = spriteSheet;
     }
 

@@ -27,7 +27,7 @@ public class Enemy extends Character {
     public Enemy(Texture spriteSheet, Texture battleSprite, String name, int maxHP, int strength, int defence, int speed,
                  Attack... attacks) {
 
-        super(spriteSheet);
+        super(spriteSheet, null);
         this.battleSprite = battleSprite;
         this.name = name;
         this.maxHP = maxHP;

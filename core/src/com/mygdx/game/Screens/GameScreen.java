@@ -39,19 +39,31 @@ public class GameScreen implements Screen {
     }
 
     private void create() {
+
+        spriteBatch = new SpriteBatch();
+
+        TmxMapLoader temp = new TmxMapLoader();
+
+        loader = temp.load("Town.tmx");
+        renderer = new OrthogonalTiledMapRenderer(loader);
+
         //create can used to follow Character through the game world
+        float w = Gdx.graphics.getWidth();
+        float h = Gdx.graphics.getHeight();
         gameCam = new OrthographicCamera();
+        gameCam.setToOrtho(false, w, h);
+
+        gameCam.position.x = Gdx.graphics.getWidth()/2;
+        gameCam.position.y = Gdx.graphics.getHeight()/2;
         //create a FitViewport to maintain virtual aspect ratio despite screen size
         gamePort = new FitViewport(RPGGame.WIDTH / RPGGame.PPM,
                 RPGGame.HEIGHT / RPGGame.PPM);
-        spriteBatch = new SpriteBatch();
 
         player = new Player(); player.setPosition(0,0);
 
         gameCam.position.set(player.getX(), player.getY(), 0);
 
-        loader = new TmxMapLoader().load("Town.tmx");
-        renderer = new OrthogonalTiledMapRenderer(loader);
+
     }
 
     @Override
@@ -80,6 +92,10 @@ public class GameScreen implements Screen {
         } else {
             player.setAnimation(0);
         }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
+            gameCam.zoom += 1;
+        }
     }
 
     public void update(float delta) {
@@ -94,11 +110,14 @@ public class GameScreen implements Screen {
         update(delta);
         Gdx.gl.glClearColor(0,0,0,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         gameCam.update();
         renderer.setView(gameCam);
         renderer.render();
+
+        spriteBatch.setProjectionMatrix(gameCam.combined);
         spriteBatch.begin();
-        spriteBatch.draw(player, player.getX(), player.getY());
+        player.draw(spriteBatch);
         spriteBatch.end();
     }
 
