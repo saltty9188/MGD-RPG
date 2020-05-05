@@ -9,8 +9,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 public class Fountain extends Sprite {
 
     private float stateTime;
-    private int FRAME_ROWS = 3;
-    private int FRAME_COLS = 9;
+    private int FRAME_ROWS = 1;
+    private int FRAME_COLS = 3;
     private Texture fountainSheet;
     private TextureRegion[] fountainRegion;
     private Animation<TextureRegion> fountainAnimation;
@@ -31,7 +31,18 @@ public class Fountain extends Sprite {
                 fountainRegion[index++] = temp[i][j];
             }
         }
-        fountainAnimation = new Animation<TextureRegion>(0.033f, fountainRegion);
+        fountainAnimation = new Animation<TextureRegion>(0.1f, fountainRegion);
+    }
+
+    public void update(float dt) {
+        setRegion(getFrame(dt));
+    }
+
+    public TextureRegion getFrame(float dt) {
+        TextureRegion region;
+        region = fountainAnimation.getKeyFrame(stateTime, true);
+        stateTime += dt;
+        return region;
     }
 
 }

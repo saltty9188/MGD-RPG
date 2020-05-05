@@ -180,6 +180,7 @@ public class GameScreen implements Screen {
         gameCam.position.x = player.getX();
         gameCam.update();
         player.update(delta);
+        fountain.update(delta);
     }
 
     @Override
