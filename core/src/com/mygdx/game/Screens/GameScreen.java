@@ -21,6 +21,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Character.Player;
+import com.mygdx.game.Fountain;
 import com.mygdx.game.RPGGame;
 
 public class GameScreen implements Screen {
@@ -34,6 +35,7 @@ public class GameScreen implements Screen {
     private TextureRegion walkDown,walkRight,walkUp,walkLeft;
     private Animation<TextureRegion> animation;
     private Player player;
+    private Fountain fountain;
     private OrthographicCamera gameCam;
     private FitViewport gamePort;
     private Rectangle tileRectangle, playerDeltaRectangle;
@@ -69,12 +71,15 @@ public class GameScreen implements Screen {
                 RPGGame.HEIGHT / RPGGame.PPM);
 
         player = new Player();
+        fountain = new Fountain();
         playerDelta = new Vector2();
         playerDeltaRectangle = new Rectangle(0, 0, player.getWidth(), player.getHeight());
 
         MapLayer objectLayer = map.getLayers().get("Spawns");
         RectangleMapObject playerSpawn = (RectangleMapObject)objectLayer.getObjects().get("Player");
+        RectangleMapObject fountainSpawn = (RectangleMapObject)objectLayer.getObjects().get("Fountain");
         player.setCenter(playerSpawn.getRectangle().x, playerSpawn.getRectangle().y);
+        fountain.setCenter(fountainSpawn.getRectangle().x, fountainSpawn.getRectangle().y);
         gameCam.position.set(player.getX(), player.getY(), 0);
 
     }
@@ -187,9 +192,11 @@ public class GameScreen implements Screen {
         renderer.setView(gameCam);
         renderer.render();
 
-        spriteBatch.setProjectionMatrix(gameCam.combined);
         spriteBatch.begin();
+        spriteBatch.setProjectionMatrix(gameCam.combined);
         player.draw(spriteBatch);
+        spriteBatch.setProjectionMatrix(gameCam.combined);
+        spriteBatch.draw(fountain, fountain.getX(), fountain.getY());
         spriteBatch.end();
     }
 
