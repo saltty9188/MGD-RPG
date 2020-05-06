@@ -18,14 +18,26 @@ public class Character extends Sprite {
     protected Animation<TextureRegion> currentAni, idleAni, walkDownAni, walkRightAni, walkLeftAni,
             walkUpAni;
 
+    private int baseWidth;
+    private int baseHeight;
+
     public Character() {
         currentAni = idleAni;
         stateTimer = 0.0f;
     }
 
-    public Character(Texture spriteSheet, TextureRegion baseSprite) {
-        super(baseSprite);
+    /**
+     * Initialises the Character with a sprite sheet and a base sprite for the superclass (Sprite) to be
+     * initialised with.
+     * @param spriteSheet The sprite sheet holding the animation frames for this Character.
+     * @param width       The width of the Character.
+     * @param height      The height of the Character.
+     */
+    public Character(Texture spriteSheet, int width, int height) {
         this.spriteSheet = spriteSheet;
+        baseWidth = width;
+        baseHeight = height;
+        setSize(width, height);
     }
 
     public void update(float delta){
@@ -33,9 +45,9 @@ public class Character extends Sprite {
     }
 
     public void setAnimation(int i){
+        this.setSize(baseWidth, baseHeight);
         switch (i){
             case 0:
-                this.setSize(15,23);
                 currentAni = idleAni;
                 break;
             case 1:

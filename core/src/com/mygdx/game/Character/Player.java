@@ -8,13 +8,8 @@ public class Player extends Character {
 
     Animation<TextureRegion> itsAllAboutThePirouettes;
 
-    private Texture spriteSheet;
-
     public Player(){
-        super(new Texture("character.png"),
-                new TextureRegion(new Texture("character.png"),
-                        1, 5, 15, 23));
-        spriteSheet = new Texture("character.png");
+        super(new Texture("character.png"), 15, 23);
         stateTimer = 0.0f;
         genAnimations();
         currentAni = itsAllAboutThePirouettes;
