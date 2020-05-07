@@ -1,6 +1,8 @@
 package com.mygdx.game.Character;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.game.Attack;
 
 /**
@@ -23,10 +25,17 @@ public class Enemy extends Character {
 
     private Attack[] attacks;
 
+    private boolean alive;
 
-    public Enemy(Texture spriteSheet, Texture battleSprite, String name, int maxHP, int strength, int defence, int speed,
-                 Attack... attacks) {
-        super(spriteSheet, 0, 0);
+    public Enemy() {
+        super(new Texture("placeholder.png"), 15, 23);
+        alive = true;
+        setRegion(spriteSheet);
+    }
+
+    public Enemy(Texture spriteSheet, int width, int height, Texture battleSprite, String name,
+                 int maxHP, int strength, int defence, int speed, Attack... attacks) {
+        super(spriteSheet, width, height);
         this.battleSprite = battleSprite;
         this.name = name;
         this.maxHP = maxHP;
@@ -35,6 +44,10 @@ public class Enemy extends Character {
         this.defence = defence;
         this.speed = speed;
         this.attacks = attacks;
+
+        alive = true;
+
+        setRegion(spriteSheet);
     }
 
     /**
@@ -48,6 +61,14 @@ public class Enemy extends Character {
         System.out.println(attack.battleMessage(name));
         System.out.println("It did " + strength + attack.getDamage() + " damage!");
         return strength + attack.getDamage();
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public void die() {
+        alive = false;
     }
 
 }

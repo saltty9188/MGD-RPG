@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -16,6 +17,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mygdx.game.Character.Enemy;
 import com.mygdx.game.Character.Player;
 import com.mygdx.game.WorldAnimations.Fountain;
 import com.mygdx.game.RPGGame;
@@ -25,10 +27,10 @@ public class GameScreen implements Screen {
     public static final int PLAYER_SPEED = 98;
 
     //Game
-    private RPGGame game;
+    RPGGame game;
+    private BattleScreen battleScreen;
+
     private SpriteBatch spriteBatch;
-    private Player player;
-    private Fountain fountain;
     private OrthographicCamera gameCam;
     private FitViewport gamePort;
     private Rectangle tileRectangle, playerDeltaRectangle;
@@ -38,8 +40,13 @@ public class GameScreen implements Screen {
     private TiledMap map;
     private TiledMapRenderer renderer;
 
+    private Player player;
+    private Fountain fountain;
+    private Enemy[] enemies;
+
     public GameScreen(RPGGame game) {
         this.game = game;
+        create();
     }
 
     private void create() {
@@ -67,17 +74,34 @@ public class GameScreen implements Screen {
         playerDelta = new Vector2();
         playerDeltaRectangle = new Rectangle(0, 0, player.getWidth(), player.getHeight());
 
+        enemies = new Enemy[5];
+        for(int i = 0; i < enemies.length; i++) {
+            enemies[i] = new Enemy();
+        }
+
+        spawn();
+
+        gameCam.position.set(player.getX(), player.getY(), 0);
+    }
+
+    public void spawn() {
         MapLayer objectLayer = map.getLayers().get("Spawns");
         RectangleMapObject playerSpawn = (RectangleMapObject)objectLayer.getObjects().get("Player");
-        RectangleMapObject fountainSpawn = (RectangleMapObject)objectLayer.getObjects().get("Fountain");
         player.setCenter(playerSpawn.getRectangle().x, playerSpawn.getRectangle().y);
+
+        RectangleMapObject fountainSpawn = (RectangleMapObject)objectLayer.getObjects().get("Fountain");
         fountain.setCenter(fountainSpawn.getRectangle().x, fountainSpawn.getRectangle().y);
-        gameCam.position.set(player.getX(), player.getY(), 0);
+
+        RectangleMapObject enemySpawn;
+        for(int i = 0; i < enemies.length; i++) {
+            enemySpawn = (RectangleMapObject) objectLayer.getObjects().get("Enemy " + Integer.toString(i + 1));
+            enemies[i].setCenter(enemySpawn.getRectangle().x, enemySpawn.getRectangle().y);
+        }
+
     }
 
     @Override
     public void show() {
-        create();
         if (Gdx.graphics.getHeight() != 1080){
             Gdx.graphics.setWindowedMode(1920,1080);
         }
@@ -176,6 +200,26 @@ public class GameScreen implements Screen {
         gameCam.update();
         player.update(delta);
         fountain.update(delta);
+        checkEnemies();
+    }
+
+    public void checkEnemies() {
+        for(int i = 0; i < enemies.length; i++) {
+            if(enemies[i].isAlive() && gameCam.frustum.pointInFrustum(enemies[i].getX(), enemies[i].getY(), 0) &&
+                    enemies[i].getBoundingRectangle().overlaps(player.getBoundingRectangle())) {
+                battleScreen = new BattleScreen(this, enemies[i], player);
+                game.setScreen(battleScreen);
+                enemies[i].die();
+            }
+        }
+    }
+
+    public void drawEnemies() {
+        for(int i = 0; i < enemies.length; i++) {
+            if(enemies[i].isAlive() && gameCam.frustum.pointInFrustum(enemies[i].getX(), enemies[i].getY(), 0)) {
+                enemies[i].draw(spriteBatch);
+            }
+        }
     }
 
     @Override
@@ -183,10 +227,13 @@ public class GameScreen implements Screen {
         update(delta);
         Gdx.gl.glClearColor(0,0,0,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         renderer.setView(gameCam);
         renderer.render();
+
         spriteBatch.begin();
         spriteBatch.setProjectionMatrix(gameCam.combined);
+        drawEnemies();
         player.draw(spriteBatch);
         spriteBatch.setProjectionMatrix(gameCam.combined);
         spriteBatch.draw(fountain, fountain.getX(), fountain.getY());
