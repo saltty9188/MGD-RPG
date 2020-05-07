@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
@@ -39,6 +40,8 @@ public class GameScreen implements Screen {
     private Vector2 playerDelta;
 
     private TiledMap map;
+    private int mapWidth;
+    private int mapHeight;
     private TiledMapRenderer renderer;
 
     private Player player;
@@ -57,6 +60,10 @@ public class GameScreen implements Screen {
 
         map = temp.load("Town.tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
+        MapProperties properties = map.getProperties();
+        //Width and height return number of tiles so we multiply by 16
+        mapWidth = properties.get("width", Integer.class) * 16;
+        mapHeight = properties.get("height", Integer.class) * 16;
 
         //create can used to follow Character through the game world
         float w = Gdx.graphics.getWidth();
@@ -67,8 +74,8 @@ public class GameScreen implements Screen {
         gameCam.position.x = Gdx.graphics.getWidth()/2;
         gameCam.position.y = Gdx.graphics.getHeight()/2;
         //create a FitViewport to maintain virtual aspect ratio despite screen size
-        gamePort = new FitViewport(RPGGame.WIDTH / RPGGame.PPM,
-                RPGGame.HEIGHT / RPGGame.PPM);
+        gamePort = new FitViewport(RPGGame.WIDTH,
+                RPGGame.HEIGHT, gameCam);
 
         player = new Player();
         fountain = new Fountain();
@@ -103,9 +110,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        if (Gdx.graphics.getHeight() != 1080){
-            Gdx.graphics.setWindowedMode(1920,1080);
-        }
+
     }
 
     public void handleInput(float delta){
@@ -189,11 +194,26 @@ public class GameScreen implements Screen {
         }
 
         player.translate(playerDelta.x, playerDelta.y);
-        gameCam.translate(playerDelta);
+        gameCam.position.x = player.getX();
+        gameCam.position.y = player.getY();
+
+        cameraBounds();
 
         if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
             gameCam.zoom += 1;
+            System.out.println(gameCam.zoom);
         }
+    }
+
+    /**
+     * Adjusts the camera's location so that it doesn't go out of the tile map bounds.
+     */
+    private void cameraBounds() {
+        //Get the edges of the camera by adding/subtracting half of the viewport width/height
+        if(gameCam.position.x -  gameCam.viewportWidth/ 2 < 0) gameCam.position.x = 0 + gameCam.viewportWidth/2;
+        else if (gameCam.position.x + gameCam.viewportWidth/ 2 > mapWidth) gameCam.position.x = mapWidth - gameCam.viewportWidth/2;
+        if(gameCam.position.y -  gameCam.viewportHeight/ 2 < 0) gameCam.position.y = 0 + gameCam.viewportHeight/2;
+        else if (gameCam.position.y + gameCam.viewportHeight/ 2 > mapHeight) gameCam.position.y = mapHeight - gameCam.viewportHeight/2;
     }
 
     public void update(float delta) {
