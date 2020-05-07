@@ -205,20 +205,20 @@ public class GameScreen implements Screen {
     }
 
     public void checkEnemies() {
-        for(int i = 0; i < enemies.length; i++) {
-            if(enemies[i].isAlive() && gameCam.frustum.pointInFrustum(enemies[i].getX(), enemies[i].getY(), 0) &&
-                    enemies[i].getBoundingRectangle().overlaps(player.getBoundingRectangle())) {
-                battleScreen = new BattleScreen(this, enemies[i], player);
+        for (Enemy enemy : enemies) {
+            if (enemy.isAlive() && gameCam.frustum.pointInFrustum(enemy.getX(), enemy.getY(), 0) &&
+                    enemy.getBoundingRectangle().overlaps(player.getBoundingRectangle())) {
+                battleScreen = new BattleScreen(this, enemy, player);
                 game.setScreen(battleScreen);
-                enemies[i].die();
+                enemy.die();
             }
         }
     }
 
     public void drawEnemies() {
-        for(int i = 0; i < enemies.length; i++) {
-            if(enemies[i].isAlive() && onScreen(enemies[i])) {
-                enemies[i].draw(spriteBatch);
+        for (Enemy enemy : enemies) {
+            if (enemy.isAlive() && onScreen(enemy)) {
+                enemy.draw(spriteBatch);
             }
         }
     }

@@ -8,10 +8,13 @@ public class Player extends Character {
 
     Animation<TextureRegion> itsAllAboutThePirouettes;
 
+    private Texture battleSprite;
+
     public Player(){
         super(new Texture("character.png"), 15, 23);
         stateTimer = 0.0f;
         genAnimations();
+        battleSprite = new Texture("placeholder.png");
         currentAni = itsAllAboutThePirouettes;
     }
 
@@ -61,5 +64,9 @@ public class Player extends Character {
                 new TextureRegion(spriteSheet, 32, 160 , 32, 32),
                 new TextureRegion(spriteSheet, 32, 224, 32, 32)};
         itsAllAboutThePirouettes = new Animation<TextureRegion>(AFS, fFrames);
+    }
+
+    public Texture getBattleSprite() {
+        return battleSprite;
     }
 }

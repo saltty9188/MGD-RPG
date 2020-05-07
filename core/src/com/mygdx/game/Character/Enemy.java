@@ -12,7 +12,7 @@ import com.mygdx.game.Attack;
 public class Enemy extends Character {
 
     // Sprite used on the BattleScreen
-    private Texture battleSprite;
+    Texture battleSprite;
 
     // Enemy's stats
     private int maxHP;
@@ -29,6 +29,7 @@ public class Enemy extends Character {
 
     public Enemy() {
         super(new Texture("placeholder.png"), 15, 23);
+        battleSprite = new Texture("placeholder.png");
         alive = true;
         setRegion(spriteSheet);
     }
@@ -71,4 +72,7 @@ public class Enemy extends Character {
         alive = false;
     }
 
+    public Texture getBattleSprite() {
+        return battleSprite;
+    }
 }
