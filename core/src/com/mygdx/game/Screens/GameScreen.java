@@ -17,6 +17,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mygdx.game.Character.Character;
 import com.mygdx.game.Character.Enemy;
 import com.mygdx.game.Character.Player;
 import com.mygdx.game.WorldAnimations.Fountain;
@@ -216,7 +217,7 @@ public class GameScreen implements Screen {
 
     public void drawEnemies() {
         for(int i = 0; i < enemies.length; i++) {
-            if(enemies[i].isAlive() && gameCam.frustum.pointInFrustum(enemies[i].getX(), enemies[i].getY(), 0)) {
+            if(enemies[i].isAlive() && onScreen(enemies[i])) {
                 enemies[i].draw(spriteBatch);
             }
         }
@@ -238,6 +239,13 @@ public class GameScreen implements Screen {
         spriteBatch.setProjectionMatrix(gameCam.combined);
         spriteBatch.draw(fountain, fountain.getX(), fountain.getY());
         spriteBatch.end();
+    }
+
+    private boolean onScreen(Character character) {
+        return (gameCam.frustum.pointInFrustum(character.getX(), character.getY(), 0) ||
+                gameCam.frustum.pointInFrustum(character.getX() + character.getWidth(), character.getY(), 0) ||
+                gameCam.frustum.pointInFrustum(character.getX(), character.getY() + character.getHeight(), 0) ||
+                gameCam.frustum.pointInFrustum(character.getX() + character.getWidth(), character.getY() + character.getHeight(), 0));
     }
 
     @Override
