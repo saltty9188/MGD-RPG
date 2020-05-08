@@ -71,4 +71,8 @@ public class Character extends Sprite {
         stateTimer += delta;
         return region;
     }
+
+    public void dispose() {
+        spriteSheet.dispose();
+    }
 }

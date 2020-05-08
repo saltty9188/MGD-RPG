@@ -3,23 +3,18 @@ package com.mygdx.game.Character;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.Attack;
+
+import java.util.Random;
+
 
 /**
  * The class that represents the Enemies the Player will face both in the overworld
  * and in the battle screens.
  */
-public class Enemy extends Character {
-
-    // Sprite used on the BattleScreen
-    Texture battleSprite;
-
-    // Enemy's stats
-    private int maxHP;
-    private int HP;
-    private int strength;
-    private int defence;
-    private int speed;
+public class Enemy extends BattleCharacter{
 
     private String name;
 
@@ -27,28 +22,73 @@ public class Enemy extends Character {
 
     private boolean alive;
 
+    Random rand;
+    float walkDuration;
+    int direction;
+
     public Enemy() {
-        super(new Texture("placeholder.png"), 15, 23);
+        super(new Texture("placeholder.png"), 15, 23, new Texture("placeholder.png"));
         battleSprite = new Texture("placeholder.png");
         alive = true;
         setRegion(spriteSheet);
+
+        rand = new Random();
+        walkDuration = 0.5f;
     }
 
     public Enemy(Texture spriteSheet, int width, int height, Texture battleSprite, String name,
                  int maxHP, int strength, int defence, int speed, Attack... attacks) {
-        super(spriteSheet, width, height);
-        this.battleSprite = battleSprite;
+        super(spriteSheet, width, height, battleSprite, maxHP, strength, defence, speed, attacks);
         this.name = name;
-        this.maxHP = maxHP;
-        this.HP = maxHP;
-        this.strength = strength;
-        this.defence = defence;
-        this.speed = speed;
-        this.attacks = attacks;
-
         alive = true;
-
         setRegion(spriteSheet);
+    }
+
+    public void update(float delta, Rectangle roamZone) {
+        if(walkDuration <= 0) {
+            direction = rand.nextInt(4);
+            walkDuration = 0.5f;
+        }
+
+        Vector2 enemyDelta = new Vector2(98*delta, 98*delta);
+
+        int right = (int)Math.ceil(Math.max(
+                getX() + getWidth(),
+                getX() + getWidth() + enemyDelta.x
+        ));
+        int top = (int)Math.ceil(Math.max(
+                getY() + getHeight(),
+                getY() + getHeight() + enemyDelta.y
+        ));
+        int left = (int)Math.floor(Math.min(
+                getX(),
+                getX() + enemyDelta.x
+        ));
+        int bottom = (int)Math.floor(Math.min(
+                getY(),
+                getY() + enemyDelta.y
+        ));
+
+        switch (direction) {
+            //Move up
+            case 0:
+                if(top < roamZone.y + roamZone.getHeight()) translateY(enemyDelta.y);
+                break;
+            //Move right
+            case 1:
+                if(right < roamZone.x + roamZone.getWidth()) translateX(enemyDelta.x);
+                break;
+            //Move down
+            case 2:
+                if(bottom > roamZone.y) translateY(-(enemyDelta.y));
+                break;
+            //Move left
+            case 3:
+                if(left > roamZone.x) translateX(-(enemyDelta.x));
+                break;
+        }
+
+        walkDuration -= delta;
     }
 
     /**
@@ -56,7 +96,7 @@ public class Enemy extends Character {
      * @return The amount of damage this attack will do to the Player.
      */
     public int attack() {
-        Attack attack = attacks[((int) Math.random()) % attacks.length];
+        Attack attack = attacks[rand.nextInt(attacks.length)];
         attack.decrementPP();
         //Change to battlescreen output when we do that stuff
         System.out.println(attack.battleMessage(name));
@@ -72,7 +112,4 @@ public class Enemy extends Character {
         alive = false;
     }
 
-    public Texture getBattleSprite() {
-        return battleSprite;
-    }
 }

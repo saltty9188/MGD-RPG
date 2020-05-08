@@ -48,6 +48,9 @@ public class GameScreen implements Screen {
     private Fountain fountain;
     private Enemy[] enemies;
 
+    //The layer that holds the enemies/NPCs roaming areas
+    private MapLayer roamZones;
+
     public GameScreen(RPGGame game) {
         this.game = game;
         create();
@@ -64,6 +67,7 @@ public class GameScreen implements Screen {
         //Width and height return number of tiles so we multiply by 16
         mapWidth = properties.get("width", Integer.class) * 16;
         mapHeight = properties.get("height", Integer.class) * 16;
+        roamZones = map.getLayers().get("Roaming");
 
         //create can used to follow Character through the game world
         float w = Gdx.graphics.getWidth();
@@ -221,7 +225,14 @@ public class GameScreen implements Screen {
         gameCam.update();
         player.update(delta);
         fountain.update(delta);
+        moveEnemies(delta);
         checkEnemies();
+    }
+
+    public void moveEnemies(float delta) {
+        //Add for loop for all enemies
+        RectangleMapObject roamBox = (RectangleMapObject) roamZones.getObjects().get("Enemy 1");
+        enemies[0].update(delta, roamBox.getRectangle());
     }
 
     public void checkEnemies() {
@@ -290,6 +301,11 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        map.dispose();
+        spriteBatch.dispose();
+        player.dispose();
+        for(Enemy enemy: enemies) {
+            enemy.dispose();
+        }
     }
 }

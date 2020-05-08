@@ -4,17 +4,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class Player extends Character {
+public class Player extends BattleCharacter {
 
     Animation<TextureRegion> itsAllAboutThePirouettes;
 
     private Texture battleSprite;
 
     public Player(){
-        super(new Texture("character.png"), 15, 23);
+        super(new Texture("character.png"), 15, 23, new Texture("placeholder.png"));
         stateTimer = 0.0f;
         genAnimations();
-        battleSprite = new Texture("placeholder.png");
         currentAni = itsAllAboutThePirouettes;
     }
 
@@ -66,7 +65,5 @@ public class Player extends Character {
         itsAllAboutThePirouettes = new Animation<TextureRegion>(AFS, fFrames);
     }
 
-    public Texture getBattleSprite() {
-        return battleSprite;
-    }
+
 }
