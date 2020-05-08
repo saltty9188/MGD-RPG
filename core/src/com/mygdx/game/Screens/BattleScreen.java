@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.game.Character.Enemy;
 import com.mygdx.game.Character.Player;
 
@@ -19,7 +20,7 @@ public class BattleScreen implements Screen {
 
     private BitmapFont bmfont;
 
-    private Texture textWindow;
+    private TextureRegion textWindow;
 
     public BattleScreen(GameScreen gameScreen, Enemy enemy, Player player) {
         this.gameScreen = gameScreen;
@@ -33,7 +34,9 @@ public class BattleScreen implements Screen {
                 Gdx.files.internal("font/good_neighbors.png"),
                 false);
 
-        textWindow = new Texture("window_blue.png");
+        bmfont.getData().setScale(2);
+
+        textWindow = new TextureRegion(new Texture("window.png"));
     }
 
     @Override
@@ -52,6 +55,9 @@ public class BattleScreen implements Screen {
         spriteBatch.draw(player.getBattleSprite(), Gdx.graphics.getWidth()/8, Gdx.graphics.getHeight()/8);
         spriteBatch.draw(enemy.getBattleSprite(), Gdx.graphics.getWidth() * 3/4, Gdx.graphics.getHeight() * 5/8);
 
+        spriteBatch.draw(textWindow, 0, 0);
+        bmfont.draw(spriteBatch, "How will you proceed?", Gdx.graphics.getWidth() * 0.034f, Gdx.graphics.getHeight() * 0.12f, Gdx.graphics.getWidth() * 0.43f
+                , 1, true);
         spriteBatch.end();
     }
 
@@ -81,7 +87,6 @@ public class BattleScreen implements Screen {
 
     @Override
     public void dispose() {
-        textWindow.dispose();
         bmfont.dispose();
     }
 }
