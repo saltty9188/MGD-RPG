@@ -56,8 +56,8 @@ public class BattleScreen implements Screen {
         spriteBatch.draw(enemy.getBattleSprite(), Gdx.graphics.getWidth() * 3/4, Gdx.graphics.getHeight() * 5/8);
 
         spriteBatch.draw(textWindow, 0, 0);
-        bmfont.draw(spriteBatch, "How will you proceed?", Gdx.graphics.getWidth() * 0.034f, Gdx.graphics.getHeight() * 0.12f, Gdx.graphics.getWidth() * 0.43f
-                , 1, true);
+        bmfont.draw(spriteBatch, "How will you proceed?", Gdx.graphics.getWidth() * 0.034f, Gdx.graphics.getHeight() * 0.12f, Gdx.graphics.getWidth() * 0.43f,
+                1, true);
         spriteBatch.end();
     }
 

@@ -20,6 +20,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Character.Character;
 import com.mygdx.game.Character.Enemy;
+import com.mygdx.game.Character.NPC;
 import com.mygdx.game.Character.Player;
 import com.mygdx.game.WorldAnimations.Fountain;
 import com.mygdx.game.RPGGame;
@@ -47,6 +48,7 @@ public class GameScreen implements Screen {
     private Player player;
     private Fountain fountain;
     private Enemy[] enemies;
+    private NPC[] NPCs;
 
     //The layer that holds the enemies/NPCs roaming areas
     private MapLayer roamZones;
