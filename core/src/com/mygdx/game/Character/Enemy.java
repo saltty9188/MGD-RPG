@@ -95,13 +95,10 @@ public class Enemy extends BattleCharacter{
      * Performs a random Attack from the list of Attacks.
      * @return The amount of damage this attack will do to the Player.
      */
-    public int attack() {
+    public Attack attack() {
         Attack attack = attacks[rand.nextInt(attacks.length)];
         attack.decrementPP();
-        //Change to battlescreen output when we do that stuff
-        System.out.println(attack.battleMessage(name));
-        System.out.println("It did " + strength + attack.getDamage() + " damage!");
-        return strength + attack.getDamage();
+        return attack;
     }
 
     public boolean isAlive() {

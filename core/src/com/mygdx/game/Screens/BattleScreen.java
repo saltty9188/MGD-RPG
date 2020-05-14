@@ -33,6 +33,15 @@ public class BattleScreen implements Screen {
     private Button itemButton;
     private Button runButton;
 
+    // Attack buttons
+    private Button playerAttackButton1;
+    private Button playerAttackButton2;
+    private Button playerAttackButton3;
+    private Button playerAttackButton4;
+
+    private boolean inAttacks;
+    private boolean inItems;
+
     public BattleScreen(GameScreen gameScreen, Enemy enemy, Player player) {
         this.gameScreen = gameScreen;
         this.enemy = enemy;
@@ -58,6 +67,16 @@ public class BattleScreen implements Screen {
                 textWindow.getRegionHeight()/2 - BUTTON_PAD, buttonUp, buttonDown);
         runButton = new Button(Gdx.graphics.getWidth() * 3/4 + BUTTON_PAD, 0, Gdx.graphics.getWidth()/4 - 2 * BUTTON_PAD,
                 textWindow.getRegionHeight()/2 - BUTTON_PAD, buttonUp, buttonDown);
+
+
+        playerAttackButton1 = new Button(Gdx.graphics.getWidth()/2 + BUTTON_PAD, textWindow.getRegionHeight()/2 + BUTTON_PAD, Gdx.graphics.getWidth()/4 - 2 * BUTTON_PAD,
+                textWindow.getRegionHeight()/2 - 2 * BUTTON_PAD, buttonUp, buttonDown);
+        playerAttackButton2 = playerAttackButton4 = new Button(Gdx.graphics.getWidth() * 3/4 + BUTTON_PAD, textWindow.getRegionHeight()/2, Gdx.graphics.getWidth()/4 - 2 * BUTTON_PAD,
+                textWindow.getRegionHeight()/2 - BUTTON_PAD, buttonUp, buttonDown);
+        playerAttackButton3 = new Button(Gdx.graphics.getWidth()/2 + BUTTON_PAD, 0, Gdx.graphics.getWidth()/4 - 2 * BUTTON_PAD,
+                textWindow.getRegionHeight()/2 - BUTTON_PAD, buttonUp, buttonDown);
+        playerAttackButton4 = new Button(Gdx.graphics.getWidth() * 3/4 + BUTTON_PAD, 0, Gdx.graphics.getWidth()/4 - 2 * BUTTON_PAD,
+                textWindow.getRegionHeight()/2 - BUTTON_PAD, buttonUp, buttonDown);
     }
 
     @Override
@@ -73,16 +92,24 @@ public class BattleScreen implements Screen {
 
         spriteBatch.begin();
         //draw battle sprites
-        spriteBatch.draw(player.getBattleSprite(), Gdx.graphics.getWidth()/8, Gdx.graphics.getHeight()/8);
-        spriteBatch.draw(enemy.getBattleSprite(), Gdx.graphics.getWidth() * 3/4, Gdx.graphics.getHeight() * 5/8);
+        spriteBatch.draw(player.getBattleSprite(), Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/8, 150, 230);
+        spriteBatch.draw(enemy.getBattleSprite(), Gdx.graphics.getWidth() * 3/4, Gdx.graphics.getHeight() * 5/8, 150, 230);
 
         spriteBatch.draw(textWindow, 0, 0);
         bmfont.draw(spriteBatch, "How will you proceed?", Gdx.graphics.getWidth() * 0.034f, Gdx.graphics.getHeight() * 0.12f, Gdx.graphics.getWidth() * 0.43f,
                 1, true);
 
-        attackButton.draw(spriteBatch, "Attack");
-        itemButton.draw(spriteBatch, "Items");
-        runButton.draw(spriteBatch, "Run Away");
+        if(!inAttacks && !inItems) {
+            attackButton.draw(spriteBatch, "Attack");
+            itemButton.draw(spriteBatch, "Items");
+            runButton.draw(spriteBatch, "Run Away");
+        }
+        else if(inAttacks) {
+            playerAttackButton1.draw(spriteBatch);
+            playerAttackButton2.draw(spriteBatch);
+            playerAttackButton3.draw(spriteBatch);
+            playerAttackButton4.draw(spriteBatch);
+        }
 
         spriteBatch.end();
     }
@@ -93,9 +120,23 @@ public class BattleScreen implements Screen {
         int touchX = Gdx.input.getX();
         int touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-        attackButton.update(checkTouch, touchX, touchY);
-        itemButton.update(checkTouch, touchX, touchY);
-        runButton.update(checkTouch, touchX, touchY);
+        if(!inAttacks && !inItems) {
+            attackButton.update(checkTouch, touchX, touchY);
+            itemButton.update(checkTouch, touchX, touchY);
+            runButton.update(checkTouch, touchX, touchY);
+        }
+
+        // Only poll for attack buttons when selecting an attack
+        if(inAttacks) {
+            playerAttackButton1.update(checkTouch, touchX, touchY);
+            playerAttackButton2.update(checkTouch, touchX, touchY);
+            playerAttackButton3.update(checkTouch, touchX, touchY);
+            playerAttackButton4.update(checkTouch, touchX, touchY);
+        }
+
+        if(attackButton.justPressed()) {
+            inAttacks = true;
+        }
 
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) gameScreen.game.setScreen(gameScreen);
     }

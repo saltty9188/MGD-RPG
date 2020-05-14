@@ -64,6 +64,4 @@ public class Player extends BattleCharacter {
                 new TextureRegion(spriteSheet, 32, 224, 32, 32)};
         itsAllAboutThePirouettes = new Animation<TextureRegion>(AFS, fFrames);
     }
-
-
 }

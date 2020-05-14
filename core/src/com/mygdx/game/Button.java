@@ -13,6 +13,7 @@ public class Button {
     float width;
     float height;
     boolean isDown;
+    boolean justPressed;
 
     Texture upTexture;
     Texture downTexture;
@@ -28,6 +29,7 @@ public class Button {
         this.upTexture = up;
         this.downTexture = down;
         isDown = false;
+        justPressed = false;
 
         bmfont = new BitmapFont(
                 Gdx.files.internal("font/good_neighbors.fnt"),
@@ -40,7 +42,6 @@ public class Button {
         isDown = false;
 
         if(checkTouch) {
-
             if(touchX >= x && touchX <= x + width && touchY >= y && touchY <= y + height ) {
                 isDown = true;
             }
@@ -73,6 +74,21 @@ public class Button {
             bmfont.draw(batch, text, textX, textY, glyphLayout.width,
                     1, true);
         }
+    }
 
+    /**
+     * Returns if the button has just been released.
+     * @return True if the button was just released, false otherwise.
+     */
+    public boolean justPressed() {
+        if(isDown) {
+            justPressed = true;
+            return false;
+        }
+        else if(justPressed) {
+            justPressed = false;
+            return true;
+        }
+        return false;
     }
 }
