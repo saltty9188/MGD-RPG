@@ -107,10 +107,10 @@ public class BattleScreen implements Screen {
             runButton.draw(spriteBatch, "Run Away");
         }
         else if(inAttacks) {
-            playerAttackButton1.draw(spriteBatch);
-            playerAttackButton2.draw(spriteBatch);
-            playerAttackButton3.draw(spriteBatch);
-            playerAttackButton4.draw(spriteBatch);
+            playerAttackButton1.draw(spriteBatch, player.getAttack(0).getName(), player.getAttack(0).getPPStatus());
+            playerAttackButton2.draw(spriteBatch, player.getAttack(1).getName(), player.getAttack(1).getPPStatus());
+            playerAttackButton3.draw(spriteBatch, player.getAttack(2).getName(), player.getAttack(2).getPPStatus());
+            playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus());
         }
 
         spriteBatch.end();
@@ -129,7 +129,6 @@ public class BattleScreen implements Screen {
         GlyphLayout glyphLayout = new GlyphLayout();
         glyphLayout.setText(bmfont, text);
 
-        glyphLayout.setText(bmfont, text);
         //Get the height of a single line of text
         float fontHeight = glyphLayout.height;
 

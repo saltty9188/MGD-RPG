@@ -14,7 +14,7 @@ public abstract class BattleCharacter extends Character {
     protected int defence;
     protected int speed;
 
-    private Attack[] attacks;
+    protected Attack[] attacks;
 
     public BattleCharacter(Texture spriteSheet, int width, int height, Texture battleSprite) {
         super(spriteSheet, width, height);
@@ -29,6 +29,10 @@ public abstract class BattleCharacter extends Character {
         this.strength = strength;
         this.defence = defence;
         this.speed = speed;
+        this.attacks = attacks;
+    }
+
+    public void setAttacks(Attack... attacks) {
         this.attacks = attacks;
     }
 

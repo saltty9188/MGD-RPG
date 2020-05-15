@@ -43,6 +43,14 @@ public class Attack {
         return name + " used " + this.name;
     }
 
+    public String getPPStatus() {
+        return "PP: " + PP + "/" + maxPP;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public int getDamage() {
         return damage;
     }
