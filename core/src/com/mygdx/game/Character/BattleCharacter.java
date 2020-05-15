@@ -14,6 +14,8 @@ public abstract class BattleCharacter extends Character {
     protected int defence;
     protected int speed;
 
+    protected String name;
+
     protected Attack[] attacks;
 
     public BattleCharacter(Texture spriteSheet, int width, int height, Texture battleSprite) {
@@ -22,13 +24,14 @@ public abstract class BattleCharacter extends Character {
     }
 
     public BattleCharacter(Texture spriteSheet, int width, int height, Texture battleSprite,
-                           int maxHP, int strength, int defence, int speed, Attack... attacks) {
+                           int maxHP, int strength, int defence, int speed, String name, Attack... attacks) {
         this(spriteSheet, width, height, battleSprite);
         this.maxHP = maxHP;
         this.HP = maxHP;
         this.strength = strength;
         this.defence = defence;
         this.speed = speed;
+        this.name = name;
         this.attacks = attacks;
     }
 
@@ -36,8 +39,24 @@ public abstract class BattleCharacter extends Character {
         this.attacks = attacks;
     }
 
+    /**
+     * Returns the percentage of HP remaining for this Character.
+     * @return The percentage of HP remaining.
+     */
+    public float getHPPercentage() {
+        return (float) HP/(float) maxHP;
+    }
+
+    public String getHPStatus() {
+        return "HP: " + HP + "/" + maxHP;
+    }
+
     public Texture getBattleSprite() {
         return battleSprite;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void dispose() {

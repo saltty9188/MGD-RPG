@@ -27,21 +27,18 @@ public class Enemy extends BattleCharacter{
     int direction;
 
     public Enemy() {
-        super(new Texture("placeholder.png"), 15, 23, new Texture("placeholder.png"));
-        battleSprite = new Texture("placeholder.png");
-        alive = true;
-        setRegion(spriteSheet);
-
-        rand = new Random();
-        walkDuration = 0.5f;
+        this(new Texture("placeholder.png"), 15, 23, new Texture("placeholder.png"),
+                100, 5, 5, 4, "Uncle Tester");
+        //Do attack stuff later
     }
 
-    public Enemy(Texture spriteSheet, int width, int height, Texture battleSprite, String name,
-                 int maxHP, int strength, int defence, int speed, Attack... attacks) {
-        super(spriteSheet, width, height, battleSprite, maxHP, strength, defence, speed, attacks);
-        this.name = name;
+    public Enemy(Texture spriteSheet, int width, int height, Texture battleSprite,
+                 int maxHP, int strength, int defence, int speed, String name, Attack... attacks) {
+        super(spriteSheet, width, height, battleSprite, maxHP, strength, defence, speed, name, attacks);
         alive = true;
         setRegion(spriteSheet);
+        rand = new Random();
+        walkDuration = 0.5f;
     }
 
     public void update(float delta, Rectangle roamZone) {

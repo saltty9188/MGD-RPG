@@ -11,12 +11,13 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.game.Button;
+import com.mygdx.game.Character.BattleCharacter;
 import com.mygdx.game.Character.Enemy;
 import com.mygdx.game.Character.Player;
 
 public class BattleScreen implements Screen {
 
-    private static final float BUTTON_PAD = 0.5f;
+    private static final float PADDING = 0.5f;
 
     private GameScreen gameScreen;
     private Enemy enemy;
@@ -30,16 +31,21 @@ public class BattleScreen implements Screen {
     private BitmapFont bmfont;
 
     private TextureRegion textWindow;
+    private Texture HPFull;
+    private Texture HPEmpty;
 
     private Button attackButton;
     private Button itemButton;
     private Button runButton;
+    private Button backButton;
 
     // Attack buttons
     private Button playerAttackButton1;
     private Button playerAttackButton2;
     private Button playerAttackButton3;
     private Button playerAttackButton4;
+
+
 
     private boolean inAttacks;
     private boolean inItems;
@@ -60,25 +66,30 @@ public class BattleScreen implements Screen {
 
         textWindow = new TextureRegion(new Texture("window.png"));
 
+        HPFull = new Texture("HP-full.png");
+        HPEmpty = new Texture("HP-empty.png");
+
         buttonUp = new Texture("buttonUp.png");
         buttonDown = new Texture("buttonDown.png");
 
-        attackButton = new Button(Gdx.graphics.getWidth()/2 + BUTTON_PAD, textWindow.getRegionHeight()/2 + BUTTON_PAD, Gdx.graphics.getWidth()/2 - 2 * BUTTON_PAD,
-                textWindow.getRegionHeight()/2 - 2 * BUTTON_PAD, buttonUp, buttonDown);
-        itemButton = new Button(Gdx.graphics.getWidth()/2 + BUTTON_PAD, 0, Gdx.graphics.getWidth()/4 - 2 * BUTTON_PAD,
-                textWindow.getRegionHeight()/2 - BUTTON_PAD, buttonUp, buttonDown);
-        runButton = new Button(Gdx.graphics.getWidth() * 3/4 + BUTTON_PAD, 0, Gdx.graphics.getWidth()/4 - 2 * BUTTON_PAD,
-                textWindow.getRegionHeight()/2 - BUTTON_PAD, buttonUp, buttonDown);
+        attackButton = new Button(Gdx.graphics.getWidth()/2 + PADDING, textWindow.getRegionHeight()/2 + PADDING, Gdx.graphics.getWidth()/2 - 2 * PADDING,
+                textWindow.getRegionHeight()/2 - 2 * PADDING, buttonUp, buttonDown);
+        itemButton = new Button(Gdx.graphics.getWidth()/2 + PADDING, 0, Gdx.graphics.getWidth()/4 - 2 * PADDING,
+                textWindow.getRegionHeight()/2 - PADDING, buttonUp, buttonDown);
+        runButton = new Button(Gdx.graphics.getWidth() * 3/4 + PADDING, 0, Gdx.graphics.getWidth()/4 - 2 * PADDING,
+                textWindow.getRegionHeight()/2 - PADDING, buttonUp, buttonDown);
 
+        backButton = new Button(Gdx.graphics.getWidth() * 23/24 - PADDING, textWindow.getRegionHeight() + PADDING, Gdx.graphics.getWidth()/24,
+                Gdx.graphics.getWidth()/24, buttonUp, buttonDown);
 
-        playerAttackButton1 = new Button(Gdx.graphics.getWidth()/2 + BUTTON_PAD, textWindow.getRegionHeight()/2 + BUTTON_PAD, Gdx.graphics.getWidth()/4 - 2 * BUTTON_PAD,
-                textWindow.getRegionHeight()/2 - 2 * BUTTON_PAD, buttonUp, buttonDown);
-        playerAttackButton2 = playerAttackButton4 = new Button(Gdx.graphics.getWidth() * 3/4 + BUTTON_PAD, textWindow.getRegionHeight()/2, Gdx.graphics.getWidth()/4 - 2 * BUTTON_PAD,
-                textWindow.getRegionHeight()/2 - BUTTON_PAD, buttonUp, buttonDown);
-        playerAttackButton3 = new Button(Gdx.graphics.getWidth()/2 + BUTTON_PAD, 0, Gdx.graphics.getWidth()/4 - 2 * BUTTON_PAD,
-                textWindow.getRegionHeight()/2 - BUTTON_PAD, buttonUp, buttonDown);
-        playerAttackButton4 = new Button(Gdx.graphics.getWidth() * 3/4 + BUTTON_PAD, 0, Gdx.graphics.getWidth()/4 - 2 * BUTTON_PAD,
-                textWindow.getRegionHeight()/2 - BUTTON_PAD, buttonUp, buttonDown);
+        playerAttackButton1 = new Button(Gdx.graphics.getWidth()/2 + PADDING, textWindow.getRegionHeight()/2 + PADDING, Gdx.graphics.getWidth()/4 - 2 * PADDING,
+                textWindow.getRegionHeight()/2 - 2 * PADDING, buttonUp, buttonDown);
+        playerAttackButton2 = playerAttackButton4 = new Button(Gdx.graphics.getWidth() * 3/4 + PADDING, textWindow.getRegionHeight()/2, Gdx.graphics.getWidth()/4 - 2 * PADDING,
+                textWindow.getRegionHeight()/2 - PADDING, buttonUp, buttonDown);
+        playerAttackButton3 = new Button(Gdx.graphics.getWidth()/2 + PADDING, 0, Gdx.graphics.getWidth()/4 - 2 * PADDING,
+                textWindow.getRegionHeight()/2 - PADDING, buttonUp, buttonDown);
+        playerAttackButton4 = new Button(Gdx.graphics.getWidth() * 3/4 + PADDING, 0, Gdx.graphics.getWidth()/4 - 2 * PADDING,
+                textWindow.getRegionHeight()/2 - PADDING, buttonUp, buttonDown);
     }
 
     @Override
@@ -98,8 +109,12 @@ public class BattleScreen implements Screen {
         spriteBatch.draw(enemy.getBattleSprite(), Gdx.graphics.getWidth() * 3/4, Gdx.graphics.getHeight() * 5/8, 150, 230);
 
         spriteBatch.draw(textWindow, 0, 0);
+        bmfont.getData().setScale(2);
         drawText(spriteBatch, "How will you proceed?", textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
                 textWindow.getRegionY());
+
+        drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
+        drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5/12);
 
         if(!inAttacks && !inItems) {
             attackButton.draw(spriteBatch, "Attack");
@@ -112,6 +127,8 @@ public class BattleScreen implements Screen {
             playerAttackButton3.draw(spriteBatch, player.getAttack(2).getName(), player.getAttack(2).getPPStatus());
             playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus());
         }
+
+        if(inAttacks || inItems) backButton.draw(spriteBatch);
 
         spriteBatch.end();
     }
@@ -143,6 +160,17 @@ public class BattleScreen implements Screen {
         bmfont.draw(batch, text, textX, textY, glyphLayout.width, 1, true);
     }
 
+
+    public void drawStatBox(SpriteBatch batch, BattleCharacter character, float x, float y) {
+        batch.draw(buttonUp, x, y, Gdx.graphics.getWidth()/4, textWindow.getRegionHeight() * 5/12);
+        float HPWidth =  (Gdx.graphics.getWidth()/4 - 80 * PADDING);
+        batch.draw(HPEmpty, x + 40 * PADDING, y + 20 * PADDING, HPWidth, 4);
+        batch.draw(HPFull, x +  40 * PADDING, y + 20 * PADDING, HPWidth * character.getHPPercentage(), 4);
+        bmfont.getData().setScale(1);
+        bmfont.draw(batch, character.getHPStatus(), x + 40 * PADDING, y + 22 * PADDING + 8);
+        bmfont.draw(batch, character.getName(), x + 40 * PADDING, y + 22 * PADDING + 24);
+    }
+
     private void update() {
         boolean checkTouch = Gdx.input.isTouched();
 
@@ -162,8 +190,15 @@ public class BattleScreen implements Screen {
             playerAttackButton4.update(checkTouch, touchX, touchY);
         }
 
+        if(inAttacks || inItems) backButton.update(checkTouch, touchX, touchY);
+
+        // Handle button presses
         if(attackButton.justPressed()) {
             inAttacks = true;
+        }
+        else if(backButton.justPressed()) {
+            inAttacks = false;
+            inItems = false;
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) gameScreen.game.setScreen(gameScreen);
@@ -193,5 +228,9 @@ public class BattleScreen implements Screen {
     public void dispose() {
         bmfont.dispose();
         textWindow.getTexture().dispose();
+        buttonDown.dispose();
+        buttonUp.dispose();
+        HPEmpty.dispose();
+        HPFull.dispose();
     }
 }
