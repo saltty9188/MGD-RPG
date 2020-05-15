@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -61,8 +62,15 @@ public class Button {
         GlyphLayout glyphLayout = new GlyphLayout();
         glyphLayout.setText(bmfont, text);
 
+        glyphLayout.setText(bmfont, text, Color.BLACK, width, 1, true);
+
+        // Don't let the text exceed the bounds of the button
+       // float textWidth = Math.min(glyphLayout.width, width);
+
         int textX = (int) ((width/2 - glyphLayout.width/2) + x);
         int textY = (int) ((height/2 - glyphLayout.height/2) + y);
+
+
 
         if(isDown) {
             batch.draw(downTexture, x, y, width, height);

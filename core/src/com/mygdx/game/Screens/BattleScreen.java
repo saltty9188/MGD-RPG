@@ -3,9 +3,11 @@ package com.mygdx.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.game.Button;
@@ -96,8 +98,8 @@ public class BattleScreen implements Screen {
         spriteBatch.draw(enemy.getBattleSprite(), Gdx.graphics.getWidth() * 3/4, Gdx.graphics.getHeight() * 5/8, 150, 230);
 
         spriteBatch.draw(textWindow, 0, 0);
-        bmfont.draw(spriteBatch, "How will you proceed?", Gdx.graphics.getWidth() * 0.034f, Gdx.graphics.getHeight() * 0.12f, Gdx.graphics.getWidth() * 0.43f,
-                1, true);
+        drawText(spriteBatch, "How will you proceed?", textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                textWindow.getRegionY());
 
         if(!inAttacks && !inItems) {
             attackButton.draw(spriteBatch, "Attack");
@@ -114,6 +116,34 @@ public class BattleScreen implements Screen {
         spriteBatch.end();
     }
 
+    /**
+     * Draws text within a rectangle texture (e.g. text window). Wraps and centers according to the texture's width and position
+     * @param batch The SpriteBatch used to draw the text
+     * @param text The text to be drawn
+     * @param boundingWidth The width of the bounding texture
+     * @param boundingHeight The height of the bounding texture
+     * @param x The bounding texture's x position.
+     * @param y The bounding texture's y position
+     */
+    private void drawText(SpriteBatch batch, String text, float boundingWidth, float boundingHeight, int x, int y) {
+        GlyphLayout glyphLayout = new GlyphLayout();
+        glyphLayout.setText(bmfont, text);
+
+        glyphLayout.setText(bmfont, text);
+        //Get the height of a single line of text
+        float fontHeight = glyphLayout.height;
+
+        glyphLayout.setText(bmfont, text, Color.BLACK, boundingWidth, 1, true);
+        int textX = (int) ((boundingWidth/2 - glyphLayout.width/2) + x);
+        int textY = (int) ((boundingHeight/2 - fontHeight/2) + y);
+
+        // Raise the text proportionally to how many lines there are
+        int numLines =  (int) (glyphLayout.height / fontHeight);
+        if(numLines > 1) textY += fontHeight/2 * numLines;
+
+        bmfont.draw(batch, text, textX, textY, glyphLayout.width, 1, true);
+    }
+
     private void update() {
         boolean checkTouch = Gdx.input.isTouched();
 
@@ -125,9 +155,8 @@ public class BattleScreen implements Screen {
             itemButton.update(checkTouch, touchX, touchY);
             runButton.update(checkTouch, touchX, touchY);
         }
-
         // Only poll for attack buttons when selecting an attack
-        if(inAttacks) {
+        else if(inAttacks) {
             playerAttackButton1.update(checkTouch, touchX, touchY);
             playerAttackButton2.update(checkTouch, touchX, touchY);
             playerAttackButton3.update(checkTouch, touchX, touchY);
