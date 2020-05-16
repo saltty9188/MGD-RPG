@@ -47,6 +47,7 @@ public class BattleScreen implements Screen {
     private Button playerAttackButton4;
 
     private Attack playerAttack;
+    private Attack enemyAttack;
 
     private boolean inAttacks;
     private boolean inItems;
@@ -56,6 +57,8 @@ public class BattleScreen implements Screen {
     private float textTime;
     private String textBuilder;
     private int textIndex;
+
+    private float pause;
 
     private float HPTime;
     private int enemyDamage;
@@ -147,16 +150,36 @@ public class BattleScreen implements Screen {
             drawText(spriteBatch, "How will you proceed?", textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
                     textWindow.getRegionY(), delta);
         }
+        else {
+            // Enemy attack message
+            if(textAnimating && animatingPlayerHP) { ;
+                drawText(spriteBatch, enemyAttack.battleMessage(enemy.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                        textWindow.getRegionY(), delta);
+            }
 
-        if(animatingPlayerHP) {
+            // Player attack message
+            if(textAnimating && animatingEnemyHP) {
+                drawText(spriteBatch, playerAttack.battleMessage(player.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                        textWindow.getRegionY(), delta);
+            }
+        }
+
+
+
+        if(!textAnimating && animatingPlayerHP) {
             drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING, delta, playerDamage);
+            drawText(spriteBatch, enemyAttack.battleMessage(enemy.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                    textWindow.getRegionY(), delta);
         }
         else {
             drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
         }
 
-        if(animatingEnemyHP) {
+
+        if(!textAnimating && animatingEnemyHP) {
             drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12, delta, enemyDamage);
+            drawText(spriteBatch, playerAttack.battleMessage(player.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                    textWindow.getRegionY(), delta);
         }
         else {
             drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12);
@@ -190,6 +213,8 @@ public class BattleScreen implements Screen {
      * @param y The bounding texture's y position
      */
     private void drawText(SpriteBatch batch, String text, float boundingWidth, float boundingHeight, int x, int y, float delta) {
+        bmfont.getData().setScale(2);
+        System.out.println(text);
         GlyphLayout glyphLayout = new GlyphLayout();
         glyphLayout.setText(bmfont, text);
 
@@ -211,11 +236,12 @@ public class BattleScreen implements Screen {
                 if(textIndex < text.length()) textBuilder += text.charAt(textIndex++);
                 textTime = 0;
             }
+
+            bmfont.draw(batch, textBuilder, textX, textY, glyphLayout.width, 1, true);
             if(textBuilder.equals(text)) {
                 textAnimating = false;
                 textBuilder = "";
             }
-            bmfont.draw(batch, textBuilder, textX, textY, glyphLayout.width, 1, true);
         }
         else {
             bmfont.draw(batch, text, textX, textY, glyphLayout.width, 1, true);
@@ -246,7 +272,6 @@ public class BattleScreen implements Screen {
             if(HPTransition <= character.getHP()) {
                 animatingPlayerHP = false;
                 animatingEnemyHP = false;
-                //character.takeDamage(damage);
             }
         }
         batch.draw(HPFull, x +  40 * PADDING, y + 20 * PADDING, HPWidth * (HPTransition/(float)character.getMaxHP()), 4);
@@ -287,18 +312,22 @@ public class BattleScreen implements Screen {
             }
             else if(playerAttackButton1.justPressed()){
                 playerAttack = player.getAttack(0);
+                playerAttack.decrementPP();
                 choosingMove = false;
             }
             else if(playerAttackButton2.justPressed()){
                 playerAttack = player.getAttack(1);
+                playerAttack.decrementPP();
                 choosingMove = false;
             }
             else if(playerAttackButton3.justPressed()){
                 playerAttack = player.getAttack(2);
+                playerAttack.decrementPP();
                 choosingMove = false;
             }
             else if(playerAttackButton4.justPressed()){
                 playerAttack = player.getAttack(3);
+                playerAttack.decrementPP();
                 choosingMove = false;
             }
         }
@@ -307,12 +336,13 @@ public class BattleScreen implements Screen {
             // Player is faster
             if(player.getSpeed() > enemy.getSpeed()) {
                 if(!playerTurnComplete) {
-                    //enemy.takeDamage(playerAttack.getDamage() + player.getStrength()/2);
                     enemyDamage = playerAttack.getDamage() + player.getStrength() / 2;
                     HPTransition = enemy.getHP();
                     enemy.takeDamage(enemyDamage);
                     playerTurnComplete = true;
                     animatingEnemyHP = true;
+                    textAnimating = true;
+                    textIndex = 0;
                 }
 
                 if(!enemy.isAlive() && playerTurnComplete) {
@@ -321,13 +351,15 @@ public class BattleScreen implements Screen {
                     System.out.println("WIN");
                 }
                 else {
-                    if(!animatingEnemyHP) {
-                        // player.takeDamage(enemy.attack().getDamage() + enemy.getStrength() / 2);
-                        playerDamage = enemy.attack().getDamage() + enemy.getStrength() / 2;
+                    if(!animatingEnemyHP && !enemyTurnComplete) {
+                        enemyAttack = enemy.attack();
+                        playerDamage = enemyAttack.getDamage() + enemy.getStrength() / 2;
                         HPTransition = player.getHP();
                         player.takeDamage(playerDamage);
                         animatingPlayerHP = true;
                         enemyTurnComplete = true;
+                        textAnimating = true;
+                        textIndex = 0;
                     }
                     //Player lost
                     if (!player.isAlive() && enemyTurnComplete) {
@@ -335,30 +367,49 @@ public class BattleScreen implements Screen {
                         System.out.println("LOSE");
                     }
                 }
-
             }
             else {
-                player.takeDamage(enemy.attack().getDamage() + enemy.getStrength()/2);
+                if(!enemyTurnComplete) {
+                    enemyAttack = enemy.attack();
+                    playerDamage = enemyAttack.getDamage() + enemy.getStrength() / 2;
+                    HPTransition = player.getHP();
+                    player.takeDamage(playerDamage);
+                    textAnimating = true;
+                    textIndex = 0;
+                    animatingPlayerHP = true;
+                    enemyTurnComplete = true;
+                }
                 //Player lost
                 if(!player.isAlive()) {
                     gameScreen.game.setScreen(gameScreen);
                     System.out.println("LOSE");
                 }
                 else {
-                   // enemy.takeDamage(playerAttack.getDamage() + player.getStrength() / 2);
-                    enemyDamage = playerAttack.getDamage() + player.getStrength()/2;
+                    if(!animatingPlayerHP && !playerTurnComplete) {
+                        enemyDamage = playerAttack.getDamage() + player.getStrength() / 2;
+                        HPTransition = enemy.getHP();
+                        enemy.takeDamage(enemyDamage);
+                        playerTurnComplete = true;
+                        animatingEnemyHP = true;
+                        textAnimating = true;
+                        textIndex = 0;
+                    }
+
                     if (!enemy.isAlive()) {
                         //Player won
                         gameScreen.game.setScreen(gameScreen);
                         System.out.println("WIN");
                     }
                 }
-                choosingMove = true;
             }
-            if(enemyTurnComplete && playerTurnComplete) {
+            if(enemyTurnComplete && playerTurnComplete && !animatingPlayerHP && !animatingEnemyHP) {
                 choosingMove = true;
                 playerTurnComplete = false;
                 enemyTurnComplete = false;
+                animatingEnemyHP = false;
+                animatingPlayerHP = false;
+                textAnimating = true;
+                textIndex = 0;
             }
         }
 

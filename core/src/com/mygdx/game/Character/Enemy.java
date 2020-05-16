@@ -22,7 +22,7 @@ public class Enemy extends BattleCharacter{
 
     public Enemy() {
         super(new Texture("placeholder.png"), 15, 23, new Texture("placeholder.png"),
-                100, 10, 5, 4, "Uncle Tester");
+                100, 10, 5, 5, "Uncle Tester");
 
         //Do attack stuff later
         Attack attack1 = new Attack(5, 20, "Attack 1");
