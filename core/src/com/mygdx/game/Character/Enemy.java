@@ -26,7 +26,7 @@ public class Enemy extends BattleCharacter{
 
         //Do attack stuff later
         Attack attack1 = new Attack(5, 20, "Attack 1");
-        Attack attack2 = new Attack(10,5, "Attack 2");
+        Attack attack2 = new Attack(5,5, "Attack 2");
         setAttacks(attack1, attack2);
 
         setRegion(spriteSheet);

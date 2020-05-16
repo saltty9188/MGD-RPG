@@ -14,7 +14,7 @@ public class Player extends BattleCharacter {
     public Player(){
         super(new Texture("character.png"), 15, 23, new Texture("placeholder.png"),
                 100, 10, 5, 6, "Hero");
-        //HP = 50;
+       // HP = 1;
         stateTimer = 0.0f;
         genAnimations();
         currentAni = itsAllAboutThePirouettes;

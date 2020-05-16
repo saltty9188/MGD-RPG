@@ -223,6 +223,7 @@ public class GameScreen implements Screen {
     }
 
     public void update(float delta) {
+        if(!player.isAlive()) player.setCenter(50, 50);
         handleInput(delta);
         gameCam.update();
         player.update(delta);

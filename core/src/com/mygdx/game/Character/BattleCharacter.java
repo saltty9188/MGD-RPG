@@ -52,7 +52,8 @@ public abstract class BattleCharacter extends Character {
     }
 
     public String getHPStatus() {
-        return "HP: " + HP + "/" + maxHP;
+        if(HP > 0) return "HP: " + HP + "/" + maxHP;
+        else return "HP: 0/" + maxHP;
     }
 
     public Texture getBattleSprite() {
@@ -69,6 +70,14 @@ public abstract class BattleCharacter extends Character {
 
     public int getStrength() {
         return strength;
+    }
+
+    public int getHP() {
+        return HP;
+    }
+
+    public int getMaxHP() {
+        return maxHP;
     }
 
     public boolean isAlive() {
