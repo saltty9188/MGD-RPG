@@ -18,9 +18,12 @@ public abstract class BattleCharacter extends Character {
 
     protected Attack[] attacks;
 
+    private boolean alive;
+
     public BattleCharacter(Texture spriteSheet, int width, int height, Texture battleSprite) {
         super(spriteSheet, width, height);
         this.battleSprite = battleSprite;
+        alive = true;
     }
 
     public BattleCharacter(Texture spriteSheet, int width, int height, Texture battleSprite,
@@ -33,6 +36,7 @@ public abstract class BattleCharacter extends Character {
         this.speed = speed;
         this.name = name;
         this.attacks = attacks;
+        alive = true;
     }
 
     public void setAttacks(Attack... attacks) {
@@ -57,6 +61,27 @@ public abstract class BattleCharacter extends Character {
 
     public String getName() {
         return name;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public int getStrength() {
+        return strength;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public void die() {
+        alive = false;
+    }
+
+    public void takeDamage(int damage) {
+        HP -= (damage * (50 - defence))/56 + 1;
+        if(HP <= 0) die();
     }
 
     public void dispose() {

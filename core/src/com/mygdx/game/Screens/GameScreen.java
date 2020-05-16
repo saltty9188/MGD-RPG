@@ -243,7 +243,6 @@ public class GameScreen implements Screen {
                     enemy.getBoundingRectangle().overlaps(player.getBoundingRectangle())) {
                 battleScreen = new BattleScreen(this, enemy, player);
                 game.setScreen(battleScreen);
-                enemy.die();
             }
         }
     }

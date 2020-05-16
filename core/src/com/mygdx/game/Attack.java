@@ -54,4 +54,8 @@ public class Attack {
     public int getDamage() {
         return damage;
     }
+
+    public int getPP() {
+        return PP;
+    }
 }

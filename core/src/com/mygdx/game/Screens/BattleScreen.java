@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mygdx.game.Attack;
 import com.mygdx.game.Button;
 import com.mygdx.game.Character.BattleCharacter;
 import com.mygdx.game.Character.Enemy;
@@ -45,15 +46,31 @@ public class BattleScreen implements Screen {
     private Button playerAttackButton3;
     private Button playerAttackButton4;
 
-
+    private Attack playerAttack;
 
     private boolean inAttacks;
     private boolean inItems;
+    private boolean choosingMove;
+    private boolean textAnimating;
+
+    private float textTime;
+    private String textBuilder;
+    private int textIndex;
 
     public BattleScreen(GameScreen gameScreen, Enemy enemy, Player player) {
+
         this.gameScreen = gameScreen;
         this.enemy = enemy;
         this.player = player;
+
+        inItems = false;
+        inAttacks = false;
+        choosingMove = true;
+        textAnimating = true;
+
+        textTime = 0;
+        textBuilder = "";
+        textIndex = 0;
 
         spriteBatch = new SpriteBatch();
 
@@ -110,8 +127,10 @@ public class BattleScreen implements Screen {
 
         spriteBatch.draw(textWindow, 0, 0);
         bmfont.getData().setScale(2);
-        drawText(spriteBatch, "How will you proceed?", textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                textWindow.getRegionY());
+        if(choosingMove) {
+            drawText(spriteBatch, "How will you proceed?", textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                    textWindow.getRegionY(), delta);
+        }
 
         drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
         drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5/12);
@@ -134,7 +153,8 @@ public class BattleScreen implements Screen {
     }
 
     /**
-     * Draws text within a rectangle texture (e.g. text window). Wraps and centers according to the texture's width and position
+     * Draws text within a rectangle texture (e.g. text window). Wraps and centers according to the texture's width and position.
+     * Animates the text character by character until the text is complete
      * @param batch The SpriteBatch used to draw the text
      * @param text The text to be drawn
      * @param boundingWidth The width of the bounding texture
@@ -142,14 +162,15 @@ public class BattleScreen implements Screen {
      * @param x The bounding texture's x position.
      * @param y The bounding texture's y position
      */
-    private void drawText(SpriteBatch batch, String text, float boundingWidth, float boundingHeight, int x, int y) {
+    private void drawText(SpriteBatch batch, String text, float boundingWidth, float boundingHeight, int x, int y, float delta) {
         GlyphLayout glyphLayout = new GlyphLayout();
         glyphLayout.setText(bmfont, text);
 
         //Get the height of a single line of text
         float fontHeight = glyphLayout.height;
 
-        glyphLayout.setText(bmfont, text, Color.BLACK, boundingWidth, 1, true);
+
+        glyphLayout.setText(bmfont, text, bmfont.getColor(), boundingWidth, 1, true);
         int textX = (int) ((boundingWidth/2 - glyphLayout.width/2) + x);
         int textY = (int) ((boundingHeight/2 - fontHeight/2) + y);
 
@@ -157,7 +178,22 @@ public class BattleScreen implements Screen {
         int numLines =  (int) (glyphLayout.height / fontHeight);
         if(numLines > 1) textY += fontHeight/2 * numLines;
 
-        bmfont.draw(batch, text, textX, textY, glyphLayout.width, 1, true);
+        if(textAnimating) {
+            textTime += delta;
+            if(textTime >= 0.01f) {
+                if(textIndex < text.length()) textBuilder += text.charAt(textIndex++);
+                textTime = 0;
+            }
+            if(textBuilder.equals(text)) {
+                textAnimating = false;
+                textBuilder = "";
+            }
+            bmfont.draw(batch, textBuilder, textX, textY, glyphLayout.width, 1, true);
+        }
+        else {
+            bmfont.draw(batch, text, textX, textY, glyphLayout.width, 1, true);
+        }
+
     }
 
 
@@ -172,33 +208,89 @@ public class BattleScreen implements Screen {
     }
 
     private void update() {
-        boolean checkTouch = Gdx.input.isTouched();
+        if(choosingMove) {
+            boolean checkTouch = Gdx.input.isTouched();
 
-        int touchX = Gdx.input.getX();
-        int touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
+            int touchX = Gdx.input.getX();
+            int touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-        if(!inAttacks && !inItems) {
-            attackButton.update(checkTouch, touchX, touchY);
-            itemButton.update(checkTouch, touchX, touchY);
-            runButton.update(checkTouch, touchX, touchY);
+            if (!inAttacks && !inItems) {
+                attackButton.update(checkTouch, touchX, touchY);
+                itemButton.update(checkTouch, touchX, touchY);
+                runButton.update(checkTouch, touchX, touchY);
+            }
+            // Only poll for attack buttons when selecting an attack
+            else if (inAttacks) {
+                playerAttackButton1.update(checkTouch, touchX, touchY);
+                playerAttackButton2.update(checkTouch, touchX, touchY);
+                playerAttackButton3.update(checkTouch, touchX, touchY);
+                playerAttackButton4.update(checkTouch, touchX, touchY);
+            }
+
+            if (inAttacks || inItems) backButton.update(checkTouch, touchX, touchY);
+
+            // Handle button presses
+            if (attackButton.justPressed()) {
+                inAttacks = true;
+            }
+            else if (backButton.justPressed()) {
+                inAttacks = false;
+                inItems = false;
+            }
+            else if(playerAttackButton1.justPressed()){
+                playerAttack = player.getAttack(0);
+                choosingMove = false;
+            }
+            else if(playerAttackButton2.justPressed()){
+                playerAttack = player.getAttack(1);
+                choosingMove = false;
+            }
+            else if(playerAttackButton3.justPressed()){
+                playerAttack = player.getAttack(2);
+                choosingMove = false;
+            }
+            else if(playerAttackButton4.justPressed()){
+                playerAttack = player.getAttack(3);
+                choosingMove = false;
+            }
         }
-        // Only poll for attack buttons when selecting an attack
-        else if(inAttacks) {
-            playerAttackButton1.update(checkTouch, touchX, touchY);
-            playerAttackButton2.update(checkTouch, touchX, touchY);
-            playerAttackButton3.update(checkTouch, touchX, touchY);
-            playerAttackButton4.update(checkTouch, touchX, touchY);
-        }
-
-        if(inAttacks || inItems) backButton.update(checkTouch, touchX, touchY);
-
-        // Handle button presses
-        if(attackButton.justPressed()) {
-            inAttacks = true;
-        }
-        else if(backButton.justPressed()) {
-            inAttacks = false;
-            inItems = false;
+        // Attack phases started
+        else {
+            // Player is faster
+            if(player.getSpeed() > enemy.getSpeed()) {
+                enemy.takeDamage(playerAttack.getDamage() + player.getStrength()/2);
+                if(!enemy.isAlive()) {
+                    //Player won
+                    gameScreen.game.setScreen(gameScreen);
+                    System.out.println("WIN");
+                }
+                else {
+                    player.takeDamage(enemy.attack().getDamage() + enemy.getStrength() / 2);
+                    //Player lost
+                    if (!player.isAlive()) {
+                        gameScreen.game.setScreen(gameScreen);
+                        System.out.println("LOSE");
+                    }
+                }
+                choosingMove = true;
+            }
+            else {
+                player.takeDamage(enemy.attack().getDamage() + enemy.getStrength()/2);
+                //Player lost
+                if(!player.isAlive()) {
+                    gameScreen.game.setScreen(gameScreen);
+                    System.out.println("LOSE");
+                }
+                else {
+                    enemy.takeDamage(playerAttack.getDamage() + player.getStrength() / 2);
+                    if (!enemy.isAlive()) {
+                        //Player won
+                        gameScreen.game.setScreen(gameScreen);
+                        System.out.println("WIN");
+                    }
+                }
+                choosingMove = true;
+            }
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) gameScreen.game.setScreen(gameScreen);

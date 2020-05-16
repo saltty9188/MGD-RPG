@@ -16,26 +16,28 @@ import java.util.Random;
  */
 public class Enemy extends BattleCharacter{
 
-    private String name;
-
-    private Attack[] attacks;
-
-    private boolean alive;
-
     Random rand;
     float walkDuration;
     int direction;
 
     public Enemy() {
-        this(new Texture("placeholder.png"), 15, 23, new Texture("placeholder.png"),
-                100, 5, 5, 4, "Uncle Tester");
+        super(new Texture("placeholder.png"), 15, 23, new Texture("placeholder.png"),
+                100, 10, 5, 4, "Uncle Tester");
+
         //Do attack stuff later
+        Attack attack1 = new Attack(5, 20, "Attack 1");
+        Attack attack2 = new Attack(10,5, "Attack 2");
+        setAttacks(attack1, attack2);
+
+        setRegion(spriteSheet);
+        rand = new Random();
+        walkDuration = 0.5f;
     }
 
     public Enemy(Texture spriteSheet, int width, int height, Texture battleSprite,
                  int maxHP, int strength, int defence, int speed, String name, Attack... attacks) {
         super(spriteSheet, width, height, battleSprite, maxHP, strength, defence, speed, name, attacks);
-        alive = true;
+
         setRegion(spriteSheet);
         rand = new Random();
         walkDuration = 0.5f;
@@ -94,16 +96,13 @@ public class Enemy extends BattleCharacter{
      */
     public Attack attack() {
         Attack attack = attacks[rand.nextInt(attacks.length)];
+        while(attack.getPP() == 0) {
+            attack = attacks[rand.nextInt(attacks.length)];
+        }
         attack.decrementPP();
         return attack;
     }
 
-    public boolean isAlive() {
-        return alive;
-    }
 
-    public void die() {
-        alive = false;
-    }
 
 }
