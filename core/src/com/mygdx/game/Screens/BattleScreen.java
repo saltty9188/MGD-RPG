@@ -53,22 +53,30 @@ public class BattleScreen implements Screen {
     private Button playerAttackButton3;
     private Button playerAttackButton4;
 
+    // Store the attacks for the turn
     private Attack playerAttack;
     private Attack enemyAttack;
 
+
     private boolean inAttacks;
     private boolean inItems;
+
+    //Used to determine if the text being displayed is static or scrolling
     private boolean textAnimating;
 
+    // Used for building the output text while scrolling
     private float textTime;
     private String textBuilder;
     private int textIndex;
 
 
     private float HPTime;
+    private float HPTransition;
+
+    // Store the damage taken from an attack factoring in the receiving character's defence
     private int enemyDamage;
     private int playerDamage;
-    private float HPTransition;
+
     private boolean animatingPlayerHP;
     private boolean animatingEnemyHP;
 
@@ -78,6 +86,8 @@ public class BattleScreen implements Screen {
     private Random rand;
     private String fleeMessage;
     private boolean escaped;
+
+    private float pauseTime;
 
     public BattleScreen(GameScreen gameScreen, Enemy enemy, Player player) {
 
@@ -102,6 +112,7 @@ public class BattleScreen implements Screen {
         textIndex = 0;
 
         HPTime = 0;
+        pauseTime = 0;
 
         spriteBatch = new SpriteBatch();
 
@@ -147,7 +158,8 @@ public class BattleScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        update();
+        if(pauseTime <= 0) update();
+        else pauseTime -= delta;
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -162,8 +174,9 @@ public class BattleScreen implements Screen {
         switch (playerChoice) {
             case CHOOSING:
                 drawText(spriteBatch, "How will you proceed?", textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                        textWindow.getRegionY(), delta);
+                        textWindow.getRegionY(), delta, false);
 
+                // Draw the appropriate buttons while the player selects a move
                 if (!inAttacks && !inItems) {
                     attackButton.draw(spriteBatch, "Attack");
                     itemButton.draw(spriteBatch, "Items");
@@ -186,29 +199,29 @@ public class BattleScreen implements Screen {
                 // Enemy attack message
                 if (textAnimating && animatingPlayerHP) {
                     drawText(spriteBatch, enemyAttack.battleMessage(enemy.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                            textWindow.getRegionY(), delta);
+                            textWindow.getRegionY(), delta, false);
                 }
 
                 // Player attack message
                 if (textAnimating && animatingEnemyHP) {
                     drawText(spriteBatch, playerAttack.battleMessage(player.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                            textWindow.getRegionY(), delta);
+                            textWindow.getRegionY(), delta, false);
                 }
 
                 // Animate the player's HP bar and display the enemy's battle message
                 if (!textAnimating && animatingPlayerHP) {
-                    drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING, delta, playerDamage);
+                    animateStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING, delta, playerDamage);
                     drawText(spriteBatch, enemyAttack.battleMessage(enemy.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                            textWindow.getRegionY(), delta);
+                            textWindow.getRegionY(), delta, false);
                 } else {
                     drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
                 }
 
                 // Animate the enemy's HP bar and display the player's battle message
                 if (!textAnimating && animatingEnemyHP) {
-                    drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12, delta, enemyDamage);
+                    animateStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12, delta, enemyDamage);
                     drawText(spriteBatch, playerAttack.battleMessage(player.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                            textWindow.getRegionY(), delta);
+                            textWindow.getRegionY(), delta, false);
                 } else {
                     drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12);
                 }
@@ -216,24 +229,27 @@ public class BattleScreen implements Screen {
 
             case RUN:
                 drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12);
+
+                // Draw the static player HP if it's not being animated
                 if(!animatingPlayerHP) {
                     drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
                 }
+                // Display the relevant flee message if the enemy's turn is not complete (ie it hasn't gone yet or fleeing was successful)
                 if(!enemyTurnComplete) {
                     drawText(spriteBatch, fleeMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                            textWindow.getRegionY(), delta);
+                            textWindow.getRegionY(), delta, true);
                 } else {
                     // Enemy attack message
                     if (textAnimating && animatingPlayerHP) {
                         drawText(spriteBatch, enemyAttack.battleMessage(enemy.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                                textWindow.getRegionY(), delta);
+                                textWindow.getRegionY(), delta, false);
                         drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
                     }
                     // Animate the player's HP bar and display the enemy's battle message
                     else if (!textAnimating && animatingPlayerHP) {
-                        drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING, delta, playerDamage);
+                        animateStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING, delta, playerDamage);
                         drawText(spriteBatch, enemyAttack.battleMessage(enemy.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                                textWindow.getRegionY(), delta);
+                                textWindow.getRegionY(), delta, false);
                     }
                 }
 
@@ -252,8 +268,10 @@ public class BattleScreen implements Screen {
      * @param boundingHeight The height of the bounding texture
      * @param x              The bounding texture's x position.
      * @param y              The bounding texture's y position
+     * @param delta          The delta time since the last frame.
+     * @param pause          If set to true the game will not update for 1 second so the text is displayed for a short while once it has been fully constructed.
      */
-    private void drawText(SpriteBatch batch, String text, float boundingWidth, float boundingHeight, int x, int y, float delta) {
+    private void drawText(SpriteBatch batch, String text, float boundingWidth, float boundingHeight, int x, int y, float delta, boolean pause) {
         bmfont.getData().setScale(2);
         System.out.println(text);
         GlyphLayout glyphLayout = new GlyphLayout();
@@ -261,7 +279,6 @@ public class BattleScreen implements Screen {
 
         //Get the height of a single line of text
         float fontHeight = glyphLayout.height;
-
 
         glyphLayout.setText(bmfont, text, bmfont.getColor(), boundingWidth, 1, true);
         int textX = (int) ((boundingWidth / 2 - glyphLayout.width / 2) + x);
@@ -282,6 +299,7 @@ public class BattleScreen implements Screen {
             if (textBuilder.equals(text)) {
                 textAnimating = false;
                 textBuilder = "";
+                if(pause) pauseTime = 1;
             }
         } else {
             bmfont.draw(batch, text, textX, textY, glyphLayout.width, 1, true);
@@ -289,8 +307,14 @@ public class BattleScreen implements Screen {
 
     }
 
-
-    public void drawStatBox(SpriteBatch batch, BattleCharacter character, float x, float y) {
+    /**
+     * Draws the given character's HP status to the screen and displays their name.
+     * @param batch         The SpriteBatch used to draw the sections of the box.
+     * @param character     The BattleCharacter whose information will be displayed in the box.
+     * @param x             The lower left x co-ordinate for the box to be drawn from.
+     * @param y             The lower left y co-ordinate for the box to be drawn from.
+     */
+    private void drawStatBox(SpriteBatch batch, BattleCharacter character, float x, float y) {
         batch.draw(buttonUp, x, y, Gdx.graphics.getWidth() / 4, textWindow.getRegionHeight() * 5 / 12);
         float HPWidth = (Gdx.graphics.getWidth() / 4 - 80 * PADDING);
         batch.draw(HPEmpty, x + 40 * PADDING, y + 20 * PADDING, HPWidth, 4);
@@ -300,7 +324,16 @@ public class BattleScreen implements Screen {
         bmfont.draw(batch, character.getName(), x + 40 * PADDING, y + 22 * PADDING + 24);
     }
 
-    public void drawStatBox(SpriteBatch batch, BattleCharacter character, float x, float y, float delta, int damage) {
+    /**
+     * Animates the given character's HP status to its new value after taking damage to the screen and displays their name.
+     * @param batch         The SpriteBatch used to draw the sections of the box.
+     * @param character     The BattleCharacter whose information will be displayed in the box.
+     * @param x             The lower left x co-ordinate for the box to be drawn from.
+     * @param y             The lower left y co-ordinate for the box to be drawn from.
+     * @param delta         The delta time since the last frame.
+     * @param damage        The damage to be taken the BattleCharacter.
+     */
+    private void animateStatBox(SpriteBatch batch, BattleCharacter character, float x, float y, float delta, int damage) {
         HPTime += delta;
 
         batch.draw(buttonUp, x, y, Gdx.graphics.getWidth() / 4, textWindow.getRegionHeight() * 5 / 12);
@@ -329,7 +362,7 @@ public class BattleScreen implements Screen {
                 int touchX = Gdx.input.getX();
                 int touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-                if (!inAttacks && !inItems) {
+                if (!inAttacks && !inItems && !textAnimating) {
                     attackButton.update(checkTouch, touchX, touchY);
                     itemButton.update(checkTouch, touchX, touchY);
                     runButton.update(checkTouch, touchX, touchY);
@@ -376,7 +409,7 @@ public class BattleScreen implements Screen {
                 // Player is faster
                 if (player.getSpeed() > enemy.getSpeed()) {
                     if (!playerTurnComplete) {
-                        enemyDamage = playerAttack.getDamage() + player.getStrength() / 2;
+                        enemyDamage = BattleCharacter.damageTaken(enemy, playerAttack.getDamage() + player.getStrength() / 2);
                         HPTransition = enemy.getHP();
                         playerTurnComplete = true;
                         animatingEnemyHP = true;
@@ -391,7 +424,7 @@ public class BattleScreen implements Screen {
                     } else {
                         if (!animatingEnemyHP && !enemyTurnComplete) {
                             enemyAttack = enemy.attack();
-                            playerDamage = enemyAttack.getDamage() + enemy.getStrength() / 2;
+                            playerDamage = BattleCharacter.damageTaken(player, enemyAttack.getDamage() + enemy.getStrength() / 2);
                             HPTransition = player.getHP();
                             animatingPlayerHP = true;
                             enemyTurnComplete = true;
@@ -407,7 +440,7 @@ public class BattleScreen implements Screen {
                 } else {
                     if (!enemyTurnComplete) {
                         enemyAttack = enemy.attack();
-                        playerDamage = enemyAttack.getDamage() + enemy.getStrength() / 2;
+                        playerDamage = BattleCharacter.damageTaken(player, enemyAttack.getDamage() + enemy.getStrength() / 2);
                         HPTransition = player.getHP();
                         textAnimating = true;
                         textIndex = 0;
@@ -420,7 +453,7 @@ public class BattleScreen implements Screen {
                         System.out.println("LOSE");
                     } else {
                         if (!animatingPlayerHP && !playerTurnComplete) {
-                            enemyDamage = playerAttack.getDamage() + player.getStrength() / 2;
+                            enemyDamage = BattleCharacter.damageTaken(enemy, playerAttack.getDamage() + player.getStrength() / 2);
                             HPTransition = enemy.getHP();
                             playerTurnComplete = true;
                             animatingEnemyHP = true;
@@ -441,6 +474,7 @@ public class BattleScreen implements Screen {
                 break;
 
             case RUN:
+                // Display the initial escape message and end the player's turn
                 if (!playerTurnComplete) {
                     fleeMessage = player.getName() + " is attempting to escape!";
                     textAnimating = true;
@@ -448,23 +482,23 @@ public class BattleScreen implements Screen {
                     escaped = escaped();
                     playerTurnComplete = true;
                 } else if (escaped) {
+                    // If the first message has finished animating play the success message
                     if(fleeMessage.equals(player.getName() + " is attempting to escape!") && !textAnimating) {
                         fleeMessage = "It worked!";
                         textAnimating = true;
                         textIndex = 0;
-                    } else if(!textAnimating) {
-                        gameScreen.game.setScreen(gameScreen);
+                    } else if(!textAnimating) { // Then leave the battle and remove the enemy from the field
                         enemy.die();
+                        gameScreen.game.setScreen(gameScreen);
                         System.out.println("FLEE");
                     }
                 } else {
+                    // If the first message has finished animating play the failure message
                     if(fleeMessage.equals(player.getName() + " is attempting to escape!") && !textAnimating) {
                         fleeMessage = "It failed";
                         textAnimating = true;
                         textIndex = 0;
-                    }
-                    // Enemy gets to attack the player
-                    else if (!enemyTurnComplete && !textAnimating) {
+                    } else if (!enemyTurnComplete && !textAnimating) { // Enemy gets to attack the player
                         enemyAttack = enemy.attack();
                         playerDamage = enemyAttack.getDamage() + enemy.getStrength() / 2;
                         HPTransition = player.getHP();
@@ -492,6 +526,10 @@ public class BattleScreen implements Screen {
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) gameScreen.game.setScreen(gameScreen);
     }
 
+    /**
+     * Determines if the player can flee the enemy they're fighting.
+     * @return True if the player escaped, false otherwise.
+     */
     private boolean escaped() {
         int chance = rand.nextInt(4);
 

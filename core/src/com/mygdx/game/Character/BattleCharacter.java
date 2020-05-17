@@ -97,4 +97,8 @@ public abstract class BattleCharacter extends Character {
         super.dispose();
         battleSprite.dispose();
     }
+
+    public static int damageTaken(BattleCharacter defender, int damage) {
+        return (damage * (50 - defender.defence))/56 + 1;
+    }
 }
