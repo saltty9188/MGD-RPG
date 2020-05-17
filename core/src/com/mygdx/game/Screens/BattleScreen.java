@@ -16,7 +16,14 @@ import com.mygdx.game.Character.BattleCharacter;
 import com.mygdx.game.Character.Enemy;
 import com.mygdx.game.Character.Player;
 
+import java.util.Random;
+
 public class BattleScreen implements Screen {
+
+    private enum PlayerChoice {ATTACK, ITEM, RUN, CHOOSING}
+
+    ;
+    PlayerChoice playerChoice;
 
     private static final float PADDING = 0.5f;
 
@@ -51,14 +58,12 @@ public class BattleScreen implements Screen {
 
     private boolean inAttacks;
     private boolean inItems;
-    private boolean choosingMove;
     private boolean textAnimating;
 
     private float textTime;
     private String textBuilder;
     private int textIndex;
 
-    private float pause;
 
     private float HPTime;
     private int enemyDamage;
@@ -70,6 +75,10 @@ public class BattleScreen implements Screen {
     private boolean playerTurnComplete;
     private boolean enemyTurnComplete;
 
+    private Random rand;
+    private String fleeMessage;
+    private boolean escaped;
+
     public BattleScreen(GameScreen gameScreen, Enemy enemy, Player player) {
 
         this.gameScreen = gameScreen;
@@ -78,12 +87,15 @@ public class BattleScreen implements Screen {
 
         inItems = false;
         inAttacks = false;
-        choosingMove = true;
+        playerChoice = PlayerChoice.CHOOSING;
         textAnimating = true;
         animatingEnemyHP = false;
         animatingPlayerHP = false;
         playerTurnComplete = false;
         enemyTurnComplete = false;
+
+        rand = new Random();
+        fleeMessage = "";
 
         textTime = 0;
         textBuilder = "";
@@ -108,24 +120,24 @@ public class BattleScreen implements Screen {
         buttonUp = new Texture("buttonUp.png");
         buttonDown = new Texture("buttonDown.png");
 
-        attackButton = new Button(Gdx.graphics.getWidth()/2 + PADDING, textWindow.getRegionHeight()/2 + PADDING, Gdx.graphics.getWidth()/2 - 2 * PADDING,
-                textWindow.getRegionHeight()/2 - 2 * PADDING, buttonUp, buttonDown);
-        itemButton = new Button(Gdx.graphics.getWidth()/2 + PADDING, 0, Gdx.graphics.getWidth()/4 - 2 * PADDING,
-                textWindow.getRegionHeight()/2 - PADDING, buttonUp, buttonDown);
-        runButton = new Button(Gdx.graphics.getWidth() * 3/4 + PADDING, 0, Gdx.graphics.getWidth()/4 - 2 * PADDING,
-                textWindow.getRegionHeight()/2 - PADDING, buttonUp, buttonDown);
+        attackButton = new Button(Gdx.graphics.getWidth() / 2 + PADDING, textWindow.getRegionHeight() / 2 + PADDING, Gdx.graphics.getWidth() / 2 - 2 * PADDING,
+                textWindow.getRegionHeight() / 2 - 2 * PADDING, buttonUp, buttonDown);
+        itemButton = new Button(Gdx.graphics.getWidth() / 2 + PADDING, 0, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
+                textWindow.getRegionHeight() / 2 - PADDING, buttonUp, buttonDown);
+        runButton = new Button(Gdx.graphics.getWidth() * 3 / 4 + PADDING, 0, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
+                textWindow.getRegionHeight() / 2 - PADDING, buttonUp, buttonDown);
 
-        backButton = new Button(Gdx.graphics.getWidth() * 23/24 - PADDING, textWindow.getRegionHeight() + PADDING, Gdx.graphics.getWidth()/24,
-                Gdx.graphics.getWidth()/24, buttonUp, buttonDown);
+        backButton = new Button(Gdx.graphics.getWidth() * 23 / 24 - PADDING, textWindow.getRegionHeight() + PADDING, Gdx.graphics.getWidth() / 24,
+                Gdx.graphics.getWidth() / 24, buttonUp, buttonDown);
 
-        playerAttackButton1 = new Button(Gdx.graphics.getWidth()/2 + PADDING, textWindow.getRegionHeight()/2 + PADDING, Gdx.graphics.getWidth()/4 - 2 * PADDING,
-                textWindow.getRegionHeight()/2 - 2 * PADDING, buttonUp, buttonDown);
-        playerAttackButton2 = playerAttackButton4 = new Button(Gdx.graphics.getWidth() * 3/4 + PADDING, textWindow.getRegionHeight()/2, Gdx.graphics.getWidth()/4 - 2 * PADDING,
-                textWindow.getRegionHeight()/2 - PADDING, buttonUp, buttonDown);
-        playerAttackButton3 = new Button(Gdx.graphics.getWidth()/2 + PADDING, 0, Gdx.graphics.getWidth()/4 - 2 * PADDING,
-                textWindow.getRegionHeight()/2 - PADDING, buttonUp, buttonDown);
-        playerAttackButton4 = new Button(Gdx.graphics.getWidth() * 3/4 + PADDING, 0, Gdx.graphics.getWidth()/4 - 2 * PADDING,
-                textWindow.getRegionHeight()/2 - PADDING, buttonUp, buttonDown);
+        playerAttackButton1 = new Button(Gdx.graphics.getWidth() / 2 + PADDING, textWindow.getRegionHeight() / 2 + PADDING, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
+                textWindow.getRegionHeight() / 2 - 2 * PADDING, buttonUp, buttonDown);
+        playerAttackButton2 = playerAttackButton4 = new Button(Gdx.graphics.getWidth() * 3 / 4 + PADDING, textWindow.getRegionHeight() / 2, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
+                textWindow.getRegionHeight() / 2 - PADDING, buttonUp, buttonDown);
+        playerAttackButton3 = new Button(Gdx.graphics.getWidth() / 2 + PADDING, 0, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
+                textWindow.getRegionHeight() / 2 - PADDING, buttonUp, buttonDown);
+        playerAttackButton4 = new Button(Gdx.graphics.getWidth() * 3 / 4 + PADDING, 0, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
+                textWindow.getRegionHeight() / 2 - PADDING, buttonUp, buttonDown);
     }
 
     @Override
@@ -136,68 +148,96 @@ public class BattleScreen implements Screen {
     @Override
     public void render(float delta) {
         update();
-        Gdx.gl.glClearColor(1,1,1,1);
+        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         spriteBatch.begin();
         //draw battle sprites
-        spriteBatch.draw(player.getBattleSprite(), Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/8, 150, 230);
-        spriteBatch.draw(enemy.getBattleSprite(), Gdx.graphics.getWidth() * 3/4, Gdx.graphics.getHeight() * 5/8, 150, 230);
+        spriteBatch.draw(player.getBattleSprite(), Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 8, 150, 230);
+        spriteBatch.draw(enemy.getBattleSprite(), Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight() * 5 / 8, 150, 230);
 
         spriteBatch.draw(textWindow, 0, 0);
         bmfont.getData().setScale(2);
-        if(choosingMove) {
-            drawText(spriteBatch, "How will you proceed?", textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                    textWindow.getRegionY(), delta);
-        }
-        else {
-            // Enemy attack message
-            if(textAnimating && animatingPlayerHP) { ;
-                drawText(spriteBatch, enemyAttack.battleMessage(enemy.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+
+        switch (playerChoice) {
+            case CHOOSING:
+                drawText(spriteBatch, "How will you proceed?", textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
                         textWindow.getRegionY(), delta);
-            }
 
-            // Player attack message
-            if(textAnimating && animatingEnemyHP) {
-                drawText(spriteBatch, playerAttack.battleMessage(player.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                        textWindow.getRegionY(), delta);
-            }
+                if (!inAttacks && !inItems) {
+                    attackButton.draw(spriteBatch, "Attack");
+                    itemButton.draw(spriteBatch, "Items");
+                    runButton.draw(spriteBatch, "Run Away");
+                } else if (inAttacks) {
+                    playerAttackButton1.draw(spriteBatch, player.getAttack(0).getName(), player.getAttack(0).getPPStatus());
+                    playerAttackButton2.draw(spriteBatch, player.getAttack(1).getName(), player.getAttack(1).getPPStatus());
+                    playerAttackButton3.draw(spriteBatch, player.getAttack(2).getName(), player.getAttack(2).getPPStatus());
+                    playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus());
+                }
+
+                if (inAttacks || inItems) backButton.draw(spriteBatch);
+
+                drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12);
+                drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
+
+                break;
+
+            case ATTACK:
+                // Enemy attack message
+                if (textAnimating && animatingPlayerHP) {
+                    drawText(spriteBatch, enemyAttack.battleMessage(enemy.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                            textWindow.getRegionY(), delta);
+                }
+
+                // Player attack message
+                if (textAnimating && animatingEnemyHP) {
+                    drawText(spriteBatch, playerAttack.battleMessage(player.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                            textWindow.getRegionY(), delta);
+                }
+
+                // Animate the player's HP bar and display the enemy's battle message
+                if (!textAnimating && animatingPlayerHP) {
+                    drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING, delta, playerDamage);
+                    drawText(spriteBatch, enemyAttack.battleMessage(enemy.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                            textWindow.getRegionY(), delta);
+                } else {
+                    drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
+                }
+
+                // Animate the enemy's HP bar and display the player's battle message
+                if (!textAnimating && animatingEnemyHP) {
+                    drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12, delta, enemyDamage);
+                    drawText(spriteBatch, playerAttack.battleMessage(player.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                            textWindow.getRegionY(), delta);
+                } else {
+                    drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12);
+                }
+                break;
+
+            case RUN:
+                drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12);
+                if(!animatingPlayerHP) {
+                    drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
+                }
+                if(!enemyTurnComplete) {
+                    drawText(spriteBatch, fleeMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                            textWindow.getRegionY(), delta);
+                } else {
+                    // Enemy attack message
+                    if (textAnimating && animatingPlayerHP) {
+                        drawText(spriteBatch, enemyAttack.battleMessage(enemy.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                                textWindow.getRegionY(), delta);
+                        drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
+                    }
+                    // Animate the player's HP bar and display the enemy's battle message
+                    else if (!textAnimating && animatingPlayerHP) {
+                        drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING, delta, playerDamage);
+                        drawText(spriteBatch, enemyAttack.battleMessage(enemy.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                                textWindow.getRegionY(), delta);
+                    }
+                }
+
         }
-
-
-
-        if(!textAnimating && animatingPlayerHP) {
-            drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING, delta, playerDamage);
-            drawText(spriteBatch, enemyAttack.battleMessage(enemy.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                    textWindow.getRegionY(), delta);
-        }
-        else {
-            drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
-        }
-
-
-        if(!textAnimating && animatingEnemyHP) {
-            drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12, delta, enemyDamage);
-            drawText(spriteBatch, playerAttack.battleMessage(player.getName()), textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                    textWindow.getRegionY(), delta);
-        }
-        else {
-            drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12);
-        }
-
-        if(!inAttacks && !inItems) {
-            attackButton.draw(spriteBatch, "Attack");
-            itemButton.draw(spriteBatch, "Items");
-            runButton.draw(spriteBatch, "Run Away");
-        }
-        else if(inAttacks) {
-            playerAttackButton1.draw(spriteBatch, player.getAttack(0).getName(), player.getAttack(0).getPPStatus());
-            playerAttackButton2.draw(spriteBatch, player.getAttack(1).getName(), player.getAttack(1).getPPStatus());
-            playerAttackButton3.draw(spriteBatch, player.getAttack(2).getName(), player.getAttack(2).getPPStatus());
-            playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus());
-        }
-
-        if(inAttacks || inItems) backButton.draw(spriteBatch);
 
         spriteBatch.end();
     }
@@ -205,12 +245,13 @@ public class BattleScreen implements Screen {
     /**
      * Draws text within a rectangle texture (e.g. text window). Wraps and centers according to the texture's width and position.
      * Animates the text character by character until the text is complete
-     * @param batch The SpriteBatch used to draw the text
-     * @param text The text to be drawn
-     * @param boundingWidth The width of the bounding texture
+     *
+     * @param batch          The SpriteBatch used to draw the text
+     * @param text           The text to be drawn
+     * @param boundingWidth  The width of the bounding texture
      * @param boundingHeight The height of the bounding texture
-     * @param x The bounding texture's x position.
-     * @param y The bounding texture's y position
+     * @param x              The bounding texture's x position.
+     * @param y              The bounding texture's y position
      */
     private void drawText(SpriteBatch batch, String text, float boundingWidth, float boundingHeight, int x, int y, float delta) {
         bmfont.getData().setScale(2);
@@ -223,27 +264,26 @@ public class BattleScreen implements Screen {
 
 
         glyphLayout.setText(bmfont, text, bmfont.getColor(), boundingWidth, 1, true);
-        int textX = (int) ((boundingWidth/2 - glyphLayout.width/2) + x);
-        int textY = (int) ((boundingHeight/2 - fontHeight/2) + y);
+        int textX = (int) ((boundingWidth / 2 - glyphLayout.width / 2) + x);
+        int textY = (int) ((boundingHeight / 2 - fontHeight / 2) + y);
 
         // Raise the text proportionally to how many lines there are
-        int numLines =  (int) (glyphLayout.height / fontHeight);
-        if(numLines > 1) textY += fontHeight/2 * numLines;
+        int numLines = (int) (glyphLayout.height / fontHeight);
+        if (numLines > 1) textY += fontHeight / 2 * numLines;
 
-        if(textAnimating) {
+        if (textAnimating) {
             textTime += delta;
-            if(textTime >= 0.01f) {
-                if(textIndex < text.length()) textBuilder += text.charAt(textIndex++);
+            if (textTime >= 0.01f) {
+                if (textIndex < text.length()) textBuilder += text.charAt(textIndex++);
                 textTime = 0;
             }
 
             bmfont.draw(batch, textBuilder, textX, textY, glyphLayout.width, 1, true);
-            if(textBuilder.equals(text)) {
+            if (textBuilder.equals(text)) {
                 textAnimating = false;
                 textBuilder = "";
             }
-        }
-        else {
+        } else {
             bmfont.draw(batch, text, textX, textY, glyphLayout.width, 1, true);
         }
 
@@ -251,10 +291,10 @@ public class BattleScreen implements Screen {
 
 
     public void drawStatBox(SpriteBatch batch, BattleCharacter character, float x, float y) {
-        batch.draw(buttonUp, x, y, Gdx.graphics.getWidth()/4, textWindow.getRegionHeight() * 5/12);
-        float HPWidth =  (Gdx.graphics.getWidth()/4 - 80 * PADDING);
+        batch.draw(buttonUp, x, y, Gdx.graphics.getWidth() / 4, textWindow.getRegionHeight() * 5 / 12);
+        float HPWidth = (Gdx.graphics.getWidth() / 4 - 80 * PADDING);
         batch.draw(HPEmpty, x + 40 * PADDING, y + 20 * PADDING, HPWidth, 4);
-        batch.draw(HPFull, x +  40 * PADDING, y + 20 * PADDING, HPWidth * character.getHPPercentage(), 4);
+        batch.draw(HPFull, x + 40 * PADDING, y + 20 * PADDING, HPWidth * character.getHPPercentage(), 4);
         bmfont.getData().setScale(1);
         bmfont.draw(batch, character.getHPStatus(), x + 40 * PADDING, y + 22 * PADDING + 8);
         bmfont.draw(batch, character.getName(), x + 40 * PADDING, y + 22 * PADDING + 24);
@@ -263,157 +303,204 @@ public class BattleScreen implements Screen {
     public void drawStatBox(SpriteBatch batch, BattleCharacter character, float x, float y, float delta, int damage) {
         HPTime += delta;
 
-        batch.draw(buttonUp, x, y, Gdx.graphics.getWidth()/4, textWindow.getRegionHeight() * 5/12);
-        float HPWidth =  (Gdx.graphics.getWidth()/4 - 80 * PADDING);
+        batch.draw(buttonUp, x, y, Gdx.graphics.getWidth() / 4, textWindow.getRegionHeight() * 5 / 12);
+        float HPWidth = (Gdx.graphics.getWidth() / 4 - 80 * PADDING);
         batch.draw(HPEmpty, x + 40 * PADDING, y + 20 * PADDING, HPWidth, 4);
-        if(HPTime >= 0.01) {
+        if (HPTime >= 0.1) {
             HPTransition -= 1;
             HPTime = 0;
-            if(HPTransition <= character.getHP()) {
+            if (HPTransition <= character.getHP() - damage) {
                 animatingPlayerHP = false;
                 animatingEnemyHP = false;
+                character.takeDamage(damage);
             }
         }
-        batch.draw(HPFull, x +  40 * PADDING, y + 20 * PADDING, HPWidth * (HPTransition/(float)character.getMaxHP()), 4);
+        batch.draw(HPFull, x + 40 * PADDING, y + 20 * PADDING, HPWidth * (HPTransition / (float) character.getMaxHP()), 4);
         bmfont.getData().setScale(1);
         bmfont.draw(batch, character.getHPStatus(), x + 40 * PADDING, y + 22 * PADDING + 8);
         bmfont.draw(batch, character.getName(), x + 40 * PADDING, y + 22 * PADDING + 24);
     }
 
     private void update() {
-        if(choosingMove) {
-            boolean checkTouch = Gdx.input.isTouched();
+        switch (playerChoice) {
+            case CHOOSING:
+                boolean checkTouch = Gdx.input.isTouched();
 
-            int touchX = Gdx.input.getX();
-            int touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
+                int touchX = Gdx.input.getX();
+                int touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-            if (!inAttacks && !inItems) {
-                attackButton.update(checkTouch, touchX, touchY);
-                itemButton.update(checkTouch, touchX, touchY);
-                runButton.update(checkTouch, touchX, touchY);
-            }
-            // Only poll for attack buttons when selecting an attack
-            else if (inAttacks) {
-                playerAttackButton1.update(checkTouch, touchX, touchY);
-                playerAttackButton2.update(checkTouch, touchX, touchY);
-                playerAttackButton3.update(checkTouch, touchX, touchY);
-                playerAttackButton4.update(checkTouch, touchX, touchY);
-            }
-
-            if (inAttacks || inItems) backButton.update(checkTouch, touchX, touchY);
-
-            // Handle button presses
-            if (attackButton.justPressed()) {
-                inAttacks = true;
-            }
-            else if (backButton.justPressed()) {
-                inAttacks = false;
-                inItems = false;
-            }
-            else if(playerAttackButton1.justPressed()){
-                playerAttack = player.getAttack(0);
-                playerAttack.decrementPP();
-                choosingMove = false;
-            }
-            else if(playerAttackButton2.justPressed()){
-                playerAttack = player.getAttack(1);
-                playerAttack.decrementPP();
-                choosingMove = false;
-            }
-            else if(playerAttackButton3.justPressed()){
-                playerAttack = player.getAttack(2);
-                playerAttack.decrementPP();
-                choosingMove = false;
-            }
-            else if(playerAttackButton4.justPressed()){
-                playerAttack = player.getAttack(3);
-                playerAttack.decrementPP();
-                choosingMove = false;
-            }
-        }
-        // Attack phases started
-        else {
-            // Player is faster
-            if(player.getSpeed() > enemy.getSpeed()) {
-                if(!playerTurnComplete) {
-                    enemyDamage = playerAttack.getDamage() + player.getStrength() / 2;
-                    HPTransition = enemy.getHP();
-                    enemy.takeDamage(enemyDamage);
-                    playerTurnComplete = true;
-                    animatingEnemyHP = true;
-                    textAnimating = true;
-                    textIndex = 0;
+                if (!inAttacks && !inItems) {
+                    attackButton.update(checkTouch, touchX, touchY);
+                    itemButton.update(checkTouch, touchX, touchY);
+                    runButton.update(checkTouch, touchX, touchY);
+                }
+                // Only poll for attack buttons when selecting an attack
+                else if (inAttacks) {
+                    playerAttackButton1.update(checkTouch, touchX, touchY);
+                    playerAttackButton2.update(checkTouch, touchX, touchY);
+                    playerAttackButton3.update(checkTouch, touchX, touchY);
+                    playerAttackButton4.update(checkTouch, touchX, touchY);
                 }
 
-                if(!enemy.isAlive() && playerTurnComplete) {
-                    //Player won
-                    gameScreen.game.setScreen(gameScreen);
-                    System.out.println("WIN");
+                if (inAttacks || inItems) backButton.update(checkTouch, touchX, touchY);
+
+                // Handle button presses
+                if (attackButton.justPressed()) {
+                    inAttacks = true;
+                } else if (backButton.justPressed()) {
+                    inAttacks = false;
+                    inItems = false;
+                } else if (playerAttackButton1.justPressed()) {
+                    playerAttack = player.getAttack(0);
+                    playerAttack.decrementPP();
+                    playerChoice = PlayerChoice.ATTACK;
+                } else if (playerAttackButton2.justPressed()) {
+                    playerAttack = player.getAttack(1);
+                    playerAttack.decrementPP();
+                    playerChoice = PlayerChoice.ATTACK;
+                } else if (playerAttackButton3.justPressed()) {
+                    playerAttack = player.getAttack(2);
+                    playerAttack.decrementPP();
+                    playerChoice = PlayerChoice.ATTACK;
+                } else if (playerAttackButton4.justPressed()) {
+                    playerAttack = player.getAttack(3);
+                    playerAttack.decrementPP();
+                    playerChoice = PlayerChoice.ATTACK;
+                } else if (runButton.justPressed()) {
+                    playerChoice = PlayerChoice.RUN;
                 }
-                else {
-                    if(!animatingEnemyHP && !enemyTurnComplete) {
-                        enemyAttack = enemy.attack();
-                        playerDamage = enemyAttack.getDamage() + enemy.getStrength() / 2;
-                        HPTransition = player.getHP();
-                        player.takeDamage(playerDamage);
-                        animatingPlayerHP = true;
-                        enemyTurnComplete = true;
-                        textAnimating = true;
-                        textIndex = 0;
-                    }
-                    //Player lost
-                    if (!player.isAlive() && enemyTurnComplete) {
-                        gameScreen.game.setScreen(gameScreen);
-                        System.out.println("LOSE");
-                    }
-                }
-            }
-            else {
-                if(!enemyTurnComplete) {
-                    enemyAttack = enemy.attack();
-                    playerDamage = enemyAttack.getDamage() + enemy.getStrength() / 2;
-                    HPTransition = player.getHP();
-                    player.takeDamage(playerDamage);
-                    textAnimating = true;
-                    textIndex = 0;
-                    animatingPlayerHP = true;
-                    enemyTurnComplete = true;
-                }
-                //Player lost
-                if(!player.isAlive()) {
-                    gameScreen.game.setScreen(gameScreen);
-                    System.out.println("LOSE");
-                }
-                else {
-                    if(!animatingPlayerHP && !playerTurnComplete) {
+
+                break;
+
+            case ATTACK:
+                // Player is faster
+                if (player.getSpeed() > enemy.getSpeed()) {
+                    if (!playerTurnComplete) {
                         enemyDamage = playerAttack.getDamage() + player.getStrength() / 2;
                         HPTransition = enemy.getHP();
-                        enemy.takeDamage(enemyDamage);
                         playerTurnComplete = true;
                         animatingEnemyHP = true;
                         textAnimating = true;
                         textIndex = 0;
                     }
 
-                    if (!enemy.isAlive()) {
+                    if (!enemy.isAlive() && playerTurnComplete) {
                         //Player won
                         gameScreen.game.setScreen(gameScreen);
                         System.out.println("WIN");
+                    } else {
+                        if (!animatingEnemyHP && !enemyTurnComplete) {
+                            enemyAttack = enemy.attack();
+                            playerDamage = enemyAttack.getDamage() + enemy.getStrength() / 2;
+                            HPTransition = player.getHP();
+                            animatingPlayerHP = true;
+                            enemyTurnComplete = true;
+                            textAnimating = true;
+                            textIndex = 0;
+                        }
+                        //Player lost
+                        if (!player.isAlive() && enemyTurnComplete) {
+                            gameScreen.game.setScreen(gameScreen);
+                            System.out.println("LOSE");
+                        }
+                    }
+                } else {
+                    if (!enemyTurnComplete) {
+                        enemyAttack = enemy.attack();
+                        playerDamage = enemyAttack.getDamage() + enemy.getStrength() / 2;
+                        HPTransition = player.getHP();
+                        textAnimating = true;
+                        textIndex = 0;
+                        animatingPlayerHP = true;
+                        enemyTurnComplete = true;
+                    }
+                    //Player lost
+                    if (!player.isAlive()) {
+                        gameScreen.game.setScreen(gameScreen);
+                        System.out.println("LOSE");
+                    } else {
+                        if (!animatingPlayerHP && !playerTurnComplete) {
+                            enemyDamage = playerAttack.getDamage() + player.getStrength() / 2;
+                            HPTransition = enemy.getHP();
+                            playerTurnComplete = true;
+                            animatingEnemyHP = true;
+                            textAnimating = true;
+                            textIndex = 0;
+                        }
+
+                        if (!enemy.isAlive()) {
+                            //Player won
+                            gameScreen.game.setScreen(gameScreen);
+                            System.out.println("WIN");
+                        }
                     }
                 }
-            }
-            if(enemyTurnComplete && playerTurnComplete && !animatingPlayerHP && !animatingEnemyHP) {
-                choosingMove = true;
-                playerTurnComplete = false;
-                enemyTurnComplete = false;
-                animatingEnemyHP = false;
-                animatingPlayerHP = false;
-                textAnimating = true;
-                textIndex = 0;
-            }
-        }
+                break;
+            case ITEM:
+                //TODO: Item stuff later
+                break;
 
+            case RUN:
+                if (!playerTurnComplete) {
+                    fleeMessage = player.getName() + " is attempting to escape!";
+                    textAnimating = true;
+                    textIndex = 0;
+                    escaped = escaped();
+                    playerTurnComplete = true;
+                } else if (escaped) {
+                    if(fleeMessage.equals(player.getName() + " is attempting to escape!") && !textAnimating) {
+                        fleeMessage = "It worked!";
+                        textAnimating = true;
+                        textIndex = 0;
+                    } else if(!textAnimating) {
+                        gameScreen.game.setScreen(gameScreen);
+                        enemy.die();
+                        System.out.println("FLEE");
+                    }
+                } else {
+                    if(fleeMessage.equals(player.getName() + " is attempting to escape!") && !textAnimating) {
+                        fleeMessage = "It failed";
+                        textAnimating = true;
+                        textIndex = 0;
+                    }
+                    // Enemy gets to attack the player
+                    else if (!enemyTurnComplete && !textAnimating) {
+                        enemyAttack = enemy.attack();
+                        playerDamage = enemyAttack.getDamage() + enemy.getStrength() / 2;
+                        HPTransition = player.getHP();
+                        textAnimating = true;
+                        textIndex = 0;
+                        animatingPlayerHP = true;
+                        enemyTurnComplete = true;
+                    }
+                }
+                break;
+        }
+        // Battle phase is over, reset all values
+        if (enemyTurnComplete && playerTurnComplete && !animatingPlayerHP && !animatingEnemyHP) {
+            playerChoice = PlayerChoice.CHOOSING;
+            playerTurnComplete = false;
+            enemyTurnComplete = false;
+            animatingEnemyHP = false;
+            animatingPlayerHP = false;
+            inAttacks = false;
+            inItems = false;
+            // Reset textAnimating to true so the prompt animates again
+            textAnimating = true;
+            textIndex = 0;
+        }
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) gameScreen.game.setScreen(gameScreen);
+    }
+
+    private boolean escaped() {
+        int chance = rand.nextInt(4);
+
+        // 25% chance of escape
+        if(player.getSpeed() < enemy.getSpeed()) return (chance == 0);
+        // 50% chance of escape
+        else if(player.getSpeed() == enemy.getSpeed()) return (chance <= 1);
+        // 75% chance of escape
+        else return (chance <= 2);
     }
 
     @Override

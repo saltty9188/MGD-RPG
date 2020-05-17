@@ -13,7 +13,7 @@ public class Player extends BattleCharacter {
 
     public Player(){
         super(new Texture("character.png"), 15, 23, new Texture("placeholder.png"),
-                100, 10, 5, 6, "Hero");
+                100, 10, 5, 2, "Hero");
        // HP = 1;
         stateTimer = 0.0f;
         genAnimations();
