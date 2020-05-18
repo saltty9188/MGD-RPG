@@ -98,7 +98,13 @@ public abstract class BattleCharacter extends Character {
         battleSprite.dispose();
     }
 
-    public static int damageTaken(BattleCharacter defender, int damage) {
-        return (damage * (50 - defender.defence))/56 + 1;
+    /**
+     * Returns the actual amount of damage taken by the given BattleCharacter after factoring in the defender's defence stat.
+     * @param defender      The BattleCharacter that will receive the damage.
+     * @param attackPower   The Attack Power of the incoming attack.
+     * @return The damage to be taken by the defender.
+     */
+    public static int damageTaken(BattleCharacter defender, int attackPower) {
+        return (attackPower * (50 - defender.defence))/56 + 1;
     }
 }
