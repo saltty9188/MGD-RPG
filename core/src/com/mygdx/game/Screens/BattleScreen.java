@@ -30,6 +30,7 @@ public class BattleScreen implements Screen {
     private Sprite playerBattleSprite;
     // The length of time a sprite will flash for
     private float flashTimer;
+    private int flashCount;
 
     private static final float PADDING = 0.5f;
 
@@ -41,6 +42,7 @@ public class BattleScreen implements Screen {
     private Texture buttonDown;
 
     private SpriteBatch spriteBatch;
+    private ShaderProgram alphaShader;
 
     private BitmapFont bmfont;
 
@@ -137,6 +139,14 @@ public class BattleScreen implements Screen {
 
         spriteBatch = new SpriteBatch();
 
+        // Create shader used to make sprite flash white
+        String defaultVert = spriteBatch.getShader().getVertexShaderSource();
+        String alphaFrag = Gdx.files.internal("alpha_frag.glsl").readString();
+        alphaShader = new ShaderProgram(defaultVert, alphaFrag);
+
+        flashTimer = 0;
+        flashCount = 0;
+
 
         bmfont = new BitmapFont(
                 Gdx.files.internal("font/good_neighbors.fnt"),
@@ -188,7 +198,6 @@ public class BattleScreen implements Screen {
 
         spriteBatch.begin();
         //draw battle sprites
-        //spriteBatch.draw(player.getBattleSprite(), Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 8, 150, 230);
         if(animatingPlayerHP && flashTimer > 0) {
             flashingSprite(playerBattleSprite, delta);
         } else {
@@ -196,10 +205,8 @@ public class BattleScreen implements Screen {
         }
 
         if(animatingEnemyHP && flashTimer > 0) {
-            //TODO: Do sprite flashing for both.
             flashingSprite(enemyBattleSprite, delta);
         } else {
-           // spriteBatch.draw(enemy.getBattleSprite(), Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight() * 5 / 8, 150, 230);
             enemyBattleSprite.setAlpha(1);
             enemyBattleSprite.draw(spriteBatch);
         }
@@ -635,8 +642,13 @@ public class BattleScreen implements Screen {
      */
     private void flashingSprite(Sprite battleSprite, float delta) {
         flashTimer -= delta;
-        System.out.println("IN");
-        battleSprite.draw(spriteBatch, rand.nextFloat());
+        flashCount++;
+        if(flashCount == 3) {
+            spriteBatch.setShader(alphaShader);
+            flashCount = 0;
+        }
+        battleSprite.draw(spriteBatch);
+        spriteBatch.setShader(null);
     }
 
     @Override
