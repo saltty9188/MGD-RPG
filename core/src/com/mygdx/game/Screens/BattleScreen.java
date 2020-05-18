@@ -8,8 +8,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.mygdx.game.Attack;
 import com.mygdx.game.Button;
 import com.mygdx.game.Character.BattleCharacter;
@@ -23,6 +25,11 @@ public class BattleScreen implements Screen {
     private enum PlayerChoice {ATTACK, ITEM, RUN, CHOOSING}
 
     private PlayerChoice playerChoice;
+
+    private Sprite enemyBattleSprite;
+    private Sprite playerBattleSprite;
+    // The length of time a sprite will flash for
+    private float flashTimer;
 
     private static final float PADDING = 0.5f;
 
@@ -99,6 +106,11 @@ public class BattleScreen implements Screen {
         this.enemy = enemy;
         this.player = player;
 
+        enemyBattleSprite = new Sprite(enemy.getBattleSprite(),  150, 230);
+        enemyBattleSprite.setPosition(Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight() * 5 / 8);
+        playerBattleSprite = new Sprite(player.getBattleSprite(), 150, 230);
+        playerBattleSprite.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 8);
+
         inItems = false;
         inAttacks = false;
         playerChoice = PlayerChoice.CHOOSING;
@@ -124,6 +136,7 @@ public class BattleScreen implements Screen {
         pauseTime = 0;
 
         spriteBatch = new SpriteBatch();
+
 
         bmfont = new BitmapFont(
                 Gdx.files.internal("font/good_neighbors.fnt"),
@@ -175,8 +188,21 @@ public class BattleScreen implements Screen {
 
         spriteBatch.begin();
         //draw battle sprites
-        spriteBatch.draw(player.getBattleSprite(), Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 8, 150, 230);
-        spriteBatch.draw(enemy.getBattleSprite(), Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight() * 5 / 8, 150, 230);
+        //spriteBatch.draw(player.getBattleSprite(), Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 8, 150, 230);
+        if(animatingPlayerHP && flashTimer > 0) {
+            flashingSprite(playerBattleSprite, delta);
+        } else {
+            playerBattleSprite.draw(spriteBatch);
+        }
+
+        if(animatingEnemyHP && flashTimer > 0) {
+            //TODO: Do sprite flashing for both.
+            flashingSprite(enemyBattleSprite, delta);
+        } else {
+           // spriteBatch.draw(enemy.getBattleSprite(), Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight() * 5 / 8, 150, 230);
+            enemyBattleSprite.setAlpha(1);
+            enemyBattleSprite.draw(spriteBatch);
+        }
 
         if(battleFinished) {
             victoryMessage(delta);
@@ -443,6 +469,7 @@ public class BattleScreen implements Screen {
                         playerTurnComplete = true;
                         animatingEnemyHP = true;
                         textAnimating = true;
+                        flashTimer = 1;
                         textIndex = 0;
                         battleMessage = playerAttack.battleMessage(player.getName()) + ".\n It did " + BattleCharacter.damageTaken(enemy, enemyDamage) + " damage!";
                     }
@@ -464,6 +491,7 @@ public class BattleScreen implements Screen {
                             enemyTurnComplete = true;
                             textAnimating = true;
                             textIndex = 0;
+                            flashTimer = 1;
                             battleMessage = enemyAttack.battleMessage(enemy.getName()) + ".\n It did " + BattleCharacter.damageTaken(player, playerDamage) + " damage!";
                         }
                         //Player lost
@@ -483,6 +511,7 @@ public class BattleScreen implements Screen {
                         textIndex = 0;
                         battleMessage = enemyAttack.battleMessage(enemy.getName()) + ".\n It did " + BattleCharacter.damageTaken(player, playerDamage) + " damage!";
                         animatingPlayerHP = true;
+                        flashTimer = 0;
                         enemyTurnComplete = true;
                     }
                     //Player lost
@@ -498,6 +527,7 @@ public class BattleScreen implements Screen {
                             playerTurnComplete = true;
                             animatingEnemyHP = true;
                             textAnimating = true;
+                            flashTimer = 1;
                             textIndex = 0;
                             battleMessage = playerAttack.battleMessage(player.getName()) + ".\n It did " + BattleCharacter.damageTaken(enemy, enemyDamage) + " damage!";
                         }
@@ -550,6 +580,7 @@ public class BattleScreen implements Screen {
                         textIndex = 0;
                         battleMessage = enemyAttack.battleMessage(enemy.getName()) + ".\n It did " + BattleCharacter.damageTaken(player, playerDamage) + " damage!";
                         animatingPlayerHP = true;
+                        flashTimer = 1;
                         enemyTurnComplete = true;
                     }
                 }
@@ -596,6 +627,16 @@ public class BattleScreen implements Screen {
         float y = Gdx.graphics.getHeight() * 5/6;
         spriteBatch.draw(textWindow, x, y, width, height);
         drawText(spriteBatch, "You Won!", width, height, x, y, delta, false, 3);
+    }
+
+    /**
+     * Causes the given sprite to flash after being hit.
+     * @param battleSprite The Sprite being made to flash.
+     */
+    private void flashingSprite(Sprite battleSprite, float delta) {
+        flashTimer -= delta;
+        System.out.println("IN");
+        battleSprite.draw(spriteBatch, rand.nextFloat());
     }
 
     @Override
