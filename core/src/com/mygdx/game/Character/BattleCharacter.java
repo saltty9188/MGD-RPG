@@ -90,7 +90,10 @@ public abstract class BattleCharacter extends Character {
 
     public void takeDamage(int damage) {
         HP -= (damage * (50 - defence))/56 + 1;
-        if(HP <= 0) die();
+        if(HP <= 0) {
+            die();
+            HP = 0;
+        }
     }
 
     public void dispose() {

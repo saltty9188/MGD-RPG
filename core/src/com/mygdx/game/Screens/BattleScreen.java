@@ -22,8 +22,7 @@ public class BattleScreen implements Screen {
 
     private enum PlayerChoice {ATTACK, ITEM, RUN, CHOOSING}
 
-    ;
-    PlayerChoice playerChoice;
+    private PlayerChoice playerChoice;
 
     private static final float PADDING = 0.5f;
 
@@ -34,7 +33,7 @@ public class BattleScreen implements Screen {
     private Texture buttonUp;
     private Texture buttonDown;
 
-    SpriteBatch spriteBatch;
+    private SpriteBatch spriteBatch;
 
     private BitmapFont bmfont;
 
@@ -88,6 +87,7 @@ public class BattleScreen implements Screen {
     private boolean escaped;
 
     private boolean battleStart;
+    private boolean battleFinished;
     private String generalMessage;
     private String battleMessage;
 
@@ -113,6 +113,7 @@ public class BattleScreen implements Screen {
         battleMessage = "";
 
         battleStart = true;
+        battleFinished = false;
         generalMessage = enemy.getName() + " ambushes " + player.getName() + "!";
 
         textTime = 0;
@@ -166,8 +167,8 @@ public class BattleScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        if(pauseTime <= 0) update();
-        else pauseTime -= delta;
+        if(pauseTime <= 0 && !battleFinished) update();
+        else if(pauseTime > 0) pauseTime -= delta;
 
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -177,94 +178,100 @@ public class BattleScreen implements Screen {
         spriteBatch.draw(player.getBattleSprite(), Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 8, 150, 230);
         spriteBatch.draw(enemy.getBattleSprite(), Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight() * 5 / 8, 150, 230);
 
-        spriteBatch.draw(textWindow, 0, 0);
-        bmfont.getData().setScale(2);
+        if(battleFinished) {
+            victoryMessage(delta);
+            if(Gdx.input.isTouched()) {
+                gameScreen.game.setScreen(gameScreen);
+            }
+        } else {
+            spriteBatch.draw(textWindow, 0, 0);
+            bmfont.getData().setScale(2);
 
-        switch (playerChoice) {
-            case CHOOSING:
-                drawText(spriteBatch, generalMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                        textWindow.getRegionY(), delta, battleStart);
+            switch (playerChoice) {
+                case CHOOSING:
+                    drawText(spriteBatch, generalMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                            textWindow.getRegionY(), delta, battleStart, 2);
 
-                // Only displays intro message once
-                if(!textAnimating) battleStart = false;
+                    // Only displays intro message once
+                    if (!textAnimating) battleStart = false;
 
-                // Draw the appropriate buttons while the player selects a move
-                if (!inAttacks && !inItems) {
-                    attackButton.draw(spriteBatch, "Attack");
-                    itemButton.draw(spriteBatch, "Items");
-                    runButton.draw(spriteBatch, "Run Away");
-                } else if (inAttacks) {
-                    playerAttackButton1.draw(spriteBatch, player.getAttack(0).getName(), player.getAttack(0).getPPStatus());
-                    playerAttackButton2.draw(spriteBatch, player.getAttack(1).getName(), player.getAttack(1).getPPStatus());
-                    playerAttackButton3.draw(spriteBatch, player.getAttack(2).getName(), player.getAttack(2).getPPStatus());
-                    playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus());
-                }
+                    // Draw the appropriate buttons while the player selects a move
+                    if (!inAttacks && !inItems) {
+                        attackButton.draw(spriteBatch, "Attack");
+                        itemButton.draw(spriteBatch, "Items");
+                        runButton.draw(spriteBatch, "Run Away");
+                    } else if (inAttacks) {
+                        playerAttackButton1.draw(spriteBatch, player.getAttack(0).getName(), player.getAttack(0).getPPStatus());
+                        playerAttackButton2.draw(spriteBatch, player.getAttack(1).getName(), player.getAttack(1).getPPStatus());
+                        playerAttackButton3.draw(spriteBatch, player.getAttack(2).getName(), player.getAttack(2).getPPStatus());
+                        playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus());
+                    }
 
-                if (inAttacks || inItems) backButton.draw(spriteBatch);
+                    if (inAttacks || inItems) backButton.draw(spriteBatch);
 
-                drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12);
-                drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
-
-                break;
-
-            case ATTACK:
-                // Enemy attack message
-                if (textAnimating && animatingPlayerHP) {
-                    drawText(spriteBatch, battleMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                            textWindow.getRegionY(), delta, false);
-                }
-
-                // Player attack message
-                if (textAnimating && animatingEnemyHP) {
-                    drawText(spriteBatch, battleMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                            textWindow.getRegionY(), delta, false);
-                }
-
-                // Animate the player's HP bar and display the enemy's battle message
-                if (!textAnimating && animatingPlayerHP) {
-                    animateStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING, delta, playerDamage);
-                    drawText(spriteBatch, battleMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                            textWindow.getRegionY(), delta, false);
-                } else {
-                    drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
-                }
-
-                // Animate the enemy's HP bar and display the player's battle message
-                if (!textAnimating && animatingEnemyHP) {
-                    animateStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12, delta, enemyDamage);
-                    drawText(spriteBatch, battleMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                            textWindow.getRegionY(), delta, false);
-                } else {
                     drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12);
-                }
-                break;
-
-            case RUN:
-                drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12);
-
-                // Draw the static player HP if it's not being animated
-                if(!animatingPlayerHP) {
                     drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
-                }
-                // Display the relevant flee message if the enemy's turn is not complete (ie it hasn't gone yet or fleeing was successful)
-                if(!enemyTurnComplete) {
-                    drawText(spriteBatch, fleeMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                            textWindow.getRegionY(), delta, true);
-                } else {
+
+                    break;
+
+                case ATTACK:
                     // Enemy attack message
                     if (textAnimating && animatingPlayerHP) {
                         drawText(spriteBatch, battleMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                                textWindow.getRegionY(), delta, false);
-                        drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
+                                textWindow.getRegionY(), delta, false, 2);
                     }
+
+                    // Player attack message
+                    if (textAnimating && animatingEnemyHP) {
+                        drawText(spriteBatch, battleMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                                textWindow.getRegionY(), delta, false, 2);
+                    }
+
                     // Animate the player's HP bar and display the enemy's battle message
-                    else if (!textAnimating && animatingPlayerHP) {
+                    if (!textAnimating && animatingPlayerHP) {
                         animateStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING, delta, playerDamage);
                         drawText(spriteBatch, battleMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
-                                textWindow.getRegionY(), delta, false);
+                                textWindow.getRegionY(), delta, false, 2);
+                    } else {
+                        drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
                     }
-                }
 
+                    // Animate the enemy's HP bar and display the player's battle message
+                    if (!textAnimating && animatingEnemyHP) {
+                        animateStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12, delta, enemyDamage);
+                        drawText(spriteBatch, battleMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                                textWindow.getRegionY(), delta, false,2);
+                    } else {
+                        drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12);
+                    }
+                    break;
+
+                case RUN:
+                    drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - textWindow.getRegionHeight() * 5 / 12);
+
+                    // Draw the static player HP if it's not being animated
+                    if (!animatingPlayerHP) {
+                        drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
+                    }
+                    // Display the relevant flee message if the enemy's turn is not complete (ie it hasn't gone yet or fleeing was successful)
+                    if (!enemyTurnComplete) {
+                        drawText(spriteBatch, fleeMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                                textWindow.getRegionY(), delta, true, 2);
+                    } else {
+                        // Enemy attack message
+                        if (textAnimating && animatingPlayerHP) {
+                            drawText(spriteBatch, battleMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                                    textWindow.getRegionY(), delta, false, 2);
+                            drawStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING);
+                        }
+                        // Animate the player's HP bar and display the enemy's battle message
+                        else if (!textAnimating && animatingPlayerHP) {
+                            animateStatBox(spriteBatch, player, PADDING, textWindow.getRegionHeight() + PADDING, delta, playerDamage);
+                            drawText(spriteBatch, battleMessage, textWindow.getRegionWidth(), textWindow.getRegionHeight(), textWindow.getRegionX(),
+                                    textWindow.getRegionY(), delta, false, 2);
+                        }
+                    }
+            }
         }
 
         spriteBatch.end();
@@ -282,9 +289,10 @@ public class BattleScreen implements Screen {
      * @param y              The bounding texture's y position
      * @param delta          The delta time since the last frame.
      * @param pause          If set to true the game will not update for 1 second so the text is displayed for a short while once it has been fully constructed.
+     * @param scale          The scale of the text being drawn.
      */
-    private void drawText(SpriteBatch batch, String text, float boundingWidth, float boundingHeight, int x, int y, float delta, boolean pause) {
-        bmfont.getData().setScale(2);
+    private void drawText(SpriteBatch batch, String text, float boundingWidth, float boundingHeight, float x, float y, float delta, boolean pause, int scale) {
+        bmfont.getData().setScale(scale);
         System.out.println(text);
         GlyphLayout glyphLayout = new GlyphLayout();
         glyphLayout.setText(bmfont, text);
@@ -355,7 +363,7 @@ public class BattleScreen implements Screen {
         if (HPTime >= 0.1) {
             HPTransition -= 1;
             HPTime = 0;
-            if (HPTransition <= character.getHP() - BattleCharacter.damageTaken(character, damage)) {
+            if (HPTransition <= character.getHP() - BattleCharacter.damageTaken(character, damage) || HPTransition <= 0) {
                 animatingPlayerHP = false;
                 animatingEnemyHP = false;
                 character.takeDamage(damage);
@@ -429,6 +437,7 @@ public class BattleScreen implements Screen {
                 if (player.getSpeed() > enemy.getSpeed()) {
                     // Player attacks first
                     if (!playerTurnComplete) {
+                        // Damage before defence defence considered
                         enemyDamage = playerAttack.getDamage() + player.getStrength() / 2;
                         HPTransition = enemy.getHP();
                         playerTurnComplete = true;
@@ -440,12 +449,15 @@ public class BattleScreen implements Screen {
 
                     if (!enemy.isAlive() && playerTurnComplete) {
                         //Player won
-                        gameScreen.game.setScreen(gameScreen);
+                        battleFinished = true;
+                        textAnimating = true;
+                        textIndex = 0;
                         System.out.println("WIN");
                     } else {
                         // Enemy attacks second
                         if (!animatingEnemyHP && !enemyTurnComplete) {
                             enemyAttack = enemy.attack();
+                            // Damage before defence defence considered
                             playerDamage = enemyAttack.getDamage() + enemy.getStrength() / 2;
                             HPTransition = player.getHP();
                             animatingPlayerHP = true;
@@ -464,6 +476,7 @@ public class BattleScreen implements Screen {
                     // Enemy attacks first
                     if (!enemyTurnComplete) {
                         enemyAttack = enemy.attack();
+                        // Damage before defence defence considered
                         playerDamage = enemyAttack.getDamage() + enemy.getStrength() / 2;
                         HPTransition = player.getHP();
                         textAnimating = true;
@@ -479,6 +492,7 @@ public class BattleScreen implements Screen {
                     } else {
                         //Player attacks second
                         if (!animatingPlayerHP && !playerTurnComplete) {
+                            // Damage before defence defence considered
                             enemyDamage = playerAttack.getDamage() + player.getStrength() / 2;
                             HPTransition = enemy.getHP();
                             playerTurnComplete = true;
@@ -490,7 +504,9 @@ public class BattleScreen implements Screen {
 
                         if (!enemy.isAlive()) {
                             //Player won
-                            gameScreen.game.setScreen(gameScreen);
+                            battleFinished = true;
+                            textAnimating = true;
+                            textIndex = 0;
                             System.out.println("WIN");
                         }
                     }
@@ -527,6 +543,7 @@ public class BattleScreen implements Screen {
                         textIndex = 0;
                     } else if (!enemyTurnComplete && !textAnimating) { // Enemy gets to attack the player
                         enemyAttack = enemy.attack();
+                        // Damage before defence defence considered
                         playerDamage =  enemyAttack.getDamage() + enemy.getStrength() / 2;
                         HPTransition = player.getHP();
                         textAnimating = true;
@@ -567,6 +584,18 @@ public class BattleScreen implements Screen {
         else if(player.getSpeed() == enemy.getSpeed()) return (chance <= 1);
         // 75% chance of escape
         else return (chance <= 2);
+    }
+
+    /**
+     * Draws a large text window with a victory message to the top of the screen.
+     */
+    private void victoryMessage(float delta) {
+        float width = Gdx.graphics.getWidth();
+        float height = Gdx.graphics.getHeight()/6;
+        float x = 0;
+        float y = Gdx.graphics.getHeight() * 5/6;
+        spriteBatch.draw(textWindow, x, y, width, height);
+        drawText(spriteBatch, "You Won!", width, height, x, y, delta, false, 3);
     }
 
     @Override
