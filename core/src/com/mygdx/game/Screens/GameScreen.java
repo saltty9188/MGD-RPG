@@ -156,61 +156,7 @@ public class GameScreen implements Screen {
         }
 
         if(playerDelta.len2() > 0) {
-            tileRectangle = new Rectangle();
-            MapLayer collisionLayer = map.getLayers().get("Collision");
-            TiledMapTileLayer tileLayer = (TiledMapTileLayer) collisionLayer;
-            tileRectangle.width = tileLayer.getTileWidth();
-            tileRectangle.height = tileLayer.getTileHeight();
-
-            int right = (int)Math.ceil(Math.max(
-                    player.getX() + player.getWidth(),
-                    player.getX() + player.getWidth() + playerDelta.x
-            ));
-            int top = (int)Math.ceil(Math.max(
-                    player.getY() + player.getHeight(),
-                    player.getY() + player.getHeight() + playerDelta.y
-            ));
-
-            //Makes it so the Player's "body" is stopped by collision and not their head when checking the top
-            top -= player.getHeight() * 2 / 3;
-
-            int left = (int)Math.floor(Math.min(
-                    player.getX(),
-                    player.getX() + playerDelta.x
-            ));
-            int bottom = (int)Math.floor(Math.min(
-                    player.getY(),
-                    player.getY() + playerDelta.y
-            ));
-
-            right /= tileLayer.getTileWidth();
-            top /= tileLayer.getTileHeight();
-            left /= tileLayer.getTileWidth();
-            bottom /= tileLayer.getTileHeight();
-
-            for(int y = bottom; y <= top; y++) {
-                for(int x = left; x <= right; x++) {
-                    TiledMapTileLayer.Cell targetCell = tileLayer.getCell(x, y);
-                    if(targetCell == null) {
-                        continue;
-                    }
-                    tileRectangle.x = x * tileLayer.getTileWidth();
-                    tileRectangle.y = y * tileLayer.getTileHeight();
-
-                    playerDeltaRectangle.x = player.getX() + playerDelta.x;
-                    playerDeltaRectangle.y = player.getY();
-
-                    if(tileRectangle.overlaps(playerDeltaRectangle)) {
-                        playerDelta.x = 0;
-                    }
-
-                    playerDeltaRectangle.x = player.getX();
-                    playerDeltaRectangle.y = player.getY() + playerDelta.y;
-                    if(tileRectangle.overlaps(playerDeltaRectangle)) {
-                        playerDelta.y = 0;
-                    }
-                }
-            }
+            checkCollision();
         }
 
         player.translate(playerDelta.x, playerDelta.y);
@@ -222,6 +168,80 @@ public class GameScreen implements Screen {
         if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
             gameCam.zoom += 1;
             System.out.println(gameCam.zoom);
+        }
+    }
+
+    public void checkCollision() {
+        tileRectangle = new Rectangle();
+        MapLayer collisionLayer = map.getLayers().get("Collision");
+        TiledMapTileLayer tileLayer = (TiledMapTileLayer) collisionLayer;
+        tileRectangle.width = tileLayer.getTileWidth();
+        tileRectangle.height = tileLayer.getTileHeight();
+
+        int right = (int)Math.ceil(Math.max(
+                player.getX() + player.getWidth(),
+                player.getX() + player.getWidth() + playerDelta.x
+        ));
+        int top = (int)Math.ceil(Math.max(
+                player.getY() + player.getHeight(),
+                player.getY() + player.getHeight() + playerDelta.y
+        ));
+
+        //Makes it so the Player's "body" is stopped by collision and not their head when checking the top
+        top -= player.getHeight() * 2 / 3;
+
+        int left = (int)Math.floor(Math.min(
+                player.getX(),
+                player.getX() + playerDelta.x
+        ));
+        int bottom = (int)Math.floor(Math.min(
+                player.getY(),
+                player.getY() + playerDelta.y
+        ));
+
+        right /= tileLayer.getTileWidth();
+        top /= tileLayer.getTileHeight();
+        left /= tileLayer.getTileWidth();
+        bottom /= tileLayer.getTileHeight();
+
+        for(int y = bottom; y <= top; y++) {
+            for(int x = left; x <= right; x++) {
+                TiledMapTileLayer.Cell targetCell = tileLayer.getCell(x, y);
+                if(targetCell == null) {
+                    continue;
+                }
+                tileRectangle.x = x * tileLayer.getTileWidth();
+                tileRectangle.y = y * tileLayer.getTileHeight();
+
+                playerDeltaRectangle.x = player.getX() + playerDelta.x;
+                playerDeltaRectangle.y = player.getY();
+
+                if(tileRectangle.overlaps(playerDeltaRectangle)) {
+                    playerDelta.x = 0;
+                }
+
+                playerDeltaRectangle.x = player.getX();
+                playerDeltaRectangle.y = player.getY() + playerDelta.y;
+                if(tileRectangle.overlaps(playerDeltaRectangle)) {
+                    playerDelta.y = 0;
+                }
+            }
+        }
+
+        // Test for collision against NPCs
+        for(NPC npc : NPCs) {
+            playerDeltaRectangle.x = player.getX() + playerDelta.x;
+            playerDeltaRectangle.y = player.getY();
+
+            if(npc.getBoundingRectangle().overlaps(playerDeltaRectangle)) {
+                playerDelta.x = 0;
+            }
+
+            playerDeltaRectangle.x = player.getX();
+            playerDeltaRectangle.y = player.getY() + playerDelta.y;
+            if(npc.getBoundingRectangle().overlaps(playerDeltaRectangle)) {
+                playerDelta.y = 0;
+            }
         }
     }
 
@@ -240,8 +260,6 @@ public class GameScreen implements Screen {
         if(!player.isAlive()) player.setCenter(50, 50); // player died in battle will do more later
 
         boolean checkTouch = Gdx.input.isTouched();
-        int touchX = Gdx.input.getX();
-        int touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
         fountain.update(delta);
 
@@ -267,7 +285,7 @@ public class GameScreen implements Screen {
 
         // Add for loop for all NPCs
         roamBox = (RectangleMapObject) roamZones.getObjects().get("NPC 4");
-        NPCs[3].update(delta, roamBox.getRectangle());
+        NPCs[3].update(delta, roamBox.getRectangle(), player);
     }
 
     public void checkEnemies() {
@@ -283,7 +301,7 @@ public class GameScreen implements Screen {
     public void checkNPCs() {
         for (NPC npc : NPCs) {
             if(gameCam.frustum.pointInFrustum(npc.getX(), npc.getY(), 0) &&
-            npc.getBoundingRectangle().overlaps(player.getBoundingRectangle())) {
+            npc.closeTo(player)) {
                 talkingNPC = npc;
             }
         }

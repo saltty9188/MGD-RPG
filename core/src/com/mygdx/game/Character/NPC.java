@@ -54,49 +54,85 @@ public class NPC extends Character {
         textWindow = new Texture("window.png");
     }
 
-    public void update(float delta, Rectangle roamZone) {
+    public void update(float delta, Rectangle roamZone, Player player) {
         if(walkDuration <= 0) {
             direction = rand.nextInt(4);
             walkDuration = 0.5f;
         }
 
-        Vector2 enemyDelta = new Vector2(98*delta, 98*delta);
-
-        int right = (int)Math.ceil(Math.max(
-                getX() + getWidth(),
-                getX() + getWidth() + enemyDelta.x
-        ));
-        int top = (int)Math.ceil(Math.max(
-                getY() + getHeight(),
-                getY() + getHeight() + enemyDelta.y
-        ));
-        int left = (int)Math.floor(Math.min(
-                getX(),
-                getX() + enemyDelta.x
-        ));
-        int bottom = (int)Math.floor(Math.min(
-                getY(),
-                getY() + enemyDelta.y
-        ));
+        Vector2 NPCDelta = new Vector2(98*delta, 98*delta);
+        Rectangle NPCDeltaRectangle = new Rectangle();
+        NPCDeltaRectangle.setSize(this.getWidth(), this.getHeight());
 
         switch (direction) {
             //Move up
             case 0:
-                if(top < roamZone.y + roamZone.getHeight()) translateY(enemyDelta.y);
+                NPCDelta.x = 0;
                 break;
             //Move right
             case 1:
-                if(right < roamZone.x + roamZone.getWidth()) translateX(enemyDelta.x);
+                NPCDelta.y = 0;
                 break;
             //Move down
             case 2:
-                if(bottom > roamZone.y) translateY(-(enemyDelta.y));
+                NPCDelta.x = 0;
+                NPCDelta.y *= -1;
                 break;
             //Move left
             case 3:
-                if(left > roamZone.x) translateX(-(enemyDelta.x));
+                NPCDelta.y = 0;
+                NPCDelta.x *= -1;
                 break;
         }
+
+        int right = (int)Math.ceil(Math.max(
+                getX() + getWidth(),
+                getX() + getWidth() + NPCDelta.x
+        ));
+        int top = (int)Math.ceil(Math.max(
+                getY() + getHeight(),
+                getY() + getHeight() + NPCDelta.y
+        ));
+        int left = (int)Math.floor(Math.min(
+                getX(),
+                getX() + NPCDelta.x
+        ));
+        int bottom = (int)Math.floor(Math.min(
+                getY(),
+                getY() + NPCDelta.y
+        ));
+
+        //Make sure the NPC doesn't walk through the player
+        NPCDeltaRectangle.x = getX() + NPCDelta.x;
+        NPCDeltaRectangle.y = getY();
+        if(NPCDeltaRectangle.overlaps(player.getBoundingRectangle())) NPCDelta.x = 0;
+
+        NPCDeltaRectangle.x = getX();
+        NPCDeltaRectangle.y = getY() + NPCDelta.y;
+        if(NPCDeltaRectangle.overlaps(player.getBoundingRectangle())) NPCDelta.y = 0;
+
+        // Don't move if their about to leave the "roam zone"
+        switch (direction) {
+            //Move up
+            case 0:
+                if(top >= roamZone.y + roamZone.getHeight()) NPCDelta.y = 0;
+                break;
+            //Move right
+            case 1:
+                if(right >= roamZone.x + roamZone.getWidth()) NPCDelta.x = 0;
+                break;
+            //Move down
+            case 2:
+                if(bottom <= roamZone.y) NPCDelta.y = 0;
+                break;
+            //Move left
+            case 3:
+                if(left <= roamZone.x) NPCDelta.x = 0;
+                break;
+        }
+
+        translate(NPCDelta.x, NPCDelta.y);
+
         walkDuration -= delta;
     }
 
@@ -144,6 +180,20 @@ public class NPC extends Character {
         } else {
             bmfont.draw(batch, dialogue, textX, textY, glyphLayout.width, 1, true);
         }
+    }
+
+    /**
+     * Returns true if the player is close to (within a few pixels away) to this NPC.
+     * @param player The player.
+     * @return True if the player is close to this NPC, false otherwise.
+     */
+    public boolean closeTo(Player player) {
+        // Rectangle that is one pixel larger than the NPC on all sides
+        Rectangle closeZone = new Rectangle();
+        closeZone.setPosition(getX() - 3, getY() - 3);
+        closeZone.setSize(getWidth() + 6, getHeight() + 6);
+
+        return closeZone.overlaps(player.getBoundingRectangle());
     }
 
     public void resetTextValues() {
