@@ -53,6 +53,9 @@ public class GameScreen implements Screen {
     //The layer that holds the enemies/NPCs roaming areas
     private MapLayer roamZones;
 
+    SpriteBatch uiBatch;
+    NPC talkingNPC;
+
     public GameScreen(RPGGame game) {
         this.game = game;
         create();
@@ -60,6 +63,9 @@ public class GameScreen implements Screen {
 
     private void create() {
         spriteBatch = new SpriteBatch();
+        uiBatch = new SpriteBatch();
+
+        talkingNPC = null;
 
         TmxMapLoader temp = new TmxMapLoader();
 
@@ -89,8 +95,10 @@ public class GameScreen implements Screen {
         playerDeltaRectangle = new Rectangle(0, 0, player.getWidth(), player.getHeight());
 
         enemies = new Enemy[5];
+        NPCs = new NPC[5];
         for(int i = 0; i < enemies.length; i++) {
             enemies[i] = new Enemy();
+            NPCs[i] = new NPC();
         }
 
         spawn();
@@ -110,6 +118,12 @@ public class GameScreen implements Screen {
         for(int i = 0; i < enemies.length; i++) {
             enemySpawn = (RectangleMapObject) objectLayer.getObjects().get("Enemy " + Integer.toString(i + 1));
             enemies[i].setCenter(enemySpawn.getRectangle().x, enemySpawn.getRectangle().y);
+        }
+
+        RectangleMapObject NPCSpawn;
+        for(int i = 0; i < NPCs.length; i++) {
+            NPCSpawn = (RectangleMapObject) objectLayer.getObjects().get("NPC " + Integer.toString(i + 1));
+            NPCs[i].setCenter(NPCSpawn.getRectangle().x, NPCSpawn.getRectangle().y);
         }
 
     }
@@ -223,19 +237,37 @@ public class GameScreen implements Screen {
     }
 
     public void update(float delta) {
-        if(!player.isAlive()) player.setCenter(50, 50);
-        handleInput(delta);
-        gameCam.update();
-        player.update(delta);
+        if(!player.isAlive()) player.setCenter(50, 50); // player died in battle will do more later
+
+        boolean checkTouch = Gdx.input.isTouched();
+        int touchX = Gdx.input.getX();
+        int touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
+
         fountain.update(delta);
-        moveEnemies(delta);
-        checkEnemies();
+
+        if(talkingNPC != null) {
+            if(checkTouch) {
+                talkingNPC.resetTextValues();
+                talkingNPC = null;
+            }
+        } else {
+            handleInput(delta);
+            gameCam.update();
+            player.update(delta);
+            moveActors(delta);
+            checkEnemies();
+            checkNPCs();
+        }
     }
 
-    public void moveEnemies(float delta) {
+    public void moveActors(float delta) {
         //Add for loop for all enemies
         RectangleMapObject roamBox = (RectangleMapObject) roamZones.getObjects().get("Enemy 1");
         enemies[0].update(delta, roamBox.getRectangle());
+
+        // Add for loop for all NPCs
+        roamBox = (RectangleMapObject) roamZones.getObjects().get("NPC 4");
+        NPCs[3].update(delta, roamBox.getRectangle());
     }
 
     public void checkEnemies() {
@@ -248,10 +280,25 @@ public class GameScreen implements Screen {
         }
     }
 
-    public void drawEnemies() {
+    public void checkNPCs() {
+        for (NPC npc : NPCs) {
+            if(gameCam.frustum.pointInFrustum(npc.getX(), npc.getY(), 0) &&
+            npc.getBoundingRectangle().overlaps(player.getBoundingRectangle())) {
+                talkingNPC = npc;
+            }
+        }
+    }
+
+    public void drawActors() {
         for (Enemy enemy : enemies) {
             if (enemy.isAlive() && onScreen(enemy)) {
                 enemy.draw(spriteBatch);
+            }
+        }
+
+        for(NPC npc : NPCs) {
+            if(onScreen(npc)) {
+                npc.draw(spriteBatch);
             }
         }
     }
@@ -267,11 +314,16 @@ public class GameScreen implements Screen {
 
         spriteBatch.begin();
         spriteBatch.setProjectionMatrix(gameCam.combined);
-        drawEnemies();
+        drawActors();
         player.draw(spriteBatch);
         spriteBatch.setProjectionMatrix(gameCam.combined);
         spriteBatch.draw(fountain, fountain.getX(), fountain.getY());
+
         spriteBatch.end();
+
+        uiBatch.begin();
+        if(talkingNPC != null) talkingNPC.displayDialogue(uiBatch, delta);
+        uiBatch.end();
     }
 
     private boolean onScreen(Character character) {
