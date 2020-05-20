@@ -234,10 +234,10 @@ public class BattleScreen implements Screen {
                         itemButton.draw(spriteBatch, "Items");
                         runButton.draw(spriteBatch, "Run Away");
                     } else if (inAttacks) {
-                        playerAttackButton1.draw(spriteBatch, player.getAttack(0).getName(), player.getAttack(0).getPPStatus());
-                        playerAttackButton2.draw(spriteBatch, player.getAttack(1).getName(), player.getAttack(1).getPPStatus());
-                        playerAttackButton3.draw(spriteBatch, player.getAttack(2).getName(), player.getAttack(2).getPPStatus());
-                        playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus());
+                        playerAttackButton1.draw(spriteBatch, player.getAttack(0).getName(), player.getAttack(0).getPPStatus(), player.getAttack(0).getPP() == 0);
+                        playerAttackButton2.draw(spriteBatch, player.getAttack(1).getName(), player.getAttack(1).getPPStatus(), player.getAttack(1).getPP() == 0);
+                        playerAttackButton3.draw(spriteBatch, player.getAttack(2).getName(), player.getAttack(2).getPPStatus(), player.getAttack(2).getPP() == 0);
+                        playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus(), player.getAttack(3).getPP() == 0);
                     }
 
                     if (inAttacks || inItems) backButton.draw(spriteBatch);
@@ -443,19 +443,19 @@ public class BattleScreen implements Screen {
                 } else if (backButton.justPressed()) {
                     inAttacks = false;
                     inItems = false;
-                } else if (playerAttackButton1.justPressed()) {
+                } else if (playerAttackButton1.justPressed() && player.getAttack(0).getPP() > 0) {
                     playerAttack = player.getAttack(0);
                     playerAttack.decrementPP();
                     playerChoice = PlayerChoice.ATTACK;
-                } else if (playerAttackButton2.justPressed()) {
+                } else if (playerAttackButton2.justPressed() && player.getAttack(1).getPP() > 0) {
                     playerAttack = player.getAttack(1);
                     playerAttack.decrementPP();
                     playerChoice = PlayerChoice.ATTACK;
-                } else if (playerAttackButton3.justPressed()) {
+                } else if (playerAttackButton3.justPressed() && player.getAttack(2).getPP() > 0) {
                     playerAttack = player.getAttack(2);
                     playerAttack.decrementPP();
                     playerChoice = PlayerChoice.ATTACK;
-                } else if (playerAttackButton4.justPressed()) {
+                } else if (playerAttackButton4.justPressed() && player.getAttack(3).getPP() > 0) {
                     playerAttack = player.getAttack(3);
                     playerAttack.decrementPP();
                     playerChoice = PlayerChoice.ATTACK;

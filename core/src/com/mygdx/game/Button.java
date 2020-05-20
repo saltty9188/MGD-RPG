@@ -78,15 +78,14 @@ public class Button {
             batch.draw(downTexture, x, y, width, height);
             bmfont.draw(batch, text, textX, textY-1, glyphLayout.width,
                     1, true);
-        }
-        else {
+        } else {
             batch.draw(upTexture, x, y, width, height);
             bmfont.draw(batch, text, textX, textY, glyphLayout.width,
                     1, true);
         }
     }
 
-    public void draw(SpriteBatch batch, String text, String subText) {
+    public void draw(SpriteBatch batch, String text, String subText, boolean isRed) {
         GlyphLayout textLayout = new GlyphLayout();
         bmfont.getData().setScale(2f);
         textLayout.setText(bmfont, text);
@@ -113,6 +112,8 @@ public class Button {
         int subTextX = (int) ((width/2 - subTextLayout.width/2) + x);
         int subTextY = textY - (int) subTextLayout.height - 1;
 
+        if(isRed) bmfont.setColor(Color.RED);
+        else bmfont.setColor(Color.WHITE);
         if(isDown) {
             batch.draw(downTexture, x, y, width, height);
             bmfont.draw(batch, text, textX, textY-1, textLayout.width,
