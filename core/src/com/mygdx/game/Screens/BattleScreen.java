@@ -212,7 +212,12 @@ public class BattleScreen implements Screen {
         }
 
         if(battleFinished) {
-            victoryMessage(delta);
+            if(!enemy.isAlive()) {
+                victoryMessage(delta);
+            } else if (!player.isAlive()) {
+                gameOverMessage(delta);
+            }
+
             if(Gdx.input.isTouched()) {
                 gameScreen.game.setScreen(gameScreen);
             }
@@ -500,7 +505,8 @@ public class BattleScreen implements Screen {
                         }
                         //Player lost
                         if (!player.isAlive() && enemyTurnComplete) {
-                            gameScreen.game.setScreen(gameScreen);
+                            battleFinished = true;
+                            textAnimating = true;
                             System.out.println("LOSE");
                         }
                     }
@@ -519,7 +525,8 @@ public class BattleScreen implements Screen {
                     }
                     //Player lost
                     if (!player.isAlive()) {
-                        gameScreen.game.setScreen(gameScreen);
+                        battleFinished = true;
+                        textAnimating = true;
                         System.out.println("LOSE");
                     } else {
                         //Player attacks second
@@ -623,6 +630,19 @@ public class BattleScreen implements Screen {
         float y = Gdx.graphics.getHeight() * 5/6;
         spriteBatch.draw(textWindow, x, y, width, height);
         drawText(spriteBatch, "You Won!", width, height, x, y, delta, false, 3);
+        // Exp/gold stuff later
+    }
+
+    /**
+     * Draws a large text window with a game over message to the top of the screen.
+     */
+    private void gameOverMessage(float delta) {
+        float width = Gdx.graphics.getWidth();
+        float height = Gdx.graphics.getHeight()/6;
+        float x = 0;
+        float y = Gdx.graphics.getHeight() * 5/6;
+        spriteBatch.draw(textWindow, x, y, width, height);
+        drawText(spriteBatch, "Game over.", width, height, x, y, delta, false, 3);
     }
 
     /**
