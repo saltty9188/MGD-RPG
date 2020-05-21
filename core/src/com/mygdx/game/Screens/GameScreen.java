@@ -49,6 +49,10 @@ public class GameScreen implements Screen {
     private Fountain fountain;
     private Enemy[] enemies;
     private NPC[] NPCs;
+    private NPC cutsceneNPC;
+
+    private float cutsceneDelta;
+    private boolean inCutscene;
 
     //The layer that holds the enemies/NPCs roaming areas
     private MapLayer roamZones;
@@ -102,6 +106,13 @@ public class GameScreen implements Screen {
         }
 
         spawn();
+
+        cutsceneNPC = new NPC(new Texture("placeholder2.png"), 15, 23,
+                "Man that guy really beat the snot out of you.", "You're lucky I was able to drag you out of there!",
+                "Be more careful next time, OK?");
+        cutsceneDelta = 0;
+        inCutscene = false;
+
 
         gameCam.position.set(player.getX(), player.getY(), 0);
     }
@@ -257,7 +268,17 @@ public class GameScreen implements Screen {
     }
 
     public void update(float delta) {
-        if(!player.isAlive()) player.setCenter(50, 50); // player died in battle will do more later
+        if(!player.isAlive()) {
+            player.setCenter(fountain.getX(), fountain.getY() - 30); // player died in battle will do more later
+
+            gameCam.position.x = player.getX();
+            gameCam.position.y = player.getY();
+            cameraBounds();
+            player.revive();
+            inCutscene = true;
+        } else if (inCutscene) {
+            playCutscene(delta);
+        }
 
         boolean checkTouch = Gdx.input.justTouched();
 
@@ -337,6 +358,7 @@ public class GameScreen implements Screen {
         spriteBatch.begin();
         spriteBatch.setProjectionMatrix(gameCam.combined);
         drawActors();
+        if(inCutscene) cutsceneNPC.draw(spriteBatch);
         player.draw(spriteBatch);
         spriteBatch.setProjectionMatrix(gameCam.combined);
         spriteBatch.draw(fountain, fountain.getX(), fountain.getY());
@@ -346,6 +368,26 @@ public class GameScreen implements Screen {
         uiBatch.begin();
         if(talkingNPC != null) talkingNPC.displayDialogue(uiBatch, delta);
         uiBatch.end();
+    }
+
+    public void playCutscene(float delta) {
+        cutsceneDelta += delta;
+
+        System.out.println(delta);
+        System.out.println(cutsceneDelta);
+
+        // Only set on the first frame
+        if(cutsceneDelta == delta) {
+            cutsceneNPC.setPosition(player.getX() + player.getWidth() + 5, player.getY());
+            talkingNPC = cutsceneNPC;
+        }
+
+        if(talkingNPC == null) {
+            cutsceneNPC.translateX(98 * delta);
+        }
+
+        if(!onScreen(cutsceneNPC)) inCutscene = false;
+
     }
 
     private boolean onScreen(Character character) {

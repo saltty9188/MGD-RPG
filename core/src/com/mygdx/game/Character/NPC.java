@@ -170,14 +170,11 @@ public class NPC extends Character {
 
         if (textAnimating) {
             textTime += delta;
-            System.out.println(textTime);
+
             if (textTime >= 0.01f) {
                 if (textIndex < currentDialogue.length()) textBuilder += currentDialogue.charAt(textIndex++);
                 textTime = 0;
             }
-
-            System.out.println(textBuilder);
-            System.out.println(textIndex);
 
             bmfont.draw(batch, textBuilder, textX, textY, glyphLayout.width, 1, true);
             if (textBuilder.equals(currentDialogue)) {

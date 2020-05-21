@@ -88,6 +88,11 @@ public abstract class BattleCharacter extends Character {
         alive = false;
     }
 
+    public void revive() {
+        alive = true;
+        HP = 1;
+    }
+
     public void takeDamage(int damage) {
         HP -= (damage * (50 - defence))/56 + 1;
         if(HP <= 0) {
