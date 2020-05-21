@@ -40,7 +40,9 @@ public class GameScreen implements Screen {
 
     private Vector2 playerDelta;
 
-    private TiledMap map;
+    private TiledMap townMap;
+    private TiledMap currentMap;
+
     private int mapWidth;
     private int mapHeight;
     private TiledMapRenderer renderer;
@@ -73,13 +75,11 @@ public class GameScreen implements Screen {
 
         TmxMapLoader temp = new TmxMapLoader();
 
-        map = temp.load("Town.tmx");
-        renderer = new OrthogonalTiledMapRenderer(map);
-        MapProperties properties = map.getProperties();
-        //Width and height return number of tiles so we multiply by 16
-        mapWidth = properties.get("width", Integer.class) * 16;
-        mapHeight = properties.get("height", Integer.class) * 16;
-        roamZones = map.getLayers().get("Roaming");
+        townMap = temp.load("Town.tmx");
+        // TODO: Load other maps here
+
+        currentMap = townMap;
+
 
         //create can used to follow Character through the game world
         float w = Gdx.graphics.getWidth();
@@ -105,7 +105,7 @@ public class GameScreen implements Screen {
             NPCs[i] = new NPC();
         }
 
-        spawn();
+        initialiseMap("Player");
 
         cutsceneNPC = new NPC(new Texture("placeholder2.png"), 15, 23,
                 "Man that guy really beat the snot out of you.", "You're lucky I was able to drag you out of there!",
@@ -117,24 +117,51 @@ public class GameScreen implements Screen {
         gameCam.position.set(player.getX(), player.getY(), 0);
     }
 
-    public void spawn() {
-        MapLayer objectLayer = map.getLayers().get("Spawns");
-        RectangleMapObject playerSpawn = (RectangleMapObject)objectLayer.getObjects().get("Player");
+    /**
+     * Initialise the enemy, NPC and player spawns for the current map. Also sets the current map width and height and stores
+     * a reference to the map's "Roaming" layer. Enemies also respawn upon reloading a map.
+     * The iterative spawning for the NPCs and Enemies assumes the spawn layer will follow the naming pattern "Enemy 1", "Enemy 2" etc. with
+     * the same being true for NPCs.
+     *
+     * @param entrance A String corresponding to where the player will spawn on the new map. Defined in the "Spawns" layer of the map.
+     */
+    public void initialiseMap(String entrance) {
+
+        renderer = new OrthogonalTiledMapRenderer(currentMap);
+        MapProperties properties = currentMap.getProperties();
+        //Width and height return number of tiles so we multiply by 16
+        mapWidth = properties.get("width", Integer.class) * 16;
+        mapHeight = properties.get("height", Integer.class) * 16;
+        // Assumes all maps will have a roaming layer -- roaming rectangles are the areas in which enemies and NPCs can move around in
+        roamZones = currentMap.getLayers().get("Roaming");
+
+        // Assumes all maps will have a spawn layer
+        MapLayer spawnLayer = currentMap.getLayers().get("Spawns");
+        RectangleMapObject playerSpawn = (RectangleMapObject)spawnLayer.getObjects().get(entrance);
         player.setCenter(playerSpawn.getRectangle().x, playerSpawn.getRectangle().y);
 
-        RectangleMapObject fountainSpawn = (RectangleMapObject)objectLayer.getObjects().get("Fountain");
-        fountain.setCenter(fountainSpawn.getRectangle().x, fountainSpawn.getRectangle().y);
+        // Will very likely have similar statements for
+        if(currentMap == townMap) {
+            RectangleMapObject fountainSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Fountain");
+            fountain.setCenter(fountainSpawn.getRectangle().x, fountainSpawn.getRectangle().y);
 
-        RectangleMapObject enemySpawn;
-        for(int i = 0; i < enemies.length; i++) {
-            enemySpawn = (RectangleMapObject) objectLayer.getObjects().get("Enemy " + Integer.toString(i + 1));
-            enemies[i].setCenter(enemySpawn.getRectangle().x, enemySpawn.getRectangle().y);
+            // Assumes only the town map will have NPCs, can be changed later if needed
+            RectangleMapObject NPCSpawn;
+            for(int i = 0; i < NPCs.length; i++) {
+                NPCSpawn = (RectangleMapObject) spawnLayer.getObjects().get("NPC " + Integer.toString(i + 1));
+                NPCs[i].setCenter(NPCSpawn.getRectangle().x, NPCSpawn.getRectangle().y);
+            }
         }
 
-        RectangleMapObject NPCSpawn;
-        for(int i = 0; i < NPCs.length; i++) {
-            NPCSpawn = (RectangleMapObject) objectLayer.getObjects().get("NPC " + Integer.toString(i + 1));
-            NPCs[i].setCenter(NPCSpawn.getRectangle().x, NPCSpawn.getRectangle().y);
+        // May need to change this for different maps
+        // Could possibly create new enemy arrays for each map?
+        RectangleMapObject enemySpawn;
+        for(int i = 0; i < enemies.length; i++) {
+            // respawn enemies
+            enemies[i] = new Enemy();
+            enemySpawn = (RectangleMapObject) spawnLayer.getObjects().get("Enemy " + Integer.toString(i + 1));
+            enemies[i].setCenter(enemySpawn.getRectangle().x, enemySpawn.getRectangle().y);
+
         }
 
     }
@@ -184,7 +211,7 @@ public class GameScreen implements Screen {
 
     public void checkCollision() {
         tileRectangle = new Rectangle();
-        MapLayer collisionLayer = map.getLayers().get("Collision");
+        MapLayer collisionLayer = townMap.getLayers().get("Collision");
         TiledMapTileLayer tileLayer = (TiledMapTileLayer) collisionLayer;
         tileRectangle.width = tileLayer.getTileWidth();
         tileRectangle.height = tileLayer.getTileHeight();
@@ -303,6 +330,11 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * Moves all NPCs and Enemies around the map randomly as specified in their respective update methods.
+     * Acts under the assumption that the "roamboxes" follow the same naming pattern as their respective spawns
+     * (e.g. "Enemy 1", "Enemy 2" etc.)
+     */
     public void moveActors(float delta) {
         //Add for loop for all enemies
         RectangleMapObject roamBox = (RectangleMapObject) roamZones.getObjects().get("Enemy 1");
@@ -419,7 +451,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        map.dispose();
+        townMap.dispose();
         spriteBatch.dispose();
         player.dispose();
         for(Enemy enemy: enemies) {
