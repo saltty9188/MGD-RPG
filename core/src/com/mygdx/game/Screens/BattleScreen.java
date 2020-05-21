@@ -353,6 +353,7 @@ public class BattleScreen implements Screen {
             if (textBuilder.equals(text)) {
                 textAnimating = false;
                 textBuilder = "";
+                textIndex = 0;
                 if(pause) pauseTime = 1;
             }
         } else {
@@ -413,7 +414,6 @@ public class BattleScreen implements Screen {
         if(!battleStart && !generalMessage.equals("How will you proceed?")) {
             generalMessage = "How will you proceed?";
             textAnimating = true;
-            textIndex = 0;
         }
         switch (playerChoice) {
             case CHOOSING:
@@ -477,7 +477,6 @@ public class BattleScreen implements Screen {
                         animatingEnemyHP = true;
                         textAnimating = true;
                         flashTimer = 1;
-                        textIndex = 0;
                         battleMessage = playerAttack.battleMessage(player.getName()) + ".\n It did " + BattleCharacter.damageTaken(enemy, enemyDamage) + " damage!";
                     }
 
@@ -485,7 +484,6 @@ public class BattleScreen implements Screen {
                         //Player won
                         battleFinished = true;
                         textAnimating = true;
-                        textIndex = 0;
                         System.out.println("WIN");
                     } else {
                         // Enemy attacks second
@@ -497,7 +495,6 @@ public class BattleScreen implements Screen {
                             animatingPlayerHP = true;
                             enemyTurnComplete = true;
                             textAnimating = true;
-                            textIndex = 0;
                             flashTimer = 1;
                             battleMessage = enemyAttack.battleMessage(enemy.getName()) + ".\n It did " + BattleCharacter.damageTaken(player, playerDamage) + " damage!";
                         }
@@ -515,7 +512,6 @@ public class BattleScreen implements Screen {
                         playerDamage = enemyAttack.getDamage() + enemy.getStrength() / 2;
                         HPTransition = player.getHP();
                         textAnimating = true;
-                        textIndex = 0;
                         battleMessage = enemyAttack.battleMessage(enemy.getName()) + ".\n It did " + BattleCharacter.damageTaken(player, playerDamage) + " damage!";
                         animatingPlayerHP = true;
                         flashTimer = 0;
@@ -535,7 +531,6 @@ public class BattleScreen implements Screen {
                             animatingEnemyHP = true;
                             textAnimating = true;
                             flashTimer = 1;
-                            textIndex = 0;
                             battleMessage = playerAttack.battleMessage(player.getName()) + ".\n It did " + BattleCharacter.damageTaken(enemy, enemyDamage) + " damage!";
                         }
 
@@ -543,7 +538,6 @@ public class BattleScreen implements Screen {
                             //Player won
                             battleFinished = true;
                             textAnimating = true;
-                            textIndex = 0;
                             System.out.println("WIN");
                         }
                     }
@@ -558,7 +552,6 @@ public class BattleScreen implements Screen {
                 if (!playerTurnComplete) {
                     fleeMessage = player.getName() + " is attempting to escape!";
                     textAnimating = true;
-                    textIndex = 0;
                     escaped = escaped();
                     playerTurnComplete = true;
                 } else if (escaped) {
@@ -566,7 +559,6 @@ public class BattleScreen implements Screen {
                     if(fleeMessage.equals(player.getName() + " is attempting to escape!") && !textAnimating) {
                         fleeMessage = "It worked!";
                         textAnimating = true;
-                        textIndex = 0;
                     } else if(!textAnimating) { // Then leave the battle and remove the enemy from the field
                         enemy.die();
                         gameScreen.game.setScreen(gameScreen);
@@ -577,14 +569,12 @@ public class BattleScreen implements Screen {
                     if(fleeMessage.equals(player.getName() + " is attempting to escape!") && !textAnimating) {
                         fleeMessage = "It failed";
                         textAnimating = true;
-                        textIndex = 0;
                     } else if (!enemyTurnComplete && !textAnimating) { // Enemy gets to attack the player
                         enemyAttack = enemy.attack();
                         // Damage before defence defence considered
                         playerDamage =  enemyAttack.getDamage() + enemy.getStrength() / 2;
                         HPTransition = player.getHP();
                         textAnimating = true;
-                        textIndex = 0;
                         battleMessage = enemyAttack.battleMessage(enemy.getName()) + ".\n It did " + BattleCharacter.damageTaken(player, playerDamage) + " damage!";
                         animatingPlayerHP = true;
                         flashTimer = 1;
@@ -604,7 +594,6 @@ public class BattleScreen implements Screen {
             inItems = false;
             // Reset textAnimating to true so the prompt animates again
             textAnimating = true;
-            textIndex = 0;
         }
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) gameScreen.game.setScreen(gameScreen);
     }

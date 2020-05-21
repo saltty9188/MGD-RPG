@@ -19,19 +19,23 @@ public class NPC extends Character {
     private int textIndex;
     private float textTime;
 
-    private String dialogue;
+    private String[] dialogue;
+    private String currentDialogue;
+    private int currentDialogueIndex;
 
     Random rand;
     float walkDuration;
     int direction;
 
     public NPC() {
-        this(new Texture("placeholder2.png"), 15, 23, "Hello");
+        this(new Texture("placeholder2.png"), 15, 23, "Hello", "Are you still here?");
     }
 
-    public NPC(Texture spriteSheet, int width, int height, String dialogue) {
+    public NPC(Texture spriteSheet, int width, int height, String ... dialogue) {
         super(spriteSheet, width, height);
         this.dialogue = dialogue;
+        currentDialogue = dialogue[0];
+        currentDialogueIndex = 0;
         setRegion(spriteSheet);
 
         rand = new Random();
@@ -149,36 +153,46 @@ public class NPC extends Character {
         batch.draw(textWindow, x, y, width, height);
 
         bmfont.getData().setScale(2);
-        System.out.println(dialogue);
         GlyphLayout glyphLayout = new GlyphLayout();
-        glyphLayout.setText(bmfont, dialogue);
+        glyphLayout.setText(bmfont, currentDialogue);
 
         //Get the height of a single line of text
         float fontHeight = glyphLayout.height;
 
-        glyphLayout.setText(bmfont, dialogue, bmfont.getColor(), width, 1, true);
+        glyphLayout.setText(bmfont, currentDialogue, bmfont.getColor(), width, 1, true);
         int textX = (int) ((width / 2 - glyphLayout.width / 2) + x);
         float textY =  ((height / 2 - fontHeight / 2) + y);
 
         // Raise the text proportionally to how many lines there are
         int numLines = (int) (glyphLayout.height / fontHeight);
-        if(dialogue.contains("\n")) textY += fontHeight/2; // Assumes there will only be one newline in the text
+        if(currentDialogue.contains("\n")) textY += fontHeight/2; // Assumes there will only be one newline in the text
         if (numLines > 1) textY += fontHeight / 2 * numLines;
 
         if (textAnimating) {
             textTime += delta;
+            System.out.println(textTime);
             if (textTime >= 0.01f) {
-                if (textIndex < dialogue.length()) textBuilder += dialogue.charAt(textIndex++);
+                if (textIndex < currentDialogue.length()) textBuilder += currentDialogue.charAt(textIndex++);
                 textTime = 0;
             }
 
+            System.out.println(textBuilder);
+            System.out.println(textIndex);
+
             bmfont.draw(batch, textBuilder, textX, textY, glyphLayout.width, 1, true);
-            if (textBuilder.equals(dialogue)) {
+            if (textBuilder.equals(currentDialogue)) {
                 textAnimating = false;
                 textBuilder = "";
+                textIndex = 0;
             }
         } else {
-            bmfont.draw(batch, dialogue, textX, textY, glyphLayout.width, 1, true);
+            bmfont.draw(batch, currentDialogue, textX, textY, glyphLayout.width, 1, true);
+        }
+
+        // Error catching, resets if there is an issue with the textBuilder. Only happens if the player spam clicks through dialogue
+        if(!currentDialogue.contains(textBuilder)) {
+            textIndex = 0;
+            textBuilder = "";
         }
     }
 
@@ -196,8 +210,27 @@ public class NPC extends Character {
         return closeZone.overlaps(player.getBoundingRectangle());
     }
 
+    /**
+     * Advances this NPC to the next line of dialogue.
+     */
+    public void nextDialogueLine() {
+        if(!textAnimating) {
+            currentDialogue = dialogue[++currentDialogueIndex];
+            textAnimating = true;
+        }
+    }
+
+    /**
+     * Returns true if this NPC has more dialogue.
+     * @return True if this NPC has more dialogue, false otherwise.
+     */
+    public boolean hasNextDialogueLine() {
+        return currentDialogueIndex < dialogue.length - 1 ;
+    }
+
     public void resetTextValues() {
-        textIndex = 0;
         textAnimating = true;
+        currentDialogue = dialogue[0];
+        currentDialogueIndex = 0;
     }
 }

@@ -259,14 +259,18 @@ public class GameScreen implements Screen {
     public void update(float delta) {
         if(!player.isAlive()) player.setCenter(50, 50); // player died in battle will do more later
 
-        boolean checkTouch = Gdx.input.isTouched();
+        boolean checkTouch = Gdx.input.justTouched();
 
         fountain.update(delta);
 
         if(talkingNPC != null) {
             if(checkTouch) {
-                talkingNPC.resetTextValues();
-                talkingNPC = null;
+                if(talkingNPC.hasNextDialogueLine()) {
+                    talkingNPC.nextDialogueLine();
+                } else {
+                    talkingNPC.resetTextValues();
+                    talkingNPC = null;
+                }
             }
         } else {
             handleInput(delta);
@@ -301,7 +305,7 @@ public class GameScreen implements Screen {
     public void checkNPCs() {
         for (NPC npc : NPCs) {
             if(gameCam.frustum.pointInFrustum(npc.getX(), npc.getY(), 0) &&
-            npc.closeTo(player)) {
+            npc.closeTo(player) && Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                 talkingNPC = npc;
             }
         }
