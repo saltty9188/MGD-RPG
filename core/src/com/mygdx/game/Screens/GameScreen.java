@@ -132,6 +132,7 @@ public class GameScreen implements Screen {
         //Width and height return number of tiles so we multiply by 16
         mapWidth = properties.get("width", Integer.class) * 16;
         mapHeight = properties.get("height", Integer.class) * 16;
+
         // Assumes all maps will have a roaming layer -- roaming rectangles are the areas in which enemies and NPCs can move around in
         roamZones = currentMap.getLayers().get("Roaming");
 
@@ -140,7 +141,7 @@ public class GameScreen implements Screen {
         RectangleMapObject playerSpawn = (RectangleMapObject)spawnLayer.getObjects().get(entrance);
         player.setCenter(playerSpawn.getRectangle().x, playerSpawn.getRectangle().y);
 
-        // Will very likely have similar statements for
+        // Will very likely have similar statements for other maps
         if(currentMap == townMap) {
             RectangleMapObject fountainSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Fountain");
             fountain.setCenter(fountainSpawn.getRectangle().x, fountainSpawn.getRectangle().y);
@@ -418,7 +419,10 @@ public class GameScreen implements Screen {
             cutsceneNPC.translateX(98 * delta);
         }
 
-        if(!onScreen(cutsceneNPC)) inCutscene = false;
+        if(!onScreen(cutsceneNPC)) {
+            inCutscene = false;
+            cutsceneDelta = 0;
+        }
 
     }
 

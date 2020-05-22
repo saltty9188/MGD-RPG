@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.game.Attack;
+import com.mygdx.game.InfiniteAttack;
 
 public class Player extends BattleCharacter {
 
@@ -19,7 +20,7 @@ public class Player extends BattleCharacter {
         genAnimations();
         currentAni = itsAllAboutThePirouettes;
 
-        Attack attack1 = new Attack(5, 20, "Attack 1");
+        InfiniteAttack attack1 = new InfiniteAttack(0, "Attack");
         Attack attack2 = new Attack(5, 20, "Attack 2");
         Attack attack3 = new Attack(5, 20, "Attack 3");
         Attack attack4 = new Attack(5, 20, "Attack 4");
