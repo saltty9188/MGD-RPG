@@ -14,6 +14,8 @@ public abstract class BattleCharacter extends Character {
     protected int defence;
     protected int speed;
 
+    protected int level;
+
     protected String name;
 
     protected Attack[] attacks;
@@ -27,15 +29,15 @@ public abstract class BattleCharacter extends Character {
     }
 
     public BattleCharacter(Texture spriteSheet, int width, int height, Texture battleSprite,
-                           int maxHP, int strength, int defence, int speed, String name, Attack... attacks) {
+                           int maxHP, int strength, int defence, int speed, int level, String name) {
         this(spriteSheet, width, height, battleSprite);
         this.maxHP = maxHP;
         this.HP = maxHP;
         this.strength = strength;
         this.defence = defence;
         this.speed = speed;
+        this.level = level;
         this.name = name;
-        this.attacks = attacks;
         alive = true;
     }
 

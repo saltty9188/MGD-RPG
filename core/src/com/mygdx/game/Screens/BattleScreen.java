@@ -3,7 +3,6 @@ package com.mygdx.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -97,6 +96,8 @@ public class BattleScreen implements Screen {
 
     private boolean battleStart;
     private boolean battleFinished;
+    private String[] victoryMessages;
+    private int currentVictoryIndex;
     private String generalMessage;
     private String battleMessage;
 
@@ -107,11 +108,6 @@ public class BattleScreen implements Screen {
         this.gameScreen = gameScreen;
         this.enemy = enemy;
         this.player = player;
-
-        enemyBattleSprite = new Sprite(enemy.getBattleSprite(),  150, 230);
-        enemyBattleSprite.setPosition(Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight() * 5 / 8);
-        playerBattleSprite = new Sprite(player.getBattleSprite(), 150, 230);
-        playerBattleSprite.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 8);
 
         inItems = false;
         inAttacks = false;
@@ -136,6 +132,20 @@ public class BattleScreen implements Screen {
 
         HPTime = 0;
         pauseTime = 0;
+
+        victoryMessages = new String[3];
+        victoryMessages[0] = "You Won!";
+        victoryMessages[1] = "You earned " + enemy.getExp() + " experience points!";
+        currentVictoryIndex = 0;
+
+        create();
+    }
+
+    public void create() {
+        enemyBattleSprite = new Sprite(enemy.getBattleSprite(),  150, 230);
+        enemyBattleSprite.setPosition(Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight() * 5 / 8);
+        playerBattleSprite = new Sprite(player.getBattleSprite(), 150, 230);
+        playerBattleSprite.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 8);
 
         spriteBatch = new SpriteBatch();
 
@@ -214,12 +224,20 @@ public class BattleScreen implements Screen {
         if(battleFinished) {
             if(!enemy.isAlive()) {
                 victoryMessage(delta);
+
+                if(Gdx.input.justTouched() && !textAnimating) {
+                    if (currentVictoryIndex < victoryMessages.length - 1 && victoryMessages[currentVictoryIndex + 1] != null) {
+                        currentVictoryIndex++;
+                        textAnimating = true;
+                    } else {
+                        gameScreen.game.setScreen(gameScreen);
+                    }
+                }
             } else if (!player.isAlive()) {
                 gameOverMessage(delta);
-            }
-
-            if(Gdx.input.isTouched()) {
-                gameScreen.game.setScreen(gameScreen);
+                if(Gdx.input.isTouched()) {
+                  gameScreen.game.setScreen(gameScreen);
+              }
             }
         } else {
             spriteBatch.draw(textWindow, 0, 0);
@@ -489,6 +507,11 @@ public class BattleScreen implements Screen {
                         //Player won
                         battleFinished = true;
                         textAnimating = true;
+                        // If the player levels up
+                        if(player.receiveExp(enemy.getExp())) {
+                            player.levelUp();
+                            victoryMessages[2] = "You leveled up!\nYou are now level " + player.getLevel() + "!";
+                        }
                         System.out.println("WIN");
                     } else {
                         // Enemy attacks second
@@ -545,6 +568,11 @@ public class BattleScreen implements Screen {
                             //Player won
                             battleFinished = true;
                             textAnimating = true;
+                            // If the player levels up
+                            if(player.receiveExp(enemy.getExp())) {
+                                player.levelUp();
+                                victoryMessages[2] = "You leveled up!\nYou are now level " + player.getLevel() + "!";
+                            }
                             System.out.println("WIN");
                         }
                     }
@@ -625,12 +653,11 @@ public class BattleScreen implements Screen {
      */
     private void victoryMessage(float delta) {
         float width = Gdx.graphics.getWidth();
-        float height = Gdx.graphics.getHeight()/6;
+        float height = Gdx.graphics.getHeight()/3;
         float x = 0;
-        float y = Gdx.graphics.getHeight() * 5/6;
+        float y = Gdx.graphics.getHeight() * 2/3;
         spriteBatch.draw(textWindow, x, y, width, height);
-        drawText(spriteBatch, "You Won!", width, height, x, y, delta, false, 3);
-        // Exp/gold stuff later
+        drawText(spriteBatch, victoryMessages[currentVictoryIndex], width, height, x, y, delta, false, 3);
     }
 
     /**

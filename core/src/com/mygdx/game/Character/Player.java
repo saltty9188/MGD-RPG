@@ -6,16 +6,27 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.game.Attack;
 import com.mygdx.game.InfiniteAttack;
 
+import java.util.Random;
+
 public class Player extends BattleCharacter {
 
     Animation<TextureRegion> itsAllAboutThePirouettes;
 
-    private Texture battleSprite;
+    private int currentExp;
+    private int toNextLevel;
+
+    private Random rand;
 
     public Player(){
         super(new Texture("character.png"), 15, 23, new Texture("placeholder.png"),
-                100, 10, 5, 12, "Hero");
-        HP = 1;
+                100, 20, 5, 12, 1, "Hero");
+        //HP = 1;
+
+        currentExp = 0;
+        toNextLevel = (int) (6.1 * Math.pow(level + 1, 2) + 1.4 * (level + 1) - 11.4);
+
+        rand = new Random();
+
         stateTimer = 0.0f;
         genAnimations();
         currentAni = itsAllAboutThePirouettes;
@@ -30,6 +41,41 @@ public class Player extends BattleCharacter {
 
     public Attack getAttack(int index) {
         return attacks[index];
+    }
+
+    /**
+     * Gives the player exp from a fallen enemy after battle. Also returns whether or not the player will level up.
+     * @param exp The amount of exp given to the player
+     * @return True if the player will gain a level from this exp, false otherwise.
+     */
+    public boolean receiveExp(int exp) {
+        currentExp += exp;
+        if(currentExp >= toNextLevel) {
+            currentExp -= toNextLevel;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Increase the player's level and sets the exp required for the next level.
+     * Increases the player's stats by a variable amount as well.
+     */
+    public void levelUp() {
+        level += 1;
+        toNextLevel = (int) (6.1 * Math.pow(level + 1, 2) + 1.4 * (level + 1) - 11.4);
+
+        int HPIncrease = rand.nextInt(10) + 5;
+
+        maxHP += HPIncrease;
+        HP += HPIncrease;
+        strength += rand.nextInt(5) + 1;
+        defence += rand.nextInt(5) + 1;
+        speed += rand.nextInt(3) + 1;
+    }
+
+    public int getLevel() {
+        return level;
     }
 
     public void setAnimation(int i) {

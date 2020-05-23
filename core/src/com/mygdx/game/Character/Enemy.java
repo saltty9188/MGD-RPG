@@ -10,33 +10,36 @@ import com.mygdx.game.Attack;
 import java.util.Random;
 
 
+
 /**
  * The class that represents the Enemies the Player will face both in the overworld
  * and in the battle screens.
  */
 public class Enemy extends BattleCharacter{
 
+    private int exp;
+
     Random rand;
     float walkDuration;
     int direction;
 
     public Enemy() {
-        super(new Texture("placeholder.png"), 15, 23, new Texture("placeholder.png"),
-                100, 10, 5, 5, "Uncle Tester");
+        this(new Texture("placeholder.png"), 15, 23, new Texture("placeholder.png"),
+                100, 10, 5, 5, 3, "Uncle Tester", 20);
+
+
+    }
+
+    public Enemy(Texture spriteSheet, int width, int height, Texture battleSprite,
+                 int maxHP, int strength, int defence, int speed, int level, String name, int exp) {
+        super(spriteSheet, width, height, battleSprite, maxHP, strength, defence, speed, level, name);
+
+        this.exp = exp;
 
         //Do attack stuff later
         Attack attack1 = new Attack(5, 20, "Attack 1");
         Attack attack2 = new Attack(5,5, "Attack 2");
         setAttacks(attack1, attack2);
-
-        setRegion(spriteSheet);
-        rand = new Random();
-        walkDuration = 0.5f;
-    }
-
-    public Enemy(Texture spriteSheet, int width, int height, Texture battleSprite,
-                 int maxHP, int strength, int defence, int speed, String name, Attack... attacks) {
-        super(spriteSheet, width, height, battleSprite, maxHP, strength, defence, speed, name, attacks);
 
         setRegion(spriteSheet);
         rand = new Random();
@@ -103,6 +106,7 @@ public class Enemy extends BattleCharacter{
         return attack;
     }
 
-
-
+    public int getExp() {
+        return exp;
+    }
 }
