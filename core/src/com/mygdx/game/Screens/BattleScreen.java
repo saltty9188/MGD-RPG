@@ -16,6 +16,7 @@ import com.mygdx.game.Button;
 import com.mygdx.game.Character.BattleCharacter;
 import com.mygdx.game.Character.Enemy;
 import com.mygdx.game.Character.Player;
+import com.mygdx.game.RPGGame;
 
 import java.util.Random;
 
@@ -33,7 +34,7 @@ public class BattleScreen implements Screen {
 
     private static final float PADDING = 0.5f;
 
-    private GameScreen gameScreen;
+    private RPGGame game;
     private Enemy enemy;
     private Player player;
 
@@ -103,49 +104,14 @@ public class BattleScreen implements Screen {
 
     private float pauseTime;
 
-    public BattleScreen(GameScreen gameScreen, Enemy enemy, Player player) {
+    public BattleScreen(RPGGame game) {
 
-        this.gameScreen = gameScreen;
-        this.enemy = enemy;
-        this.player = player;
-
-        inItems = false;
-        inAttacks = false;
-        playerChoice = PlayerChoice.CHOOSING;
-        textAnimating = true;
-        animatingEnemyHP = false;
-        animatingPlayerHP = false;
-        playerTurnComplete = false;
-        enemyTurnComplete = false;
-
-        rand = new Random();
-        fleeMessage = "";
-        battleMessage = "";
-
-        battleStart = true;
-        battleFinished = false;
-        generalMessage = enemy.getName() + " ambushes " + player.getName() + "!";
-
-        textTime = 0;
-        textBuilder = "";
-        textIndex = 0;
-
-        HPTime = 0;
-        pauseTime = 0;
-
-        victoryMessages = new String[3];
-        victoryMessages[0] = "You Won!";
-        victoryMessages[1] = "You earned " + enemy.getExp() + " experience points!";
-        currentVictoryIndex = 0;
+        this.game = game;
 
         create();
     }
 
     public void create() {
-        enemyBattleSprite = new Sprite(enemy.getBattleSprite(),  150, 230);
-        enemyBattleSprite.setPosition(Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight() * 5 / 8);
-        playerBattleSprite = new Sprite(player.getBattleSprite(), 150, 230);
-        playerBattleSprite.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 8);
 
         spriteBatch = new SpriteBatch();
 
@@ -153,9 +119,6 @@ public class BattleScreen implements Screen {
         String defaultVert = spriteBatch.getShader().getVertexShaderSource();
         String alphaFrag = Gdx.files.internal("alpha_frag.glsl").readString();
         alphaShader = new ShaderProgram(defaultVert, alphaFrag);
-
-        flashTimer = 0;
-        flashCount = 0;
 
 
         bmfont = new BitmapFont(
@@ -193,9 +156,61 @@ public class BattleScreen implements Screen {
                 textWindow.getRegionHeight() / 2 - PADDING, buttonUp, buttonDown);
     }
 
+    /**
+     * The values that will need to be set/reset at the beginning of every battle.
+     */
+    public void battleStart() {
+        playerBattleSprite = new Sprite(player.getBattleSprite(), 150, 230);
+        playerBattleSprite.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 8);
+        enemyBattleSprite = new Sprite(enemy.getBattleSprite(),  150, 230);
+        enemyBattleSprite.setPosition(Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight() * 5 / 8);
+
+        flashTimer = 0;
+        flashCount = 0;
+
+        inItems = false;
+        inAttacks = false;
+        playerChoice = PlayerChoice.CHOOSING;
+        textAnimating = true;
+        animatingEnemyHP = false;
+        animatingPlayerHP = false;
+        playerTurnComplete = false;
+        enemyTurnComplete = false;
+
+        rand = new Random();
+        fleeMessage = "";
+        battleMessage = "";
+
+        battleStart = true;
+        battleFinished = false;
+        generalMessage = enemy.getName() + " ambushes " + player.getName() + "!";
+
+        textTime = 0;
+        textBuilder = "";
+        textIndex = 0;
+
+        HPTime = 0;
+        pauseTime = 0;
+
+        victoryMessages = new String[3];
+        victoryMessages[0] = "You Won!";
+        victoryMessages[1] = "You earned " + enemy.getExp() + " experience points!";
+        currentVictoryIndex = 0;
+
+
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+
+    public void setEnemy(Enemy enemy) {
+        this.enemy = enemy;
+    }
+
     @Override
     public void show() {
-
+        battleStart();
     }
 
     @Override
@@ -230,13 +245,13 @@ public class BattleScreen implements Screen {
                         currentVictoryIndex++;
                         textAnimating = true;
                     } else {
-                        gameScreen.game.setScreen(gameScreen);
+                        game.setScreen(RPGGame.gameScreen);
                     }
                 }
             } else if (!player.isAlive()) {
                 gameOverMessage(delta);
                 if(Gdx.input.isTouched()) {
-                  gameScreen.game.setScreen(gameScreen);
+                    game.setScreen(RPGGame.gameScreen);
               }
             }
         } else {
@@ -596,7 +611,7 @@ public class BattleScreen implements Screen {
                         textAnimating = true;
                     } else if(!textAnimating) { // Then leave the battle and remove the enemy from the field
                         enemy.die();
-                        gameScreen.game.setScreen(gameScreen);
+                        game.setScreen(RPGGame.gameScreen);
                         System.out.println("FLEE");
                     }
                 } else {
@@ -630,7 +645,7 @@ public class BattleScreen implements Screen {
             // Reset textAnimating to true so the prompt animates again
             textAnimating = true;
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) gameScreen.game.setScreen(gameScreen);
+        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) game.setScreen(RPGGame.gameScreen);
     }
 
     /**

@@ -31,7 +31,6 @@ public class GameScreen implements Screen {
 
     //Game
     RPGGame game;
-    private BattleScreen battleScreen;
 
     private SpriteBatch spriteBatch;
     private OrthographicCamera gameCam;
@@ -350,8 +349,9 @@ public class GameScreen implements Screen {
         for (Enemy enemy : enemies) {
             if (enemy.isAlive() && gameCam.frustum.pointInFrustum(enemy.getX(), enemy.getY(), 0) &&
                     enemy.getBoundingRectangle().overlaps(player.getBoundingRectangle())) {
-                battleScreen = new BattleScreen(this, enemy, player);
-                game.setScreen(battleScreen);
+                RPGGame.battleScreen.setEnemy(enemy);
+                RPGGame.battleScreen.setPlayer(player);
+                game.setScreen(RPGGame.battleScreen);
             }
         }
     }
