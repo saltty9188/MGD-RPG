@@ -360,7 +360,9 @@ public class GameScreen implements Screen {
         for (NPC npc : NPCs) {
             if(gameCam.frustum.pointInFrustum(npc.getX(), npc.getY(), 0) &&
             npc.closeTo(player) && Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-                talkingNPC = npc;
+                //talkingNPC = npc;
+                RPGGame.shopScreen.setPlayer(player);
+                game.setScreen(RPGGame.shopScreen);
             }
         }
     }

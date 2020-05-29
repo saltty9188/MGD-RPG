@@ -13,7 +13,7 @@ public class Button {
     float y;
     float width;
     float height;
-    boolean isDown;
+    public boolean isDown;
     boolean justPressed;
 
     Texture upTexture;

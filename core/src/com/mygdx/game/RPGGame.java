@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.Screens.BattleScreen;
 import com.mygdx.game.Screens.GameScreen;
+import com.mygdx.game.Screens.ShopScreen;
 import com.mygdx.game.Screens.TitleScreen;
 
 public class RPGGame extends Game implements ApplicationListener {
@@ -19,12 +20,14 @@ public class RPGGame extends Game implements ApplicationListener {
 	public static GameScreen gameScreen;
 	public static BattleScreen battleScreen;
 	public static TitleScreen titleScreen;
+	public static ShopScreen shopScreen;
 
 	@Override
 	public void create () {
 		gameScreen = new GameScreen(this);
 		battleScreen = new BattleScreen(this);
 		titleScreen = new TitleScreen(this);
+		shopScreen = new ShopScreen(this);
 		setScreen(gameScreen);
 	}
 
