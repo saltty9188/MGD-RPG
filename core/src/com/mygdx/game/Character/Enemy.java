@@ -23,6 +23,11 @@ public class Enemy extends BattleCharacter{
     float walkDuration;
     int direction;
 
+    private Texture spriteSheet;
+    private TextureRegion[] fFrames;
+    private Animation<TextureRegion> currentAni, idleAni, walkDownAni, walkRightAni, walkLeftAni,
+            walkUpAni;
+
     public Enemy() {
         this(new Texture("placeholder.png"), 15, 23, new Texture("placeholder.png"),
                 100, 10, 5, 5, 3, "Uncle Tester", 20);
@@ -45,6 +50,15 @@ public class Enemy extends BattleCharacter{
         rand = new Random();
         walkDuration = 0.5f;
     }
+
+    public TextureRegion getFrame(float dt) {
+        TextureRegion region;
+        region = currentAni.getKeyFrame(stateTimer, true);
+        stateTimer += dt;
+        return region;
+    }
+
+
 
     public void update(float delta, Rectangle roamZone) {
         if(walkDuration <= 0) {
@@ -83,6 +97,7 @@ public class Enemy extends BattleCharacter{
             //Move down
             case 2:
                 if(bottom > roamZone.y) translateY(-(enemyDelta.y));
+                currentAni = walkDownAni;
                 break;
             //Move left
             case 3:
@@ -108,5 +123,9 @@ public class Enemy extends BattleCharacter{
 
     public int getExp() {
         return exp;
+    }
+
+    public void dispose() {
+        spriteSheet.dispose();
     }
 }
