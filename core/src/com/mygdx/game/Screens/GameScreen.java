@@ -336,9 +336,12 @@ public class GameScreen implements Screen {
      * (e.g. "Enemy 1", "Enemy 2" etc.)
      */
     public void moveActors(float delta) {
+        RectangleMapObject roamBox;
         //Add for loop for all enemies
-        RectangleMapObject roamBox = (RectangleMapObject) roamZones.getObjects().get("Enemy 1");
-        enemies[0].update(delta, roamBox.getRectangle());
+        for(int i = 0; i < enemies.length; i++) {
+            roamBox = (RectangleMapObject) roamZones.getObjects().get("Enemy " + Integer.toString(i + 1));
+            enemies[i].update(delta, roamBox.getRectangle());
+        }
 
         // Add for loop for all NPCs
         roamBox = (RectangleMapObject) roamZones.getObjects().get("NPC 4");

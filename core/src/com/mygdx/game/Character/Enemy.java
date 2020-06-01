@@ -23,15 +23,9 @@ public class Enemy extends BattleCharacter{
     float walkDuration;
     int direction;
 
-    private Texture spriteSheet;
-    private TextureRegion[] fFrames;
-    private Animation<TextureRegion> currentAni, idleAni, walkDownAni, walkRightAni, walkLeftAni,
-            walkUpAni;
-
     public Enemy() {
-        this(new Texture("placeholder.png"), 15, 23, new Texture("placeholder.png"),
+        this(new Texture("log.png"), 20, 23, new Texture("placeholder.png"),
                 100, 10, 5, 5, 3, "Uncle Tester", 20);
-
 
     }
 
@@ -41,12 +35,16 @@ public class Enemy extends BattleCharacter{
 
         this.exp = exp;
 
+        this.spriteSheet = spriteSheet;
+        stateTimer = 0.0f;
+        genAnimations();
+        currentAni = idleAni;
+
         //Do attack stuff later
         Attack attack1 = new Attack(5, 20, "Attack 1");
         Attack attack2 = new Attack(5,5, "Attack 2");
         setAttacks(attack1, attack2);
 
-        setRegion(spriteSheet);
         rand = new Random();
         walkDuration = 0.5f;
     }
@@ -58,9 +56,35 @@ public class Enemy extends BattleCharacter{
         return region;
     }
 
-
+    public void genAnimations() {
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 4, 7, 20, 23),
+            new TextureRegion(spriteSheet, 37, 7, 20, 23),
+            new TextureRegion(spriteSheet, 68, 7, 20, 23),
+            new TextureRegion(spriteSheet, 101, 7, 20, 23)};
+        walkDownAni = new Animation<TextureRegion>(AFS, fFrames);
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 165, 11, 20, 23),
+            new TextureRegion(spriteSheet, 163, 41, 20, 23),
+            new TextureRegion(spriteSheet, 163, 72, 20, 23)};
+        idleAni = new Animation<TextureRegion>(AFS, fFrames);
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 7, 39, 20, 23),
+            new TextureRegion(spriteSheet, 39, 40, 20, 23),
+            new TextureRegion(spriteSheet, 71, 39, 20, 23),
+            new TextureRegion(spriteSheet, 104, 40, 20, 23)};
+        walkUpAni = new Animation<TextureRegion>(AFS, fFrames);
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 10, 101, 20, 23),
+                new TextureRegion(spriteSheet, 42, 102, 20, 23),
+                new TextureRegion(spriteSheet, 74, 101, 20, 23),
+                new TextureRegion(spriteSheet, 106, 102, 20, 23)};
+        walkLeftAni = new Animation<TextureRegion>(AFS, fFrames);
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 10, 69, 20, 23),
+                new TextureRegion(spriteSheet, 42, 70, 20, 23),
+                new TextureRegion(spriteSheet, 73, 69, 20, 23),
+                new TextureRegion(spriteSheet, 106, 70, 20, 23)};
+        walkRightAni = new Animation<TextureRegion>(AFS, fFrames);
+    }
 
     public void update(float delta, Rectangle roamZone) {
+        setRegion(getFrame(delta));
         if(walkDuration <= 0) {
             direction = rand.nextInt(4);
             walkDuration = 0.5f;
@@ -87,12 +111,17 @@ public class Enemy extends BattleCharacter{
 
         switch (direction) {
             //Move up
+            default:
+                currentAni = idleAni;
+                break;
             case 0:
                 if(top < roamZone.y + roamZone.getHeight()) translateY(enemyDelta.y);
+                currentAni = walkUpAni;
                 break;
             //Move right
             case 1:
                 if(right < roamZone.x + roamZone.getWidth()) translateX(enemyDelta.x);
+                currentAni = walkRightAni;
                 break;
             //Move down
             case 2:
@@ -102,7 +131,11 @@ public class Enemy extends BattleCharacter{
             //Move left
             case 3:
                 if(left > roamZone.x) translateX(-(enemyDelta.x));
+                currentAni = walkLeftAni;
                 break;
+        }
+        if(enemyDelta.len2() <= 0) {
+            currentAni = idleAni;
         }
 
         walkDuration -= delta;
@@ -126,6 +159,6 @@ public class Enemy extends BattleCharacter{
     }
 
     public void dispose() {
-        spriteSheet.dispose();
+       // spriteSheet.dispose();
     }
 }
