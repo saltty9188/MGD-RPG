@@ -344,8 +344,10 @@ public class GameScreen implements Screen {
         }
 
         // Add for loop for all NPCs
-        roamBox = (RectangleMapObject) roamZones.getObjects().get("NPC 4");
-        NPCs[3].update(delta, roamBox.getRectangle(), player);
+        for(int i = 0; i < NPCs.length; i++) {
+            roamBox = (RectangleMapObject) roamZones.getObjects().get("NPC " + Integer.toString(i + 1));
+            NPCs[i].update(delta, roamBox.getRectangle(), player);
+        }
     }
 
     public void checkEnemies() {

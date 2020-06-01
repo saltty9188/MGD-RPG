@@ -15,7 +15,7 @@ import java.util.Random;
  * The class that represents the Enemies the Player will face both in the overworld
  * and in the battle screens.
  */
-public class Enemy extends BattleCharacter{
+public class Enemy extends BattleCharacter {
 
     private int exp;
 

@@ -2,9 +2,11 @@ package com.mygdx.game.Character;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -28,7 +30,7 @@ public class NPC extends Character {
     int direction;
 
     public NPC() {
-        this(new Texture("placeholder2.png"), 15, 23, "Hello", "Are you still here?");
+        this(new Texture("NPC_test.png"), 14, 21, "Hello", "Are you still here?");
     }
 
     public NPC(Texture spriteSheet, int width, int height, String ... dialogue) {
@@ -36,7 +38,11 @@ public class NPC extends Character {
         this.dialogue = dialogue;
         currentDialogue = dialogue[0];
         currentDialogueIndex = 0;
-        setRegion(spriteSheet);
+
+        this.spriteSheet = spriteSheet;
+        stateTimer = 0.0f;
+        genAnimations();
+        currentAni = walkDownAni;
 
         rand = new Random();
         walkDuration = 0.5f;
@@ -49,6 +55,32 @@ public class NPC extends Character {
         loadAssets();
     }
 
+    public void genAnimations() {
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 1, 7, 14, 21),
+                new TextureRegion(spriteSheet, 17, 8, 14, 21),
+                new TextureRegion(spriteSheet, 33, 7, 14, 21),
+                new TextureRegion(spriteSheet, 49, 8, 14, 21)};
+        walkDownAni = new Animation<TextureRegion>(AFS, fFrames);
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 1, 70, 14, 21),
+                new TextureRegion(spriteSheet, 17, 71, 14, 21),
+                new TextureRegion(spriteSheet, 33, 70, 14, 21),
+                new TextureRegion(spriteSheet, 49, 71, 14, 21)};
+        walkUpAni = new Animation<TextureRegion>(AFS, fFrames);
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 1, 103, 14, 21),
+                new TextureRegion(spriteSheet, 17, 104, 14, 21),
+                new TextureRegion(spriteSheet, 33, 103, 14, 21),
+                new TextureRegion(spriteSheet, 49, 104, 14, 21)};
+        walkLeftAni = new Animation<TextureRegion>(AFS, fFrames);
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 2, 39, 14, 21),
+                new TextureRegion(spriteSheet, 18, 40, 14, 21),
+                new TextureRegion(spriteSheet, 34, 39, 14, 21),
+                new TextureRegion(spriteSheet, 50, 40, 14, 21)};
+        walkRightAni = new Animation<TextureRegion>(AFS, fFrames);
+        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 1, 7, 14, 21),
+            new TextureRegion(spriteSheet, 33, 7, 14, 21)};
+        idleAni = new Animation<TextureRegion>(AFS, fFrames);
+    }
+
     private void loadAssets() {
         bmfont = new BitmapFont(
                 Gdx.files.internal("font/good_neighbors.fnt"),
@@ -58,7 +90,15 @@ public class NPC extends Character {
         textWindow = new Texture("window.png");
     }
 
+    public TextureRegion getFrame(float dt) {
+        TextureRegion region;
+        region = currentAni.getKeyFrame(stateTimer, true);
+        stateTimer += dt;
+        return region;
+    }
+
     public void update(float delta, Rectangle roamZone, Player player) {
+        setRegion(getFrame(delta));
         if(walkDuration <= 0) {
             direction = rand.nextInt(4);
             walkDuration = 0.5f;
@@ -72,21 +112,29 @@ public class NPC extends Character {
             //Move up
             case 0:
                 NPCDelta.x = 0;
+                currentAni = walkUpAni;
                 break;
             //Move right
             case 1:
                 NPCDelta.y = 0;
+                currentAni = walkRightAni;
                 break;
             //Move down
             case 2:
                 NPCDelta.x = 0;
                 NPCDelta.y *= -1;
+                currentAni = walkDownAni;
                 break;
             //Move left
             case 3:
                 NPCDelta.y = 0;
                 NPCDelta.x *= -1;
+                currentAni = walkLeftAni;
                 break;
+        }
+
+        if(NPCDelta.len2() <= 0) {
+            currentAni = idleAni;
         }
 
         int right = (int)Math.ceil(Math.max(
@@ -115,7 +163,7 @@ public class NPC extends Character {
         NPCDeltaRectangle.y = getY() + NPCDelta.y;
         if(NPCDeltaRectangle.overlaps(player.getBoundingRectangle())) NPCDelta.y = 0;
 
-        // Don't move if their about to leave the "roam zone"
+        // Don't move if they're about to leave the "roam zone"
         switch (direction) {
             //Move up
             case 0:
