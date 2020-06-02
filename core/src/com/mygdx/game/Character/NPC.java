@@ -42,7 +42,8 @@ public class NPC extends Character {
         this.spriteSheet = spriteSheet;
         stateTimer = 0.0f;
         genAnimations();
-        currentAni = walkDownAni;
+        currentAni = idleAni;
+        setRegion(getFrame(0));
 
         rand = new Random();
         walkDuration = 0.5f;
@@ -133,10 +134,6 @@ public class NPC extends Character {
                 break;
         }
 
-        if(NPCDelta.len2() <= 0) {
-            currentAni = idleAni;
-        }
-
         int right = (int)Math.ceil(Math.max(
                 getX() + getWidth(),
                 getX() + getWidth() + NPCDelta.x
@@ -183,9 +180,28 @@ public class NPC extends Character {
                 break;
         }
 
+        if(NPCDelta.len2() <= 0) {
+            currentAni = idleAni;
+        }
         translate(NPCDelta.x, NPCDelta.y);
 
         walkDuration -= delta;
+    }
+
+    /**
+     * Updates the cutscene NPC's position and current animation.
+     * @param delta
+     * @param talking
+     */
+    public void updateCutscene(float delta, boolean talking) {
+        // Use idle animation while the npc is talking
+        if(talking) {
+            setAnimation(0);
+        } else {
+            setAnimation(4); // Walks right off of the screen
+            translateX(98 * delta);
+        }
+        setRegion(getFrame(delta));
     }
 
     /**

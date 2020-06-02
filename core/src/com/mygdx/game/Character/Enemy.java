@@ -90,7 +90,7 @@ public class Enemy extends BattleCharacter {
             walkDuration = 0.5f;
         }
 
-        Vector2 enemyDelta = new Vector2(98*delta, 98*delta);
+        Vector2 enemyDelta = new Vector2();
 
         int right = (int)Math.ceil(Math.max(
                 getX() + getWidth(),
@@ -111,32 +111,31 @@ public class Enemy extends BattleCharacter {
 
         switch (direction) {
             //Move up
-            default:
-                currentAni = idleAni;
-                break;
             case 0:
-                if(top < roamZone.y + roamZone.getHeight()) translateY(enemyDelta.y);
+                if(top < roamZone.y + roamZone.getHeight()) enemyDelta.y = 98 * delta;
                 currentAni = walkUpAni;
                 break;
             //Move right
             case 1:
-                if(right < roamZone.x + roamZone.getWidth()) translateX(enemyDelta.x);
+                if(right < roamZone.x + roamZone.getWidth()) enemyDelta.x = 98 * delta;
                 currentAni = walkRightAni;
                 break;
             //Move down
             case 2:
-                if(bottom > roamZone.y) translateY(-(enemyDelta.y));
+                if(bottom > roamZone.y) enemyDelta.y = -98 * delta;
                 currentAni = walkDownAni;
                 break;
             //Move left
             case 3:
-                if(left > roamZone.x) translateX(-(enemyDelta.x));
+                if(left > roamZone.x) enemyDelta.x = -98 * delta;
                 currentAni = walkLeftAni;
                 break;
         }
         if(enemyDelta.len2() <= 0) {
             currentAni = idleAni;
         }
+
+        translate(enemyDelta.x, enemyDelta.y);
 
         walkDuration -= delta;
     }
@@ -159,6 +158,6 @@ public class Enemy extends BattleCharacter {
     }
 
     public void dispose() {
-       // spriteSheet.dispose();
+       spriteSheet.dispose();
     }
 }

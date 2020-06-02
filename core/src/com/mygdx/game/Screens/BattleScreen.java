@@ -128,7 +128,7 @@ public class BattleScreen implements Screen {
 
         bmfont.getData().setScale(2);
 
-        textWindow = new Texture("window.png");
+        textWindow = new Texture("window_blue.png");
 
         HPFull = new Texture("HP-full.png");
         HPEmpty = new Texture("HP-empty.png");

@@ -20,7 +20,7 @@ public class Player extends BattleCharacter {
     public Player(){
         super(new Texture("character.png"), 15, 23, new Texture("placeholder.png"),
                 100, 20, 5, 12, 1, "Hero");
-        //HP = 1;
+        HP = 1;
 
         currentExp = 0;
         toNextLevel = (int) (6.1 * Math.pow(level + 1, 2) + 1.4 * (level + 1) - 11.4);

@@ -106,7 +106,7 @@ public class GameScreen implements Screen {
 
         initialiseMap("Player");
 
-        cutsceneNPC = new NPC(new Texture("placeholder2.png"), 15, 23,
+        cutsceneNPC = new NPC(new Texture("NPC_test.png"), 14, 21,
                 "Man that guy really beat the snot out of you.", "You're lucky I was able to drag you out of there!",
                 "Be more careful next time, OK?");
         cutsceneDelta = 0;
@@ -320,14 +320,15 @@ public class GameScreen implements Screen {
                     talkingNPC = null;
                 }
             }
-        } else {
+        } else if(!inCutscene) {
             handleInput(delta);
-            gameCam.update();
             player.update(delta);
             moveActors(delta);
             checkEnemies();
             checkNPCs();
         }
+
+        gameCam.update();
     }
 
     /**
@@ -422,9 +423,7 @@ public class GameScreen implements Screen {
             talkingNPC = cutsceneNPC;
         }
 
-        if(talkingNPC == null) {
-            cutsceneNPC.translateX(98 * delta);
-        }
+        cutsceneNPC.updateCutscene(delta, talkingNPC != null);
 
         if(!onScreen(cutsceneNPC)) {
             inCutscene = false;
