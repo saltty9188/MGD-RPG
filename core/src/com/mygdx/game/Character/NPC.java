@@ -88,7 +88,7 @@ public class NPC extends Character {
                 Gdx.files.internal("font/good_neighbors.png"),
                 false);
 
-        textWindow = new Texture("window.png");
+        textWindow = new Texture("window_blue.png");
     }
 
     public TextureRegion getFrame(float dt) {
