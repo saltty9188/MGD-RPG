@@ -161,7 +161,8 @@ public class BattleScreen implements Screen {
      */
     public void battleStart() {
         playerBattleSprite = new Sprite(player.getBattleSprite(), 150, 230);
-        playerBattleSprite.setPosition(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 8);
+        playerBattleSprite.setScale(1.5f);
+        playerBattleSprite.setPosition(Gdx.graphics.getWidth() * 5/24 * 1.25f, Gdx.graphics.getHeight() * 7/24 * 1.3f);
         enemyBattleSprite = new Sprite(enemy.getBattleSprite(),  150, 230);
         enemyBattleSprite.setPosition(Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight() * 5 / 8);
 
@@ -232,7 +233,6 @@ public class BattleScreen implements Screen {
         if(animatingEnemyHP && flashTimer > 0) {
             flashingSprite(enemyBattleSprite, delta);
         } else {
-            enemyBattleSprite.setAlpha(1);
             enemyBattleSprite.draw(spriteBatch);
         }
 
@@ -629,6 +629,12 @@ public class BattleScreen implements Screen {
                         animatingPlayerHP = true;
                         flashTimer = 1;
                         enemyTurnComplete = true;
+                        //Player lost
+                        if (!player.isAlive() && enemyTurnComplete) {
+                            battleFinished = true;
+                            textAnimating = true;
+                            System.out.println("LOSE");
+                        }
                     }
                 }
                 break;
@@ -664,25 +670,25 @@ public class BattleScreen implements Screen {
     }
 
     /**
-     * Draws a large text window with a victory message to the top of the screen.
+     * Draws a large text window with a victory message to the bottom of the screen.
      */
     private void victoryMessage(float delta) {
         float width = Gdx.graphics.getWidth();
-        float height = Gdx.graphics.getHeight()/3;
+        float height = Gdx.graphics.getHeight() * 7/24;
         float x = 0;
-        float y = Gdx.graphics.getHeight() * 2/3;
+        float y = 0;
         spriteBatch.draw(textWindow, x, y, width, height);
         drawText(spriteBatch, victoryMessages[currentVictoryIndex], width, height, x, y, delta, false, 3);
     }
 
     /**
-     * Draws a large text window with a game over message to the top of the screen.
+     * Draws a large text window with a game over message to the bottom of the screen.
      */
     private void gameOverMessage(float delta) {
         float width = Gdx.graphics.getWidth();
-        float height = Gdx.graphics.getHeight()/6;
+        float height = Gdx.graphics.getHeight() * 7/24;
         float x = 0;
-        float y = Gdx.graphics.getHeight() * 5/6;
+        float y = 0;
         spriteBatch.draw(textWindow, x, y, width, height);
         drawText(spriteBatch, "Game over.", width, height, x, y, delta, false, 3);
     }
