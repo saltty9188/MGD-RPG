@@ -24,7 +24,7 @@ public class Enemy extends BattleCharacter {
     int direction;
 
     public Enemy() {
-        this(new Texture("log.png"), 20, 23, new Texture("placeholder.png"),
+        this(new Texture("log.png"), 20, 23, new Texture("log-battle.png"),
                 100, 10, 5, 5, 3, "Uncle Tester", 20);
 
     }

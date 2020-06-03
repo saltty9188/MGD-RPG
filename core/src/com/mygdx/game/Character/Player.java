@@ -18,7 +18,7 @@ public class Player extends BattleCharacter {
     private Random rand;
 
     public Player(){
-        super(new Texture("character.png"), 15, 23, new Texture("character-battle.png"),
+        super(new Texture("character.png"), 15, 23, new Texture("character-battle2.png"),
                 100, 20, 5, 12, 1, "Hero");
         HP = 1;
 

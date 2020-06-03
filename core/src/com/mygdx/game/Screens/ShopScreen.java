@@ -255,7 +255,7 @@ public class ShopScreen implements Screen {
         }
 
     }
-    
+
     private void drawQtySelector(SpriteBatch batch, float delta) {
         textAnimating = false;
         batch.draw(textWindow, Gdx.graphics.getWidth()/8, Gdx.graphics.getHeight()/8, Gdx.graphics.getWidth() * 3/4, Gdx.graphics.getHeight() * 3/4);

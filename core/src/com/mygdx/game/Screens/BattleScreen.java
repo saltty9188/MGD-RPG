@@ -104,6 +104,8 @@ public class BattleScreen implements Screen {
 
     private float pauseTime;
 
+    private Texture background;
+
     public BattleScreen(RPGGame game) {
 
         this.game = game;
@@ -120,6 +122,7 @@ public class BattleScreen implements Screen {
         String alphaFrag = Gdx.files.internal("alpha_frag.glsl").readString();
         alphaShader = new ShaderProgram(defaultVert, alphaFrag);
 
+        background = new Texture("environment_forest_evening.png");
 
         bmfont = new BitmapFont(
                 Gdx.files.internal("font/good_neighbors.fnt"),
@@ -164,7 +167,8 @@ public class BattleScreen implements Screen {
         playerBattleSprite.setScale(1.5f);
         playerBattleSprite.setPosition(Gdx.graphics.getWidth() * 5/24 * 1.25f, Gdx.graphics.getHeight() * 7/24 * 1.3f);
         enemyBattleSprite = new Sprite(enemy.getBattleSprite(),  150, 230);
-        enemyBattleSprite.setPosition(Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight() * 5 / 8);
+        enemyBattleSprite.setPosition(Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight()/2);
+        enemyBattleSprite.setScale(0.8f);
 
         flashTimer = 0;
         flashCount = 0;
@@ -223,6 +227,9 @@ public class BattleScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         spriteBatch.begin();
+        //draw background
+        spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
         //draw battle sprites
         if(animatingPlayerHP && flashTimer > 0) {
             flashingSprite(playerBattleSprite, delta);
