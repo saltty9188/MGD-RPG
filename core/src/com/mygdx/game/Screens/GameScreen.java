@@ -41,6 +41,7 @@ public class GameScreen implements Screen {
 
     private TiledMap townMap;
     private TiledMap currentMap;
+    private TiledMap caveMap;
 
     private int mapWidth;
     private int mapHeight;
@@ -76,9 +77,10 @@ public class GameScreen implements Screen {
 
         townMap = temp.load("Town.tmx");
         // TODO: Load other maps here
+        caveMap = temp.load("Cave.tmx");
 
         currentMap = townMap;
-
+        //currentMap = caveMap;
 
         //create can used to follow Character through the game world
         float w = Gdx.graphics.getWidth();
@@ -344,10 +346,12 @@ public class GameScreen implements Screen {
             enemies[i].update(delta, roamBox.getRectangle());
         }
 
-        // Add for loop for all NPCs
-        for(int i = 0; i < NPCs.length; i++) {
-            roamBox = (RectangleMapObject) roamZones.getObjects().get("NPC " + Integer.toString(i + 1));
-            NPCs[i].update(delta, roamBox.getRectangle(), player);
+        if(currentMap != caveMap) {
+            // Add for loop for all NPCs
+            for(int i = 0; i < NPCs.length; i++) {
+                roamBox = (RectangleMapObject) roamZones.getObjects().get("NPC " + Integer.toString(i + 1));
+                NPCs[i].update(delta, roamBox.getRectangle(), player);
+            }
         }
     }
 
