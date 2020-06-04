@@ -44,6 +44,7 @@ public class GameScreen implements Screen {
     private TiledMap townMap;
     private TiledMap currentMap;
     private TiledMap caveMap;
+    private TiledMap forestMap;
 
     private int mapWidth;
     private int mapHeight;
@@ -83,9 +84,11 @@ public class GameScreen implements Screen {
         townMap = temp.load("Town.tmx");
         // TODO: Load other maps here
         caveMap = temp.load("Cave.tmx");
+        forestMap = temp.load("Forest.tmx");
 
         currentMap = townMap;
         //currentMap = caveMap;
+        //currentMap = forestMap;
 
         //create can used to follow Character through the game world
         float w = Gdx.graphics.getWidth();
