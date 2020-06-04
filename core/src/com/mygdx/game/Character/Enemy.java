@@ -157,7 +157,4 @@ public class Enemy extends BattleCharacter {
         return exp;
     }
 
-    public void dispose() {
-       spriteSheet.dispose();
-    }
 }

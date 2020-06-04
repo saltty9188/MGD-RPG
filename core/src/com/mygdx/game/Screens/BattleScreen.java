@@ -23,8 +23,10 @@ import java.util.Random;
 public class BattleScreen implements Screen {
 
     private enum PlayerChoice {ATTACK, ITEM, RUN, CHOOSING}
+    public enum Location {FOREST, CAVE}
 
     private PlayerChoice playerChoice;
+    private Location location;
 
     private Sprite enemyBattleSprite;
     private Sprite playerBattleSprite;
@@ -122,8 +124,6 @@ public class BattleScreen implements Screen {
         String alphaFrag = Gdx.files.internal("alpha_frag.glsl").readString();
         alphaShader = new ShaderProgram(defaultVert, alphaFrag);
 
-        background = new Texture("environment_forest_evening.png");
-
         bmfont = new BitmapFont(
                 Gdx.files.internal("font/good_neighbors.fnt"),
                 Gdx.files.internal("font/good_neighbors.png"),
@@ -167,8 +167,13 @@ public class BattleScreen implements Screen {
         playerBattleSprite.setScale(1.5f);
         playerBattleSprite.setPosition(Gdx.graphics.getWidth() * 5/24 * 1.25f, Gdx.graphics.getHeight() * 7/24 * 1.3f);
         enemyBattleSprite = new Sprite(enemy.getBattleSprite(),  150, 230);
-        enemyBattleSprite.setPosition(Gdx.graphics.getWidth() * 3 / 4, Gdx.graphics.getHeight()/2);
+        enemyBattleSprite.setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight()/3);
         enemyBattleSprite.setScale(0.8f);
+
+        if(location == Location.FOREST) background = new Texture("environment_forest_evening.png");
+        else if (location == Location.CAVE) {
+            background = new Texture("fossil_cave.png");
+        }
 
         flashTimer = 0;
         flashCount = 0;
@@ -211,6 +216,10 @@ public class BattleScreen implements Screen {
 
     public void setEnemy(Enemy enemy) {
         this.enemy = enemy;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     @Override

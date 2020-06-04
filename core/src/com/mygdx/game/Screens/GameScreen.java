@@ -49,9 +49,12 @@ public class GameScreen implements Screen {
 
     private Player player;
     private Fountain fountain;
-    private Enemy[] enemies;
     private NPC[] NPCs;
     private NPC cutsceneNPC;
+
+    private Enemy[] forestEnemies;
+    private Enemy[] caveEnemies;
+    private Enemy[] currentEnemies;
 
     private float cutsceneDelta;
     private boolean inCutscene;
@@ -99,10 +102,12 @@ public class GameScreen implements Screen {
         playerDelta = new Vector2();
         playerDeltaRectangle = new Rectangle(0, 0, player.getWidth(), player.getHeight());
 
-        enemies = new Enemy[5];
+        forestEnemies = new Enemy[5];
+        caveEnemies = new Enemy[7];
+        currentEnemies = forestEnemies;
         NPCs = new NPC[5];
-        for(int i = 0; i < enemies.length; i++) {
-            enemies[i] = new Enemy();
+        for(int i = 0; i < forestEnemies.length; i++) {
+            forestEnemies[i] = new Enemy();
             NPCs[i] = new NPC();
         }
 
@@ -144,6 +149,8 @@ public class GameScreen implements Screen {
 
         // Will very likely have similar statements for other maps
         if(currentMap == townMap) {
+            //TODO: move to forest map when created
+            currentEnemies = forestEnemies;
             RectangleMapObject fountainSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Fountain");
             fountain.setCenter(fountainSpawn.getRectangle().x, fountainSpawn.getRectangle().y);
 
@@ -153,16 +160,18 @@ public class GameScreen implements Screen {
                 NPCSpawn = (RectangleMapObject) spawnLayer.getObjects().get("NPC " + Integer.toString(i + 1));
                 NPCs[i].setCenter(NPCSpawn.getRectangle().x, NPCSpawn.getRectangle().y);
             }
+        } else if (currentMap == caveMap) {
+            currentEnemies = caveEnemies;
         }
 
         // May need to change this for different maps
         // Could possibly create new enemy arrays for each map?
         RectangleMapObject enemySpawn;
-        for(int i = 0; i < enemies.length; i++) {
+        for(int i = 0; i < currentEnemies.length; i++) {
             // respawn enemies
-            enemies[i] = new Enemy();
+            currentEnemies[i] = new Enemy();
             enemySpawn = (RectangleMapObject) spawnLayer.getObjects().get("Enemy " + Integer.toString(i + 1));
-            enemies[i].setCenter(enemySpawn.getRectangle().x, enemySpawn.getRectangle().y);
+            currentEnemies[i].setCenter(enemySpawn.getRectangle().x, enemySpawn.getRectangle().y);
 
         }
 
@@ -170,7 +179,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        
+
     }
 
     public void handleInput(float delta){
@@ -213,7 +222,7 @@ public class GameScreen implements Screen {
 
     public void checkCollision() {
         tileRectangle = new Rectangle();
-        MapLayer collisionLayer = townMap.getLayers().get("Collision");
+        MapLayer collisionLayer = currentMap.getLayers().get("Collision");
         TiledMapTileLayer tileLayer = (TiledMapTileLayer) collisionLayer;
         tileRectangle.width = tileLayer.getTileWidth();
         tileRectangle.height = tileLayer.getTileHeight();
@@ -268,19 +277,21 @@ public class GameScreen implements Screen {
             }
         }
 
-        // Test for collision against NPCs
-        for(NPC npc : NPCs) {
-            playerDeltaRectangle.x = player.getX() + playerDelta.x;
-            playerDeltaRectangle.y = player.getY();
+        // Test for collision against NPCs in the town
+        if(currentMap == townMap) {
+            for (NPC npc : NPCs) {
+                playerDeltaRectangle.x = player.getX() + playerDelta.x;
+                playerDeltaRectangle.y = player.getY();
 
-            if(npc.getBoundingRectangle().overlaps(playerDeltaRectangle)) {
-                playerDelta.x = 0;
-            }
+                if (npc.getBoundingRectangle().overlaps(playerDeltaRectangle)) {
+                    playerDelta.x = 0;
+                }
 
-            playerDeltaRectangle.x = player.getX();
-            playerDeltaRectangle.y = player.getY() + playerDelta.y;
-            if(npc.getBoundingRectangle().overlaps(playerDeltaRectangle)) {
-                playerDelta.y = 0;
+                playerDeltaRectangle.x = player.getX();
+                playerDeltaRectangle.y = player.getY() + playerDelta.y;
+                if (npc.getBoundingRectangle().overlaps(playerDeltaRectangle)) {
+                    playerDelta.y = 0;
+                }
             }
         }
     }
@@ -341,9 +352,12 @@ public class GameScreen implements Screen {
     public void moveActors(float delta) {
         RectangleMapObject roamBox;
         //Add for loop for all enemies
-        for(int i = 0; i < enemies.length; i++) {
-            roamBox = (RectangleMapObject) roamZones.getObjects().get("Enemy " + Integer.toString(i + 1));
-            enemies[i].update(delta, roamBox.getRectangle());
+        for(int i = 0; i < currentEnemies.length; i++) {
+            // Only update enemies that are alive
+            if(currentEnemies[i].isAlive()) {
+                roamBox = (RectangleMapObject) roamZones.getObjects().get("Enemy " + Integer.toString(i + 1));
+                currentEnemies[i].update(delta, roamBox.getRectangle());
+            }
         }
 
         if(currentMap != caveMap) {
@@ -356,11 +370,14 @@ public class GameScreen implements Screen {
     }
 
     public void checkEnemies() {
-        for (Enemy enemy : enemies) {
+        for (Enemy enemy : currentEnemies) {
             if (enemy.isAlive() && gameCam.frustum.pointInFrustum(enemy.getX(), enemy.getY(), 0) &&
                     enemy.getBoundingRectangle().overlaps(player.getBoundingRectangle())) {
                 RPGGame.battleScreen.setEnemy(enemy);
                 RPGGame.battleScreen.setPlayer(player);
+                if(currentEnemies == forestEnemies) RPGGame.battleScreen.setLocation(BattleScreen.Location.FOREST);
+                else if(currentEnemies == caveEnemies) RPGGame.battleScreen.setLocation(BattleScreen.Location.CAVE);
+
                 game.setScreen(RPGGame.battleScreen);
             }
         }
@@ -378,7 +395,7 @@ public class GameScreen implements Screen {
     }
 
     public void drawActors() {
-        for (Enemy enemy : enemies) {
+        for (Enemy enemy : currentEnemies) {
             if (enemy.isAlive() && onScreen(enemy)) {
                 enemy.draw(spriteBatch);
             }
@@ -466,10 +483,17 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         townMap.dispose();
+        caveMap.dispose();
         spriteBatch.dispose();
         player.dispose();
-        for(Enemy enemy: enemies) {
+        for(Enemy enemy: forestEnemies) {
             enemy.dispose();
+        }
+        for(Enemy enemy: caveEnemies) {
+            enemy.dispose();
+        }
+        for (NPC npc : NPCs) {
+            npc.dispose();
         }
     }
 }
