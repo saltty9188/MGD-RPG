@@ -130,6 +130,28 @@ public class Button {
         }
     }
 
+    public void draw(SpriteBatch batch, Texture graphic) {
+
+        float graphicX = x + 5;
+        float graphicY = y + 5;
+        float graphicWidth = width - 10;
+        float grapicHeight = height - 10;
+        // Want the graphic to be square
+        if(width != height) {
+            graphicWidth = Math.min(graphicWidth, grapicHeight);
+            grapicHeight = graphicWidth;
+        }
+
+        if(isDown) {
+            batch.draw(downTexture, x, y, width, height);
+            batch.draw(graphic, graphicX, graphicY - 1, graphicWidth, grapicHeight);
+        }
+        else {
+            batch.draw(upTexture, x, y, width, height);
+            batch.draw(graphic, graphicX, graphicY, graphicWidth, grapicHeight);
+        }
+    }
+
     /**
      * Returns if the button has just been released.
      * @return True if the button was just released, false otherwise.

@@ -108,6 +108,7 @@ public class BattleScreen implements Screen {
     private float pauseTime;
 
     private Texture background;
+    private Texture backGraphic;
 
     public BattleScreen(RPGGame game) {
 
@@ -140,6 +141,8 @@ public class BattleScreen implements Screen {
         buttonUp = new Texture("buttonUp.png");
         buttonDown = new Texture("buttonDown.png");
 
+        backGraphic = new Texture("back-graphic.png");
+
         attackButton = new Button(Gdx.graphics.getWidth() / 2 + PADDING, Gdx.graphics.getHeight() * 7/48 + PADDING, Gdx.graphics.getWidth() / 2 - 2 * PADDING,
                 Gdx.graphics.getHeight() * 7/48 - 2 * PADDING, buttonUp, buttonDown);
         itemButton = new Button(Gdx.graphics.getWidth() / 2 + PADDING, 0, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
@@ -147,8 +150,8 @@ public class BattleScreen implements Screen {
         runButton = new Button(Gdx.graphics.getWidth() * 3 / 4 + PADDING, 0, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
                 Gdx.graphics.getHeight() * 7/48 - PADDING, buttonUp, buttonDown);
 
-        backButton = new Button(Gdx.graphics.getWidth() * 23 / 24 - PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING, Gdx.graphics.getWidth() / 24,
-                Gdx.graphics.getWidth() / 24, buttonUp, buttonDown);
+        backButton = new Button(Gdx.graphics.getWidth() * 17 / 18 - PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING, Gdx.graphics.getWidth() / 18,
+                Gdx.graphics.getWidth() / 18, buttonUp, buttonDown);
 
         playerAttackButton1 = new Button(Gdx.graphics.getWidth() / 2 + PADDING, Gdx.graphics.getHeight() * 7/48 + PADDING, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
                 Gdx.graphics.getHeight() * 7/48 - 2 * PADDING, buttonUp, buttonDown);
@@ -296,9 +299,9 @@ public class BattleScreen implements Screen {
                         playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus(), player.getAttack(3).getPP() == 0);
                     }
 
-                    if (inAttacks || inItems) backButton.draw(spriteBatch);
+                    if (inAttacks || inItems) backButton.draw(spriteBatch, backGraphic);
 
-                    drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288);
+                    drawStatBox(spriteBatch, enemy, Gdx.graphics.getWidth() *  3/4 - PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288);
                     drawStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING);
 
                     break;
@@ -330,17 +333,17 @@ public class BattleScreen implements Screen {
 
                     // Animate the enemy's HP bar and display the player's battle message
                     if (!textAnimating && animatingEnemyHP) {
-                        animateStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288, delta, enemyDamage);
+                        animateStatBox(spriteBatch, enemy, Gdx.graphics.getWidth() *  3/4 - PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288, delta, enemyDamage);
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                                 Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
                                 (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false,2);
                     } else {
-                        drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288);
+                        drawStatBox(spriteBatch, enemy, Gdx.graphics.getWidth() *  3/4 - PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288);
                     }
                     break;
 
                 case RUN:
-                    drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288);
+                    drawStatBox(spriteBatch, enemy, Gdx.graphics.getWidth() *  3/4 - PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288);
 
                     // Draw the static player HP if it's not being animated
                     if (!animatingPlayerHP) {
