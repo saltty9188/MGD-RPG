@@ -86,8 +86,8 @@ public class GameScreen implements Screen {
         caveMap = temp.load("Cave.tmx");
         forestMap = temp.load("Forest.tmx");
 
-        currentMap = townMap;
-        //currentMap = caveMap;
+        //currentMap = townMap;
+        currentMap = caveMap;
         //currentMap = forestMap;
 
         //create can used to follow Character through the game world
@@ -107,12 +107,11 @@ public class GameScreen implements Screen {
         playerDelta = new Vector2();
         playerDeltaRectangle = new Rectangle(0, 0, player.getWidth(), player.getHeight());
 
-        forestEnemies = new Enemy[5];
+        forestEnemies = new Enemy[1];
         caveEnemies = new Enemy[7];
         currentEnemies = forestEnemies;
         NPCs = new NPC[5];
-        for(int i = 0; i < forestEnemies.length; i++) {
-            forestEnemies[i] = new RestlessLeaves();
+        for(int i = 0; i < NPCs.length; i++) {
             NPCs[i] = new NPC();
         }
 
@@ -165,23 +164,22 @@ public class GameScreen implements Screen {
         } else if (currentMap == caveMap) {
             currentEnemies = caveEnemies;
         } else if(currentMap == forestMap){
-            //TODO: move to forest map when created
-            currentEnemies = new Enemy[1];
+            currentEnemies = forestEnemies;
         }
 
         // May need to change this for different maps
-        // Could possibly create new enemy arrays for each map?
-        RectangleMapObject enemySpawn;
-        for(int i = 0; i < currentEnemies.length; i++) {
-            // respawn enemies
-            if(currentEnemies == forestEnemies) {
-                currentEnemies[i] = new RestlessLeaves();
-            } else if(currentEnemies == caveEnemies) {
-                currentEnemies[i] = new MadBat();
+        if(currentMap != townMap) {
+            RectangleMapObject enemySpawn;
+            for (int i = 0; i < currentEnemies.length; i++) {
+                // respawn enemies
+                if (currentEnemies == forestEnemies) {
+                    currentEnemies[i] = new RestlessLeaves();
+                } else if (currentEnemies == caveEnemies) {
+                    currentEnemies[i] = new MadBat();
+                }
+                enemySpawn = (RectangleMapObject) spawnLayer.getObjects().get("Enemy " + Integer.toString(i + 1));
+                currentEnemies[i].setCenter(enemySpawn.getRectangle().x, enemySpawn.getRectangle().y);
             }
-            enemySpawn = (RectangleMapObject) spawnLayer.getObjects().get("Enemy " + Integer.toString(i + 1));
-            currentEnemies[i].setCenter(enemySpawn.getRectangle().x, enemySpawn.getRectangle().y);
-
         }
 
     }
@@ -335,7 +333,7 @@ public class GameScreen implements Screen {
 
         boolean checkTouch = Gdx.input.justTouched();
 
-        fountain.update(delta);
+        if(currentMap == townMap) fountain.update(delta);
 
         if(talkingNPC != null) {
             if(checkTouch) {
@@ -350,7 +348,7 @@ public class GameScreen implements Screen {
             handleInput(delta);
             player.update(delta);
             moveActors(delta);
-            checkEnemies();
+            if(currentMap != townMap) checkEnemies();
             checkNPCs();
         }
 
@@ -364,16 +362,17 @@ public class GameScreen implements Screen {
      */
     public void moveActors(float delta) {
         RectangleMapObject roamBox;
-        //Add for loop for all enemies
-        for(int i = 0; i < currentEnemies.length; i++) {
-            // Only update enemies that are alive
-            if(currentEnemies[i].isAlive()) {
-                roamBox = (RectangleMapObject) roamZones.getObjects().get("Enemy " + Integer.toString(i + 1));
-                currentEnemies[i].update(delta, roamBox.getRectangle());
+        // Only update enemies if on the forest or cave map
+        if(currentMap != townMap) {
+            // Update position for all enemies
+            for (int i = 0; i < currentEnemies.length; i++) {
+                // Only update enemies that are alive
+                if (currentEnemies[i].isAlive()) {
+                    roamBox = (RectangleMapObject) roamZones.getObjects().get("Enemy " + Integer.toString(i + 1));
+                    currentEnemies[i].update(delta, roamBox.getRectangle());
+                }
             }
-        }
-
-        if(currentMap != caveMap) {
+        } else { // Only update NPCs if on the town map
             // Add for loop for all NPCs
             for(int i = 0; i < NPCs.length; i++) {
                 roamBox = (RectangleMapObject) roamZones.getObjects().get("NPC " + Integer.toString(i + 1));
@@ -408,15 +407,17 @@ public class GameScreen implements Screen {
     }
 
     public void drawActors() {
-        for (Enemy enemy : currentEnemies) {
-            if (enemy.isAlive() && onScreen(enemy)) {
-                enemy.draw(spriteBatch);
+        if(currentMap != townMap) {
+            for (Enemy enemy : currentEnemies) {
+                if (enemy.isAlive() && onScreen(enemy)) {
+                    enemy.draw(spriteBatch);
+                }
             }
-        }
-
-        for(NPC npc : NPCs) {
-            if(onScreen(npc)) {
-                npc.draw(spriteBatch);
+        } else {
+            for (NPC npc : NPCs) {
+                if (onScreen(npc)) {
+                    npc.draw(spriteBatch);
+                }
             }
         }
     }
@@ -436,7 +437,7 @@ public class GameScreen implements Screen {
         if(inCutscene) cutsceneNPC.draw(spriteBatch);
         player.draw(spriteBatch);
         spriteBatch.setProjectionMatrix(gameCam.combined);
-        spriteBatch.draw(fountain, fountain.getX(), fountain.getY());
+        if(currentMap == townMap) spriteBatch.draw(fountain, fountain.getX(), fountain.getY());
 
         spriteBatch.end();
 
