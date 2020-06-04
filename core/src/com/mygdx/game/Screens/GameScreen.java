@@ -20,8 +20,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Character.Character;
 import com.mygdx.game.Character.Enemy;
+import com.mygdx.game.Character.MadBat;
 import com.mygdx.game.Character.NPC;
 import com.mygdx.game.Character.Player;
+import com.mygdx.game.Character.RestlessLeaves;
 import com.mygdx.game.WorldAnimations.Fountain;
 import com.mygdx.game.RPGGame;
 
@@ -107,7 +109,7 @@ public class GameScreen implements Screen {
         currentEnemies = forestEnemies;
         NPCs = new NPC[5];
         for(int i = 0; i < forestEnemies.length; i++) {
-            forestEnemies[i] = new Enemy();
+            forestEnemies[i] = new RestlessLeaves();
             NPCs[i] = new NPC();
         }
 
@@ -169,7 +171,11 @@ public class GameScreen implements Screen {
         RectangleMapObject enemySpawn;
         for(int i = 0; i < currentEnemies.length; i++) {
             // respawn enemies
-            currentEnemies[i] = new Enemy();
+            if(currentEnemies == forestEnemies) {
+                currentEnemies[i] = new RestlessLeaves();
+            } else if(currentEnemies == caveEnemies) {
+                currentEnemies[i] = new MadBat();
+            }
             enemySpawn = (RectangleMapObject) spawnLayer.getObjects().get("Enemy " + Integer.toString(i + 1));
             currentEnemies[i].setCenter(enemySpawn.getRectangle().x, enemySpawn.getRectangle().y);
 
@@ -308,7 +314,11 @@ public class GameScreen implements Screen {
     }
 
     public void update(float delta) {
+        //Player died in battle
         if(!player.isAlive()) {
+            currentMap = townMap;
+            initialiseMap("Player");
+
             player.setCenter(fountain.getX(), fountain.getY() - 30); // player died in battle will do more later
 
             gameCam.position.x = player.getX();

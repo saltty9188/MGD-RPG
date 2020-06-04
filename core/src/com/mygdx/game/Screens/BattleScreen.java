@@ -35,6 +35,7 @@ public class BattleScreen implements Screen {
     private int flashCount;
 
     private static final float PADDING = 0.5f;
+    private static final float WINDOW_BORDER_RATIO = 0.045f;
 
     private RPGGame game;
     private Enemy enemy;
@@ -276,8 +277,9 @@ public class BattleScreen implements Screen {
 
             switch (playerChoice) {
                 case CHOOSING:
-                    drawText(spriteBatch, generalMessage, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() * 7/24, 0,
-                            0, delta, battleStart, 2);
+                    drawText(spriteBatch, generalMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
+                            Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
+                            (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, battleStart, 2);
 
                     // Only displays intro message once
                     if (!textAnimating) battleStart = false;
@@ -304,21 +306,24 @@ public class BattleScreen implements Screen {
                 case ATTACK:
                     // Enemy attack message
                     if (textAnimating && animatingPlayerHP) {
-                        drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() * 7/24, 0,
-                                0, delta, false, 2);
+                        drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
+                                Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
+                                (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false, 2);
                     }
 
                     // Player attack message
                     if (textAnimating && animatingEnemyHP) {
-                        drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() * 7/24, 0,
-                                0, delta, false, 2);
+                        drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
+                                Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
+                                (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false, 2);
                     }
 
                     // Animate the player's HP bar and display the enemy's battle message
                     if (!textAnimating && animatingPlayerHP) {
                         animateStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING, delta, playerDamage);
-                        drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() * 7/24, 0,
-                                0, delta, false, 2);
+                        drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
+                                Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
+                                (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false, 2);
                     } else {
                         drawStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING);
                     }
@@ -326,8 +331,9 @@ public class BattleScreen implements Screen {
                     // Animate the enemy's HP bar and display the player's battle message
                     if (!textAnimating && animatingEnemyHP) {
                         animateStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288, delta, enemyDamage);
-                        drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() * 7/24, 0,
-                                0, delta, false,2);
+                        drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
+                                Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
+                                (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false,2);
                     } else {
                         drawStatBox(spriteBatch, enemy, PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288);
                     }
@@ -342,20 +348,23 @@ public class BattleScreen implements Screen {
                     }
                     // Display the relevant flee message if the enemy's turn is not complete (ie it hasn't gone yet or fleeing was successful)
                     if (!enemyTurnComplete) {
-                        drawText(spriteBatch, fleeMessage, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() * 7/24, 0,
-                                0, delta, true, 2);
+                        drawText(spriteBatch, fleeMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
+                                Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
+                                (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, true, 2);
                     } else {
                         // Enemy attack message
                         if (textAnimating && animatingPlayerHP) {
-                            drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() * 7/24, 0,
-                                    0, delta, false, 2);
+                            drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
+                                    Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
+                                    (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false, 2);
                             drawStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING);
                         }
                         // Animate the player's HP bar and display the enemy's battle message
                         else if (!textAnimating && animatingPlayerHP) {
                             animateStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING, delta, playerDamage);
-                            drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() * 7/24, 0,
-                                    0, delta, false, 2);
+                            drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
+                                    Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
+                                    (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false, 2);
                         }
                     }
             }
@@ -382,7 +391,8 @@ public class BattleScreen implements Screen {
         bmfont.getData().setScale(scale);
         System.out.println(text);
         GlyphLayout glyphLayout = new GlyphLayout();
-        glyphLayout.setText(bmfont, text);
+        // Remove any newlines so we can get an accurate value for the font height
+        glyphLayout.setText(bmfont, text.replace("\n", ""));
 
         //Get the height of a single line of text
         float fontHeight = glyphLayout.height;
@@ -393,7 +403,6 @@ public class BattleScreen implements Screen {
 
         // Raise the text proportionally to how many lines there are
         int numLines = (int) (glyphLayout.height / fontHeight);
-        if(text.contains("\n")) textY += fontHeight/2; // Assumes there will only be one newline in the text
         if (numLines > 1) textY += fontHeight / 2 * numLines;
 
         if (textAnimating) {

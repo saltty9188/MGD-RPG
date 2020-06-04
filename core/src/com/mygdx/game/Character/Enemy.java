@@ -15,19 +15,13 @@ import java.util.Random;
  * The class that represents the Enemies the Player will face both in the overworld
  * and in the battle screens.
  */
-public class Enemy extends BattleCharacter {
+public abstract class Enemy extends BattleCharacter {
 
     private int exp;
 
     Random rand;
     float walkDuration;
     int direction;
-
-    public Enemy() {
-        this(new Texture("log.png"), 20, 23, new Texture("log-battle.png"),
-                100, 10, 5, 5, 3, "Uncle Tester", 20);
-
-    }
 
     public Enemy(Texture spriteSheet, int width, int height, Texture battleSprite,
                  int maxHP, int strength, int defence, int speed, int level, String name, int exp) {
@@ -56,32 +50,7 @@ public class Enemy extends BattleCharacter {
         return region;
     }
 
-    public void genAnimations() {
-        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 4, 7, 20, 23),
-            new TextureRegion(spriteSheet, 37, 7, 20, 23),
-            new TextureRegion(spriteSheet, 68, 7, 20, 23),
-            new TextureRegion(spriteSheet, 101, 7, 20, 23)};
-        walkDownAni = new Animation<TextureRegion>(AFS, fFrames);
-        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 165, 11, 20, 23),
-            new TextureRegion(spriteSheet, 163, 41, 20, 23),
-            new TextureRegion(spriteSheet, 163, 72, 20, 23)};
-        idleAni = new Animation<TextureRegion>(AFS, fFrames);
-        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 7, 39, 20, 23),
-            new TextureRegion(spriteSheet, 39, 40, 20, 23),
-            new TextureRegion(spriteSheet, 71, 39, 20, 23),
-            new TextureRegion(spriteSheet, 104, 40, 20, 23)};
-        walkUpAni = new Animation<TextureRegion>(AFS, fFrames);
-        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 10, 101, 20, 23),
-                new TextureRegion(spriteSheet, 42, 102, 20, 23),
-                new TextureRegion(spriteSheet, 74, 101, 20, 23),
-                new TextureRegion(spriteSheet, 106, 102, 20, 23)};
-        walkLeftAni = new Animation<TextureRegion>(AFS, fFrames);
-        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 10, 69, 20, 23),
-                new TextureRegion(spriteSheet, 42, 70, 20, 23),
-                new TextureRegion(spriteSheet, 73, 69, 20, 23),
-                new TextureRegion(spriteSheet, 106, 70, 20, 23)};
-        walkRightAni = new Animation<TextureRegion>(AFS, fFrames);
-    }
+    protected abstract void genAnimations();
 
     public void update(float delta, Rectangle roamZone) {
         setRegion(getFrame(delta));
