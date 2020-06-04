@@ -154,11 +154,8 @@ public class GameScreen implements Screen {
 
         // Will very likely have similar statements for other maps
         if(currentMap == townMap) {
-            //TODO: move to forest map when created
-            currentEnemies = forestEnemies;
             RectangleMapObject fountainSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Fountain");
             fountain.setCenter(fountainSpawn.getRectangle().x, fountainSpawn.getRectangle().y);
-
             // Assumes only the town map will have NPCs, can be changed later if needed
             RectangleMapObject NPCSpawn;
             for(int i = 0; i < NPCs.length; i++) {
@@ -167,6 +164,9 @@ public class GameScreen implements Screen {
             }
         } else if (currentMap == caveMap) {
             currentEnemies = caveEnemies;
+        } else if(currentMap == forestMap){
+            //TODO: move to forest map when created
+            currentEnemies = new Enemy[1];
         }
 
         // May need to change this for different maps
