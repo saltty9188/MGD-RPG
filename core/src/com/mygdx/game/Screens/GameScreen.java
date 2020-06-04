@@ -62,6 +62,12 @@ public class GameScreen implements Screen {
     private float cutsceneDelta;
     private boolean inCutscene;
 
+    // Map exits
+    RectangleMapObject townToForest;
+    RectangleMapObject forestToTown;
+    RectangleMapObject forestToCave;
+    RectangleMapObject caveToForest;
+
     //The layer that holds the enemies/NPCs roaming areas
     private MapLayer roamZones;
 
@@ -86,9 +92,20 @@ public class GameScreen implements Screen {
         caveMap = temp.load("Cave.tmx");
         forestMap = temp.load("Forest.tmx");
 
-        //currentMap = townMap;
-        currentMap = caveMap;
+        currentMap = townMap;
+        //currentMap = caveMap;
         //currentMap = forestMap;
+
+        // Store the exit rectangles for each map
+        MapLayer exitLayer = townMap.getLayers().get("Exits");
+        townToForest = (RectangleMapObject)exitLayer.getObjects().get("Forest");
+
+        exitLayer = forestMap.getLayers().get("Exits");
+        forestToTown = (RectangleMapObject) exitLayer.getObjects().get("Town");
+        forestToCave = (RectangleMapObject) exitLayer.getObjects().get("Cave");
+
+        exitLayer = caveMap.getLayers().get("Exits");
+        caveToForest = (RectangleMapObject) exitLayer.getObjects().get("Forest");
 
         //create can used to follow Character through the game world
         float w = Gdx.graphics.getWidth();
@@ -115,7 +132,7 @@ public class GameScreen implements Screen {
             NPCs[i] = new NPC();
         }
 
-        initialiseMap("Player");
+        initialiseMap("Start");
 
         cutsceneNPC = new NPC(new Texture("NPC_test.png"), 14, 21,
                 "Man that guy really beat the snot out of you.", "You're lucky I was able to drag you out of there!",
@@ -315,10 +332,13 @@ public class GameScreen implements Screen {
     }
 
     public void update(float delta) {
+
+        checkExits();
+
         //Player died in battle
         if(!player.isAlive()) {
             currentMap = townMap;
-            initialiseMap("Player");
+            initialiseMap("Start");
 
             player.setCenter(fountain.getX(), fountain.getY() - 30); // player died in battle will do more later
 
@@ -381,6 +401,10 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * Checks all the enemies of the current map for a collision with the player and transitions to the battle screen
+     * if one has occurred.
+     */
     public void checkEnemies() {
         for (Enemy enemy : currentEnemies) {
             if (enemy.isAlive() && gameCam.frustum.pointInFrustum(enemy.getX(), enemy.getY(), 0) &&
@@ -395,6 +419,9 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * Checks if the player is next to an NPC and displays their dialogue if the player interacts with them.
+     */
     public void checkNPCs() {
         for (NPC npc : NPCs) {
             if(gameCam.frustum.pointInFrustum(npc.getX(), npc.getY(), 0) &&
@@ -406,6 +433,31 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * Checks to see if the player is about to exit the current map and loads the next map if they are.
+     */
+    public void checkExits() {
+
+        if(currentMap == townMap && player.getBoundingRectangle().overlaps(townToForest.getRectangle())) {
+            currentMap = forestMap;
+            initialiseMap("Town");
+        } else if(currentMap == forestMap && player.getBoundingRectangle().overlaps(forestToTown.getRectangle())) {
+            currentMap = townMap;
+            initialiseMap("Forest");
+        } else if(currentMap == forestMap && player.getBoundingRectangle().overlaps(forestToCave.getRectangle())) {
+            currentMap = caveMap;
+            initialiseMap("Forest");
+        } else if(currentMap == caveMap && player.getBoundingRectangle().overlaps(caveToForest.getRectangle())) {
+            currentMap = forestMap;
+            initialiseMap("Cave");
+        }
+
+
+    }
+
+    /**
+     * Draws the NPCs/Enemies to the screen if they are on camera.
+     */
     public void drawActors() {
         if(currentMap != townMap) {
             for (Enemy enemy : currentEnemies) {
