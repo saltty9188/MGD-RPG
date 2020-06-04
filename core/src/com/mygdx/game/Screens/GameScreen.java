@@ -335,6 +335,19 @@ public class GameScreen implements Screen {
                     playerDelta.y = 0;
                 }
             }
+            // Check against the shopkeeper
+            playerDeltaRectangle.x = player.getX() + playerDelta.x;
+            playerDeltaRectangle.y = player.getY();
+
+            if (shopkeeper.getBoundingRectangle().overlaps(playerDeltaRectangle)) {
+                playerDelta.x = 0;
+            }
+
+            playerDeltaRectangle.x = player.getX();
+            playerDeltaRectangle.y = player.getY() + playerDelta.y;
+            if (shopkeeper.getBoundingRectangle().overlaps(playerDeltaRectangle)) {
+                playerDelta.y = 0;
+            }
         }
     }
 
@@ -495,6 +508,9 @@ public class GameScreen implements Screen {
                 if (onScreen(npc)) {
                     npc.draw(spriteBatch);
                 }
+            }
+            if(onScreen(shopkeeper)) {
+                shopkeeper.draw(spriteBatch);
             }
         }
     }
