@@ -29,8 +29,6 @@ import com.mygdx.game.RPGGame;
 
 public class GameScreen implements Screen {
 
-    public static final int PLAYER_SPEED = 98;
-
     //Game
     RPGGame game;
 
@@ -50,10 +48,13 @@ public class GameScreen implements Screen {
     private int mapHeight;
     private TiledMapRenderer renderer;
 
+    private float playerSpeed;
+
     private Player player;
     private Fountain fountain;
     private NPC[] NPCs;
     private NPC cutsceneNPC;
+    private NPC shopkeeper;
 
     private Enemy[] forestEnemies;
     private Enemy[] caveEnemies;
@@ -82,6 +83,8 @@ public class GameScreen implements Screen {
     private void create() {
         spriteBatch = new SpriteBatch();
         uiBatch = new SpriteBatch();
+
+        playerSpeed = 98;
 
         talkingNPC = null;
 
@@ -124,18 +127,29 @@ public class GameScreen implements Screen {
         playerDelta = new Vector2();
         playerDeltaRectangle = new Rectangle(0, 0, player.getWidth(), player.getHeight());
 
-        forestEnemies = new Enemy[1];
+        forestEnemies = new Enemy[10];
         caveEnemies = new Enemy[7];
         currentEnemies = forestEnemies;
-        NPCs = new NPC[5];
-        for(int i = 0; i < NPCs.length; i++) {
-            NPCs[i] = new NPC();
-        }
+
+        NPCs = new NPC[7];
+        // NPCs that move
+        NPCs[0] = new NPC("Hello there traveller.", "Welcome to Erathis's Village");
+        NPCs[1] = new NPC("I've always wanted to travel far to the west...", "But the stupid mayor won't let us.");
+        NPCs[2] = new NPC("It's a pretty fountain.");
+        NPCs[3] = new NPC("Leave me alone.");
+        NPCs[4] = new NPC("Be careful going that way, that leads to the Eastern Forest", "They say some creature lives in a cave near there.",
+                "I'm gonna stay right here.");
+        NPCs[5] = new NPC("Hey you're a fighter right?", "You gotta help us! Some monster stole our medical supplies!", "I'm not sure where he went though...");
+
+        //Stationary NPCs
+        NPCs[6] = new NPC("I could stay here and look at this lake forever...");
+        NPCs[6].setAnimation(3);
+        shopkeeper = new NPC();
+        shopkeeper.setAnimation(3);
 
         initialiseMap("Start");
 
-        cutsceneNPC = new NPC(new Texture("NPC_test.png"), 14, 21,
-                "Man that guy really beat the snot out of you.", "You're lucky I was able to drag you out of there!",
+        cutsceneNPC = new NPC("Man that guy really beat the snot out of you.", "You're lucky I was able to drag you out of there!",
                 "Be more careful next time, OK?");
         cutsceneDelta = 0;
         inCutscene = false;
@@ -176,8 +190,11 @@ public class GameScreen implements Screen {
             RectangleMapObject NPCSpawn;
             for(int i = 0; i < NPCs.length; i++) {
                 NPCSpawn = (RectangleMapObject) spawnLayer.getObjects().get("NPC " + Integer.toString(i + 1));
-                NPCs[i].setCenter(NPCSpawn.getRectangle().x, NPCSpawn.getRectangle().y);
+                NPCs[i].setPosition(NPCSpawn.getRectangle().x, NPCSpawn.getRectangle().y);
             }
+            RectangleMapObject shopkeeperSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Shopkeeper");
+            shopkeeper.setPosition(shopkeeperSpawn.getRectangle().x, shopkeeperSpawn.getRectangle().y);
+
         } else if (currentMap == caveMap) {
             currentEnemies = caveEnemies;
         } else if(currentMap == forestMap){
@@ -210,18 +227,24 @@ public class GameScreen implements Screen {
         playerDelta.x = 0;
         playerDelta.y = 0;
 
+        if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+            playerSpeed = 1.5f * 98;
+        } else {
+            playerSpeed = 98;
+        }
+
         if (Gdx.input.isKeyPressed(Input.Keys.W)){
             player.setAnimation(1);
-            playerDelta.y = PLAYER_SPEED * delta;
+            playerDelta.y = playerSpeed * delta;
         } else if (Gdx.input.isKeyPressed(Input.Keys.A)){
             player.setAnimation(2);
-            playerDelta.x = -1 * PLAYER_SPEED * delta;
+            playerDelta.x = -1 * playerSpeed * delta;
         } else if (Gdx.input.isKeyPressed(Input.Keys.S)){
             player.setAnimation(3);
-            playerDelta.y = -1 * PLAYER_SPEED * delta;
+            playerDelta.y = -1 * playerSpeed * delta;
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)){
             player.setAnimation(4);
-            playerDelta.x = PLAYER_SPEED * delta;
+            playerDelta.x = playerSpeed * delta;
         } else if (Gdx.input.isKeyPressed(Input.Keys.X)){
             player.setAnimation(9);
         } else {
@@ -237,11 +260,6 @@ public class GameScreen implements Screen {
         gameCam.position.y = player.getY();
 
         cameraBounds();
-
-        if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            gameCam.zoom += 1;
-            System.out.println(gameCam.zoom);
-        }
     }
 
     public void checkCollision() {
@@ -340,7 +358,9 @@ public class GameScreen implements Screen {
             currentMap = townMap;
             initialiseMap("Start");
 
-            player.setCenter(fountain.getX(), fountain.getY() - 30); // player died in battle will do more later
+            player.setCenter(fountain.getX(), fountain.getY() - 30);
+            // Make the player face the NPC
+            player.setAnimation(4);
 
             gameCam.position.x = player.getX();
             gameCam.position.y = player.getY();
@@ -369,7 +389,7 @@ public class GameScreen implements Screen {
             player.update(delta);
             moveActors(delta);
             if(currentMap != townMap) checkEnemies();
-            checkNPCs();
+            else checkNPCs();
         }
 
         gameCam.update();
@@ -396,7 +416,8 @@ public class GameScreen implements Screen {
             // Add for loop for all NPCs
             for(int i = 0; i < NPCs.length; i++) {
                 roamBox = (RectangleMapObject) roamZones.getObjects().get("NPC " + Integer.toString(i + 1));
-                NPCs[i].update(delta, roamBox.getRectangle(), player);
+                //Stationary NPCs have no roam box
+                if(roamBox != null) NPCs[i].update(delta, roamBox.getRectangle(), player);
             }
         }
     }
@@ -426,10 +447,14 @@ public class GameScreen implements Screen {
         for (NPC npc : NPCs) {
             if(gameCam.frustum.pointInFrustum(npc.getX(), npc.getY(), 0) &&
             npc.closeTo(player) && Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-                //talkingNPC = npc;
-                RPGGame.shopScreen.setPlayer(player);
-                game.setScreen(RPGGame.shopScreen);
+                talkingNPC = npc;
             }
+        }
+
+        if(gameCam.frustum.pointInFrustum(shopkeeper.getX(), shopkeeper.getY(), 0) &&
+                shopkeeper.closeTo(player) && Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            RPGGame.shopScreen.setPlayer(player);
+            game.setScreen(RPGGame.shopScreen);
         }
     }
 
@@ -507,6 +532,8 @@ public class GameScreen implements Screen {
         // Only set on the first frame
         if(cutsceneDelta == delta) {
             cutsceneNPC.setPosition(player.getX() + player.getWidth() + 5, player.getY());
+            // Make the NPC face the player
+            cutsceneNPC.setAnimation(2);
             talkingNPC = cutsceneNPC;
         }
 

@@ -12,6 +12,8 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.Random;
 
+import javax.swing.JDialog;
+
 public class NPC extends Character {
 
     private BitmapFont bmfont;
@@ -31,6 +33,10 @@ public class NPC extends Character {
 
     public NPC() {
         this(new Texture("NPC_test.png"), 14, 21, "Hello", "Are you still here?");
+    }
+
+    public NPC(String ... dialogue) {
+        this(new Texture("NPC_test.png"), 14, 21, dialogue);
     }
 
     public NPC(Texture spriteSheet, int width, int height, String ... dialogue) {
@@ -218,7 +224,7 @@ public class NPC extends Character {
 
         bmfont.getData().setScale(2);
         GlyphLayout glyphLayout = new GlyphLayout();
-        glyphLayout.setText(bmfont, currentDialogue);
+        glyphLayout.setText(bmfont, currentDialogue.replace("\n", ""));
 
         //Get the height of a single line of text
         float fontHeight = glyphLayout.height;
@@ -229,7 +235,6 @@ public class NPC extends Character {
 
         // Raise the text proportionally to how many lines there are
         int numLines = (int) (glyphLayout.height / fontHeight);
-        if(currentDialogue.contains("\n")) textY += fontHeight/2; // Assumes there will only be one newline in the text
         if (numLines > 1) textY += fontHeight / 2 * numLines;
 
         if (textAnimating) {

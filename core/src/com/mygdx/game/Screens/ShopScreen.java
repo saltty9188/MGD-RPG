@@ -154,7 +154,7 @@ public class ShopScreen implements Screen {
 
         bmfont.getData().setScale(2);
         GlyphLayout glyphLayout = new GlyphLayout();
-        glyphLayout.setText(bmfont, text);
+        glyphLayout.setText(bmfont, text.replace("\n", ""));
 
         //Get the height of a single line of text
         float fontHeight = glyphLayout.height;
@@ -165,7 +165,6 @@ public class ShopScreen implements Screen {
 
         // Raise the text proportionally to how many lines there are
         int numLines = (int) (glyphLayout.height / fontHeight);
-        if(text.contains("\n")) textY += fontHeight/2; // Assumes there will only be one newline in the text
         if (numLines > 1) textY += fontHeight / 2 * numLines;
 
         if (textAnimating) {
