@@ -29,6 +29,9 @@ public class Player extends BattleCharacter {
                 100, 20, 5, 12, 1, "Hero");
         HP = 1;
 
+        potion = new Potion();
+        ether = new Ether();
+
         currentExp = 0;
         toNextLevel = (int) (6.1 * Math.pow(level + 1, 2) + 1.4 * (level + 1) - 11.4);
 
@@ -101,7 +104,12 @@ public class Player extends BattleCharacter {
     }
 
     public void addItem(Item item) {
-
+        Item[] newArray = new Item[items.length + 1];
+        for(int i = 0; i < items.length; i++) {
+            newArray[i] = items[i];
+        }
+        newArray[newArray.length - 1] = item;
+        items = newArray;
     }
 
     public void removeItem(Item item) {

@@ -9,6 +9,10 @@ public class Ether extends Item {
     private Player player;
     private int etherRestore;
 
+    public Ether() {
+
+    }
+
     public Ether(RPGGame game, Player player) {
         this.game = game;
         etherRestore = 10;
