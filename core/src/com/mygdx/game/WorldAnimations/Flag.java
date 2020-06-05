@@ -15,7 +15,7 @@ public class Flag extends Sprite {
     private TextureRegion[] flagRegion;
     private Animation<TextureRegion> flagAnimation;
 
-    public Fountain() {
+    public Flag() {
         flagSheet = new Texture(Gdx.files.internal("Flag.png"));
         stateTime = 0.0f;
         this.setSize(16, 32);
