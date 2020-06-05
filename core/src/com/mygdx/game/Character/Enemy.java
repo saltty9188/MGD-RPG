@@ -35,9 +35,7 @@ public abstract class Enemy extends BattleCharacter {
         currentAni = idleAni;
 
         //Do attack stuff later
-        Attack attack1 = new Attack(5, 20, "Attack 1");
-        Attack attack2 = new Attack(5,5, "Attack 2");
-        setAttacks(attack1, attack2);
+        setAttacks();
 
         rand = new Random();
         walkDuration = 0.5f;
@@ -51,6 +49,8 @@ public abstract class Enemy extends BattleCharacter {
     }
 
     protected abstract void genAnimations();
+
+    public abstract void setAttacks();
 
     public void update(float delta, Rectangle roamZone) {
         setRegion(getFrame(delta));
@@ -114,10 +114,10 @@ public abstract class Enemy extends BattleCharacter {
      * @return The amount of damage this attack will do to the Player.
      */
     public Attack attack() {
-        Attack attack = attacks[rand.nextInt(attacks.length)];
-        while(attack.getPP() == 0) {
+        Attack attack;
+        do {
             attack = attacks[rand.nextInt(attacks.length)];
-        }
+        } while(attack.getPP() == 0);
         attack.decrementPP();
         return attack;
     }

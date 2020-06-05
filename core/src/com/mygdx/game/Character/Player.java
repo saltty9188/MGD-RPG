@@ -26,8 +26,9 @@ public class Player extends BattleCharacter {
 
     public Player(){
         super(new Texture("character.png"), 15, 23, new Texture("character-battle2.png"),
-                100, 20, 5, 12, 1, "Hero");
-        HP = 1;
+                50, 10, 5, 5, 1, "Hero");
+
+        //HP = 1;
 
         potion = new Potion();
         ether = new Ether();
@@ -41,10 +42,10 @@ public class Player extends BattleCharacter {
         genAnimations();
         currentAni = itsAllAboutThePirouettes;
 
-        InfiniteAttack attack1 = new InfiniteAttack(0, "Attack");
-        Attack attack2 = new Attack(5, 20, "Attack 2");
-        Attack attack3 = new Attack(5, 20, "Attack 3");
-        Attack attack4 = new Attack(5, 20, "Attack 4");
+        InfiniteAttack attack1 = new InfiniteAttack(0, "Sword Slash");
+        Attack attack2 = new Attack(5, 20, "Whirlwind Blade");
+        Attack attack3 = new Attack(15, 10, "Mighty Stab");
+        Attack attack4 = new Attack(10, 15, "Low Blow");
 
         setAttacks(attack1, attack2, attack3, attack4);
     }

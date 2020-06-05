@@ -3,12 +3,14 @@ package com.mygdx.game.Character;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mygdx.game.Attack;
+import com.mygdx.game.InfiniteAttack;
 
 public class MadBat extends Enemy {
 
     public MadBat() {
         super(new Texture("bat-SWEN.png"), 20, 23, new Texture("bat-battle.png"),
-                50, 5, 5, 5, 5, "Mad Bat", 10);
+                50, 5, 3, 7, 5, "Mad Bat", 10);
     }
 
     protected void genAnimations() {
@@ -32,5 +34,13 @@ public class MadBat extends Enemy {
                 new TextureRegion(spriteSheet, 56, 149, 31, 22),
                 new TextureRegion(spriteSheet, 104, 149, 31, 22)};
         walkRightAni = new Animation<TextureRegion>(AFS, fFrames);
+    }
+
+    @Override
+    public void setAttacks() {
+        Attack attack1 = new InfiniteAttack(0, "Swoop");
+        Attack attack2 = new Attack(10, 5, "Bite");
+        Attack attack3 = new Attack(5, 20, "Blood Suck");
+        setAttacks(attack1, attack2, attack3);
     }
 }

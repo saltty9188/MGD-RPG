@@ -3,12 +3,14 @@ package com.mygdx.game.Character;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mygdx.game.Attack;
+import com.mygdx.game.InfiniteAttack;
 
 public class RestlessLeaves extends Enemy {
 
     public RestlessLeaves() {
         super(new Texture("log.png"), 20, 23, new Texture("log-battle.png"),
-                100, 10, 5, 5, 3, "Restless Leaves", 20);
+                70, 6, 3, 3, 3, "Restless Leaves", 20);
     }
 
     protected void genAnimations() {
@@ -36,5 +38,13 @@ public class RestlessLeaves extends Enemy {
                 new TextureRegion(spriteSheet, 73, 69, 20, 23),
                 new TextureRegion(spriteSheet, 106, 70, 20, 23)};
         walkRightAni = new Animation<TextureRegion>(AFS, fFrames);
+    }
+
+    @Override
+    public void setAttacks() {
+        Attack attack1 = new InfiniteAttack(0, "Leaf Slice");
+        Attack attack2 = new Attack(5, 10, "Fallen Branch");
+        Attack attack3 = new Attack(10, 3, "Timber!");
+        setAttacks(attack1, attack2, attack3);
     }
 }
