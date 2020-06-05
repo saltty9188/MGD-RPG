@@ -57,6 +57,16 @@ public class Button {
         }
     }
 
+    public void draw (SpriteBatch batch, float opacity) {
+        batch.setColor(1,1,1, opacity);
+        if(isDown) {
+            batch.draw(downTexture, x, y, width, height);
+        }
+        else {
+            batch.draw(upTexture, x, y, width, height);
+        }
+        batch.setColor(1,1,1,1);
+    }
     public void draw(SpriteBatch batch, String text) {
         GlyphLayout glyphLayout = new GlyphLayout();
         bmfont.getData().setScale(2f);

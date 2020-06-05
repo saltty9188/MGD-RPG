@@ -600,13 +600,13 @@ public class GameScreen implements Screen {
         if(talkingNPC != null) talkingNPC.displayDialogue(uiBatch, delta);
 
         //draw buttons
-        walkUpButton.draw(uiBatch);
-        walkRightButton.draw(uiBatch);
-        walkDownButton.draw(uiBatch);
-        walkLeftButton.draw(uiBatch);
+        walkUpButton.draw(uiBatch, 0.8f);
+        walkRightButton.draw(uiBatch, 0.8f);
+        walkDownButton.draw(uiBatch, 0.8f);
+        walkLeftButton.draw(uiBatch, 0.8f);
 
-        if(nearNPC) talkButton.draw(uiBatch);
-        else sprintButton.draw(uiBatch);
+        if(nearNPC) talkButton.draw(uiBatch, 0.8f);
+        else sprintButton.draw(uiBatch, 0.8f);
         uiBatch.end();
     }
 
