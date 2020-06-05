@@ -9,6 +9,10 @@ public class Potion extends Item {
     private RPGGame game;
     private int potionHealth;
 
+    public Potion() {
+
+    }
+
     public Potion(RPGGame game, Player character) {
         this.game = game;
         this.character = character;

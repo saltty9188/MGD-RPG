@@ -22,8 +22,7 @@ public class Player extends BattleCharacter {
     private Ether ether;
 
     private Random rand;
-    private Potion[] potions;
-    private Ether[] ethers;
+    private Item[] items;
 
     public Player(){
         super(new Texture("character.png"), 15, 23, new Texture("character-battle2.png"),
@@ -101,19 +100,11 @@ public class Player extends BattleCharacter {
     }
 
     public void addItem(Item item) {
-        if(item.equals(potion.getClass())) {
-            Item[] newArray = new Item[potions.length + 1];
-            for(int i = 0; i < potions.length; i++) {
-                newArray[i] = potions[i];
-            }
-            newArray[newArray.length - 1] = item;
-        } else if(item.equals(ether.getClass())) {
-            Item[] newArray = new Item[ethers.length + 1];
-            for(int i = 0; i < ethers.length; i++) {
-                newArray[i] = ethers[i];
-            }
-            newArray[newArray.length - 1] = item;
-        }
+
+    }
+
+    public void removeItem(Item item) {
+        
     }
 
     //character specific for sprite sheet dimensions
