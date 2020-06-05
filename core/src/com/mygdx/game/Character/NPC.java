@@ -200,14 +200,14 @@ public class NPC extends Character {
      * @param talking
      */
     public void updateCutscene(float delta, boolean talking) {
-        // Use idle animation while the npc is talking
+        // Face left while he's talking
         if(talking) {
-            setAnimation(0);
+            setRegion(new TextureRegion(spriteSheet, 1, 103, 14, 21));
         } else {
             setAnimation(4); // Walks right off of the screen
             translateX(98 * delta);
+            setRegion(getFrame(delta));
         }
-        setRegion(getFrame(delta));
     }
 
     /**

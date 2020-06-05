@@ -424,6 +424,9 @@ public class GameScreen implements Screen {
             player.setCenter(fountain.getX(), fountain.getY() - 30);
             // Make the player face the NPC
             player.setAnimation(4);
+            player.update(delta);
+
+            cutsceneNPC.setPosition(player.getX() + player.getWidth() + 5, player.getY());
 
             gameCam.position.x = player.getX();
             gameCam.position.y = player.getY();
@@ -616,7 +619,6 @@ public class GameScreen implements Screen {
             for(int i = 0; i < flags.length; i++) {
                 spriteBatch.draw(flags[i], flags[i].getX(), flags[i].getY());
             }
-            spriteBatch.setProjectionMatrix(gameCam.combined);
         }
         spriteBatch.end();
 
@@ -642,9 +644,6 @@ public class GameScreen implements Screen {
 
         // Only set on the first frame
         if(cutsceneDelta == delta) {
-            cutsceneNPC.setPosition(player.getX() + player.getWidth() + 5, player.getY());
-            // Make the NPC face the player
-            cutsceneNPC.setAnimation(2);
             talkingNPC = cutsceneNPC;
         }
 
