@@ -16,6 +16,8 @@ import javax.swing.JDialog;
 
 public class NPC extends Character {
 
+    private static final float WINDOW_BORDER_RATIO = 0.045f;
+
     private BitmapFont bmfont;
     private Texture textWindow;
     private boolean textAnimating;
@@ -221,6 +223,12 @@ public class NPC extends Character {
         float x = 0;
         float y = Gdx.graphics.getHeight() * 5/6;
         batch.draw(textWindow, x, y, width, height);
+
+        // Adjust values for the text so it doesn't go onto the border
+        width = Gdx.graphics.getWidth() - 2 * WINDOW_BORDER_RATIO * Gdx.graphics.getWidth();
+        height = Gdx.graphics.getHeight()/6 - 2 * WINDOW_BORDER_RATIO * Gdx.graphics.getHeight();
+        x = Gdx.graphics.getWidth() * WINDOW_BORDER_RATIO;
+        y = Gdx.graphics.getHeight() * 5/6 + Gdx.graphics.getHeight() * WINDOW_BORDER_RATIO;
 
         bmfont.getData().setScale(2);
         GlyphLayout glyphLayout = new GlyphLayout();

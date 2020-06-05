@@ -174,7 +174,7 @@ public class GameScreen implements Screen {
         initialiseMap("Start");
 
         cutsceneNPC = new NPC("Man that guy really beat the snot out of you.", "You're lucky I was able to drag you out of there!",
-                "Be more careful next time, OK?");
+                "Looks like you've regained your strength. So I'm gonna leave you to it.", "Be more careful next time, OK?");
         cutsceneDelta = 0;
         inCutscene = false;
 

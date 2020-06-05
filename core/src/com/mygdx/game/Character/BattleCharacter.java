@@ -20,7 +20,7 @@ public abstract class BattleCharacter extends Character {
 
     protected Attack[] attacks;
 
-    private boolean alive;
+    protected boolean alive;
 
     public BattleCharacter(Texture spriteSheet, int width, int height, Texture battleSprite) {
         super(spriteSheet, width, height);
@@ -88,11 +88,6 @@ public abstract class BattleCharacter extends Character {
 
     public void die() {
         alive = false;
-    }
-
-    public void revive() {
-        alive = true;
-        HP = 1;
     }
 
     public void takeDamage(int damage) {

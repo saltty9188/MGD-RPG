@@ -28,7 +28,7 @@ public class Player extends BattleCharacter {
         super(new Texture("character.png"), 15, 23, new Texture("character-battle2.png"),
                 50, 10, 5, 5, 1, "Hero");
 
-        HP = 1;
+       // HP = 1;
 
         potion = new Potion();
         ether = new Ether();
@@ -115,6 +115,14 @@ public class Player extends BattleCharacter {
 
     public void removeItem(Item item) {
 
+    }
+
+    public void revive() {
+        alive = true;
+        HP = maxHP;
+        for(Attack attack : attacks) {
+            attack.restorePP(100);
+        }
     }
 
     //character specific for sprite sheet dimensions
