@@ -25,6 +25,7 @@ import com.mygdx.game.Character.MadBat;
 import com.mygdx.game.Character.NPC;
 import com.mygdx.game.Character.Player;
 import com.mygdx.game.Character.RestlessLeaves;
+import com.mygdx.game.WorldAnimations.Flag;
 import com.mygdx.game.WorldAnimations.Fountain;
 import com.mygdx.game.RPGGame;
 
@@ -55,6 +56,7 @@ public class GameScreen implements Screen {
 
     private Player player;
     private Fountain fountain;
+    private Flag flag;
     private NPC[] NPCs;
     private NPC cutsceneNPC;
     private NPC shopkeeper;
@@ -141,6 +143,7 @@ public class GameScreen implements Screen {
 
         player = new Player();
         fountain = new Fountain();
+        flag = new Flag();
         playerDelta = new Vector2();
         playerDeltaRectangle = new Rectangle(0, 0, player.getWidth(), player.getHeight());
 
@@ -225,6 +228,8 @@ public class GameScreen implements Screen {
             }
             RectangleMapObject shopkeeperSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Shopkeeper");
             shopkeeper.setPosition(shopkeeperSpawn.getRectangle().x, shopkeeperSpawn.getRectangle().y);
+            RectangleMapObject flagSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Flag");
+            flag.setCenter(flagSpawn.getRectangle().x, flagSpawn.getRectangle().y);
 
         } else if (currentMap == caveMap) {
             currentEnemies = caveEnemies;
