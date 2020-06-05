@@ -104,7 +104,7 @@ public class Player extends BattleCharacter {
     }
 
     public void removeItem(Item item) {
-        
+
     }
 
     //character specific for sprite sheet dimensions

@@ -20,7 +20,7 @@ public class Ether extends Item {
     }
 
     public void removeItems(Item item) {
-
+        player.removeItem(item);
     }
 
     public void addItems(Item item) {
