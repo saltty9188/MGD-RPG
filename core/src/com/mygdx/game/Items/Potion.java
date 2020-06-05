@@ -37,7 +37,7 @@ public class Potion extends Item {
 
     public void usePotion(Potion potion) {
         removeItems(potion);
-        character.addHealth(potion.getHealth());
+        character.restoreHealth(potion.getHealth());
     }
 
 }

@@ -46,8 +46,9 @@ public class Player extends BattleCharacter {
         setAttacks(attack1, attack2, attack3, attack4);
     }
 
-    public void addHealth(int health) {
-        maxHP += health;
+    public void restoreHealth(int health) {
+        HP += health;
+        if(HP > maxHP) HP = maxHP;
     }
 
     public Attack getAttack(int index) {

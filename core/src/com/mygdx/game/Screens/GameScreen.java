@@ -18,6 +18,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mygdx.game.Button;
 import com.mygdx.game.Character.Character;
 import com.mygdx.game.Character.Enemy;
 import com.mygdx.game.Character.MadBat;
@@ -28,6 +29,8 @@ import com.mygdx.game.WorldAnimations.Fountain;
 import com.mygdx.game.RPGGame;
 
 public class GameScreen implements Screen {
+
+    private static final float PADDING = 0.5f;
 
     //Game
     RPGGame game;
@@ -55,6 +58,8 @@ public class GameScreen implements Screen {
     private NPC[] NPCs;
     private NPC cutsceneNPC;
     private NPC shopkeeper;
+    private NPC talkingNPC;
+    private boolean nearNPC;
 
     private Enemy[] forestEnemies;
     private Enemy[] caveEnemies;
@@ -64,16 +69,27 @@ public class GameScreen implements Screen {
     private boolean inCutscene;
 
     // Map exits
-    RectangleMapObject townToForest;
-    RectangleMapObject forestToTown;
-    RectangleMapObject forestToCave;
-    RectangleMapObject caveToForest;
+    private RectangleMapObject townToForest;
+    private RectangleMapObject forestToTown;
+    private RectangleMapObject forestToCave;
+    private RectangleMapObject caveToForest;
+
+    // UI Buttons
+    private Texture buttonUp;
+    private Texture buttonDown;
+
+    private Button walkUpButton;
+    private Button walkRightButton;
+    private Button walkDownButton;
+    private Button walkLeftButton;
+
+    private Button sprintButton;
+    private Button talkButton;
 
     //The layer that holds the enemies/NPCs roaming areas
     private MapLayer roamZones;
 
-    SpriteBatch uiBatch;
-    NPC talkingNPC;
+    private SpriteBatch uiBatch;
 
     public GameScreen(RPGGame game) {
         this.game = game;
@@ -87,6 +103,7 @@ public class GameScreen implements Screen {
         playerSpeed = 98;
 
         talkingNPC = null;
+        nearNPC = false;
 
         TmxMapLoader temp = new TmxMapLoader();
 
@@ -154,6 +171,20 @@ public class GameScreen implements Screen {
         cutsceneDelta = 0;
         inCutscene = false;
 
+        float buttonWidth = Gdx.graphics.getHeight() * 7/48 - 2 * PADDING;
+        float buttonHeight = buttonWidth;
+
+        buttonUp = new Texture("buttonUp.png");
+        buttonDown = new Texture("buttonDown.png");
+
+        walkUpButton = new Button(2 * PADDING + buttonWidth, 2 * buttonHeight + 3 * PADDING, buttonWidth, buttonHeight, buttonUp, buttonDown);
+        walkRightButton = new Button(3 * PADDING + 2 * buttonWidth, 2 * PADDING + buttonHeight, buttonWidth, buttonHeight, buttonUp, buttonDown);
+        walkDownButton = new Button(2 * PADDING + buttonWidth, PADDING, buttonWidth, buttonHeight, buttonUp, buttonDown);
+        walkLeftButton = new Button(PADDING, 2 * PADDING + buttonHeight, buttonWidth, buttonHeight, buttonUp, buttonDown);
+
+        sprintButton = new Button(Gdx.graphics.getWidth() - PADDING - 2*buttonWidth, PADDING + 0.5f*buttonHeight, 1.5f*buttonWidth, 1.5f*buttonHeight, buttonUp, buttonDown);
+        // Talk button will replace sprint button when near an NPC
+        talkButton = new Button(Gdx.graphics.getWidth() - PADDING - 2*buttonWidth, PADDING + 0.5f*buttonHeight, 1.5f*buttonWidth, 1.5f*buttonHeight, buttonUp, buttonDown);
 
         gameCam.position.set(player.getX(), player.getY(), 0);
     }
@@ -227,22 +258,27 @@ public class GameScreen implements Screen {
         playerDelta.x = 0;
         playerDelta.y = 0;
 
-        if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+        if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || sprintButton.isDown) {
+            sprintButton.isDown = true;
             playerSpeed = 1.5f * 98;
         } else {
             playerSpeed = 98;
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.W)){
+        if (Gdx.input.isKeyPressed(Input.Keys.W) || walkUpButton.isDown){
+            walkUpButton.isDown = true;
             player.setAnimation(1);
             playerDelta.y = playerSpeed * delta;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.A)){
+        } else if (Gdx.input.isKeyPressed(Input.Keys.A) || walkLeftButton.isDown){
+            walkLeftButton.isDown = true;
             player.setAnimation(2);
             playerDelta.x = -1 * playerSpeed * delta;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.S)){
+        } else if (Gdx.input.isKeyPressed(Input.Keys.S) || walkDownButton.isDown){
+            walkDownButton.isDown = true;
             player.setAnimation(3);
             playerDelta.y = -1 * playerSpeed * delta;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D)){
+        } else if (Gdx.input.isKeyPressed(Input.Keys.D) || walkRightButton.isDown){
+            walkRightButton.isDown = true;
             player.setAnimation(4);
             playerDelta.x = playerSpeed * delta;
         } else if (Gdx.input.isKeyPressed(Input.Keys.X)){
@@ -398,6 +434,19 @@ public class GameScreen implements Screen {
                 }
             }
         } else if(!inCutscene) {
+            // update the buttons
+            checkTouch = Gdx.input.isTouched();
+            int touchX = Gdx.input.getX();
+            int touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+            walkUpButton.update(checkTouch, touchX, touchY);
+            walkRightButton.update(checkTouch, touchX, touchY);
+            walkDownButton.update(checkTouch, touchX, touchY);
+            walkLeftButton.update(checkTouch, touchX, touchY);
+
+            if(nearNPC) talkButton.update(checkTouch, touchX, touchY);
+            else sprintButton.update(checkTouch, touchX, touchY);
+
             handleInput(delta);
             player.update(delta);
             moveActors(delta);
@@ -457,17 +506,30 @@ public class GameScreen implements Screen {
      * Checks if the player is next to an NPC and displays their dialogue if the player interacts with them.
      */
     public void checkNPCs() {
+        nearNPC = false;
+
         for (NPC npc : NPCs) {
+            // Player is near an NPC
             if(gameCam.frustum.pointInFrustum(npc.getX(), npc.getY(), 0) &&
-            npc.closeTo(player) && Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-                talkingNPC = npc;
+            npc.closeTo(player)) {
+                nearNPC = true;
+                // Set talking NPC is the button is pressed
+                if(Gdx.input.isKeyPressed(Input.Keys.SPACE) || talkButton.isDown) {
+                    talkButton.isDown = true;
+                    talkingNPC = npc;
+                }
             }
         }
 
         if(gameCam.frustum.pointInFrustum(shopkeeper.getX(), shopkeeper.getY(), 0) &&
-                shopkeeper.closeTo(player) && Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            RPGGame.shopScreen.setPlayer(player);
-            game.setScreen(RPGGame.shopScreen);
+                shopkeeper.closeTo(player)) {
+            nearNPC = true;
+            if(Gdx.input.isKeyPressed(Input.Keys.SPACE) || talkButton.isDown) {
+                talkButton.isDown = true;
+                RPGGame.shopScreen.setPlayer(player);
+                game.setScreen(RPGGame.shopScreen);
+            }
+
         }
     }
 
@@ -536,6 +598,15 @@ public class GameScreen implements Screen {
 
         uiBatch.begin();
         if(talkingNPC != null) talkingNPC.displayDialogue(uiBatch, delta);
+
+        //draw buttons
+        walkUpButton.draw(uiBatch);
+        walkRightButton.draw(uiBatch);
+        walkDownButton.draw(uiBatch);
+        walkLeftButton.draw(uiBatch);
+
+        if(nearNPC) talkButton.draw(uiBatch);
+        else sprintButton.draw(uiBatch);
         uiBatch.end();
     }
 
