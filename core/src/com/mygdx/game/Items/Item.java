@@ -3,7 +3,7 @@ package com.mygdx.game.Items;
 import java.util.ArrayList;
 
 public abstract class Item {
-    ArrayList<Item> items;
+    Item[] items;
 
     public abstract int getItems();
 

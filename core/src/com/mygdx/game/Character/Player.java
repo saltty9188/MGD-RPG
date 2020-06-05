@@ -5,6 +5,9 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.game.Attack;
 import com.mygdx.game.InfiniteAttack;
+import com.mygdx.game.Items.Ether;
+import com.mygdx.game.Items.Item;
+import com.mygdx.game.Items.Potion;
 
 import java.util.Random;
 
@@ -15,7 +18,12 @@ public class Player extends BattleCharacter {
     private int currentExp;
     private int toNextLevel;
 
+    private Potion potion;
+    private Ether ether;
+
     private Random rand;
+    private Potion[] potions;
+    private Ether[] ethers;
 
     public Player(){
         super(new Texture("character.png"), 15, 23, new Texture("character-battle2.png"),
@@ -89,6 +97,22 @@ public class Player extends BattleCharacter {
                 this.setSize(32,32);
                 currentAni = itsAllAboutThePirouettes;
                 break;
+        }
+    }
+
+    public void addItem(Item item) {
+        if(item.equals(potion.getClass())) {
+            Item[] newArray = new Item[potions.length + 1];
+            for(int i = 0; i < potions.length; i++) {
+                newArray[i] = potions[i];
+            }
+            newArray[newArray.length - 1] = item;
+        } else if(item.equals(ether.getClass())) {
+            Item[] newArray = new Item[ethers.length + 1];
+            for(int i = 0; i < ethers.length; i++) {
+                newArray[i] = ethers[i];
+            }
+            newArray[newArray.length - 1] = item;
         }
     }
 

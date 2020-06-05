@@ -16,15 +16,15 @@ public class Potion extends Item {
     }
 
     public int getItems() {
-        return items.size();
+        return items.length;
     }
 
     public void addItems(Item item) {
-        items.add(item);
+        character.addItem(item);
     }
 
     public void removeItems(Item item) {
-        items.remove(item);
+        //items.remove(item);
     }
 
     public int getHealth() {
@@ -32,7 +32,7 @@ public class Potion extends Item {
     }
 
     public void usePotion(Potion potion) {
-        items.remove(potion);
+        removeItems(potion);
         character.addHealth(potion.getHealth());
     }
 
