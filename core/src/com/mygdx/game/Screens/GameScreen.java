@@ -56,7 +56,8 @@ public class GameScreen implements Screen {
 
     private Player player;
     private Fountain fountain;
-    private Flag flag;
+    //private Flag flag;
+    //private Flag[] flags;
     private NPC[] NPCs;
     private NPC cutsceneNPC;
     private NPC shopkeeper;
@@ -143,7 +144,7 @@ public class GameScreen implements Screen {
 
         player = new Player();
         fountain = new Fountain();
-        flag = new Flag();
+        //flag = new Flag();
         playerDelta = new Vector2();
         playerDeltaRectangle = new Rectangle(0, 0, player.getWidth(), player.getHeight());
 
@@ -151,6 +152,7 @@ public class GameScreen implements Screen {
         caveEnemies = new Enemy[7];
         currentEnemies = forestEnemies;
 
+        //flags = new Flag[4];
         NPCs = new NPC[7];
         // NPCs that move
         NPCs[0] = new NPC("Hello there traveller.", "Welcome to Erathis's Village");
@@ -190,6 +192,10 @@ public class GameScreen implements Screen {
         talkButton = new Button(Gdx.graphics.getWidth() - PADDING - 2*buttonWidth, PADDING + 0.5f*buttonHeight, 1.5f*buttonWidth, 1.5f*buttonHeight, buttonUp, buttonDown);
 
         gameCam.position.set(player.getX(), player.getY(), 0);
+
+//        for(int i = 0; i < flags.length; i++) {
+//            flags[i] = new Flag();
+//        }
     }
 
     /**
@@ -228,8 +234,12 @@ public class GameScreen implements Screen {
             }
             RectangleMapObject shopkeeperSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Shopkeeper");
             shopkeeper.setPosition(shopkeeperSpawn.getRectangle().x, shopkeeperSpawn.getRectangle().y);
-            RectangleMapObject flagSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Flag");
-            flag.setCenter(flagSpawn.getRectangle().x, flagSpawn.getRectangle().y);
+
+//            RectangleMapObject flagSpawn;
+//            for(int i = 0; i < flags.length; i++) {
+//                flagSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Flag " + Integer.toString(i + 1));
+//                flags[i].setPosition(flagSpawn.getRectangle().x, flagSpawn.getRectangle().y);
+//            }
 
         } else if (currentMap == caveMap) {
             currentEnemies = caveEnemies;
@@ -427,7 +437,12 @@ public class GameScreen implements Screen {
 
         boolean checkTouch = Gdx.input.justTouched();
 
-        if(currentMap == townMap) fountain.update(delta);
+        if(currentMap == townMap) {
+            fountain.update(delta);
+//            for(int i = 0; i < flags.length; i++) {
+//                flags[i].update(delta);
+//            }
+        }
 
         if(talkingNPC != null) {
             if(checkTouch) {
@@ -597,8 +612,15 @@ public class GameScreen implements Screen {
         if(inCutscene) cutsceneNPC.draw(spriteBatch);
         player.draw(spriteBatch);
         spriteBatch.setProjectionMatrix(gameCam.combined);
-        if(currentMap == townMap) spriteBatch.draw(fountain, fountain.getX(), fountain.getY());
+        if(currentMap == townMap) {
+            spriteBatch.draw(fountain, fountain.getX(), fountain.getY());
+            spriteBatch.setProjectionMatrix(gameCam.combined);
+//            for(int i = 0; i < flags.length; i++) {
+//                spriteBatch.draw(flags[i], flags[i].getX(), flags[i].getY());
+//                spriteBatch.setProjectionMatrix(gameCam.combined);
+//            }
 
+        }
         spriteBatch.end();
 
         uiBatch.begin();
