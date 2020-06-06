@@ -3,6 +3,7 @@ package com.mygdx.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -98,12 +99,19 @@ public class GameScreen implements Screen {
 
     private SpriteBatch uiBatch;
 
+    private Music bgm;
+
     public GameScreen(RPGGame game) {
         this.game = game;
         create();
     }
 
     private void create() {
+
+        //Background Music
+        bgm = Gdx.audio.newMusic(Gdx.files.internal("Music/Blippy Trance.mp3"));
+        bgm.setLooping(true); bgm.setVolume(1); bgm.play();
+
         spriteBatch = new SpriteBatch();
         uiBatch = new SpriteBatch();
 
@@ -200,6 +208,8 @@ public class GameScreen implements Screen {
         talkButton = new Button(Gdx.graphics.getWidth() - PADDING - 2*buttonWidth, PADDING + 0.5f*buttonHeight, 1.5f*buttonWidth, 1.5f*buttonHeight, buttonUp, buttonDown);
 
         gameCam.position.set(player.getX(), player.getY(), 0);
+
+
     }
 
     /**
