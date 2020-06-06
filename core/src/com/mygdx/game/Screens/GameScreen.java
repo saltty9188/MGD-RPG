@@ -167,7 +167,7 @@ public class GameScreen implements Screen {
 
         //Stationary NPCs
         NPCs[6] = new NPC("I could stay here and look at this lake forever...");
-        NPCs[6].setAnimation(3);
+        NPCs[6].setDefaultPose(0);
         shopkeeper = new NPC();
         shopkeeper.setAnimation(3);
 
@@ -502,6 +502,7 @@ public class GameScreen implements Screen {
                 roamBox = (RectangleMapObject) roamZones.getObjects().get("NPC " + Integer.toString(i + 1));
                 //Stationary NPCs have no roam box
                 if(roamBox != null) NPCs[i].update(delta, roamBox.getRectangle(), player);
+                else NPCs[i].setDefaultPose(0);
             }
         }
     }

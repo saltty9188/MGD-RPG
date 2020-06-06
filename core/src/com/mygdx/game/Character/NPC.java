@@ -29,6 +29,8 @@ public class NPC extends Character {
     private String currentDialogue;
     private int currentDialogueIndex;
 
+    private Animation defaultPose;
+
     Random rand;
     float walkDuration;
     int direction;
@@ -324,5 +326,35 @@ public class NPC extends Character {
         textAnimating = true;
         currentDialogue = dialogue[0];
         currentDialogueIndex = 0;
+    }
+
+    /**
+     * Sets the default pose for a stationary NPC.
+     * ID key:
+     * 0 = Idle
+     * 1 = Up
+     * 2 = Left
+     * 3 = Down
+     * 4 = Right
+     * @param animationID The ID for the animation desired
+     */
+    public void setDefaultPose(int animationID) {
+        switch (animationID){
+            case 0:
+                setRegion(idleAni.getKeyFrame(0));
+                break;
+            case 1:
+                setRegion(walkUpAni.getKeyFrame(0));
+                break;
+            case 2:
+                setRegion(walkLeftAni.getKeyFrame(0));
+                break;
+            case 3:
+                setRegion(walkDownAni.getKeyFrame(0));
+                break;
+            case 4:
+                setRegion(walkRightAni.getKeyFrame(0));
+                break;
+        }
     }
 }
