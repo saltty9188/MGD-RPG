@@ -72,6 +72,36 @@ public class Character extends Sprite {
         return region;
     }
 
+    /**
+     * Sets the default pose for a stationary character.
+     * ID key:
+     * 0 = Idle
+     * 1 = Up
+     * 2 = Left
+     * 3 = Down
+     * 4 = Right
+     * @param animationID The ID for the animation desired
+     */
+    public void setDefaultPose(int animationID) {
+        switch (animationID){
+            case 0:
+                setRegion(idleAni.getKeyFrame(0));
+                break;
+            case 1:
+                setRegion(walkUpAni.getKeyFrame(0));
+                break;
+            case 2:
+                setRegion(walkLeftAni.getKeyFrame(0));
+                break;
+            case 3:
+                setRegion(walkDownAni.getKeyFrame(0));
+                break;
+            case 4:
+                setRegion(walkRightAni.getKeyFrame(0));
+                break;
+        }
+    }
+
     public void dispose() {
         spriteSheet.dispose();
     }

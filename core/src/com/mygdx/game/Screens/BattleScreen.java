@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.mygdx.game.Attack;
 import com.mygdx.game.Button;
 import com.mygdx.game.Character.BattleCharacter;
+import com.mygdx.game.Character.Boss;
 import com.mygdx.game.Character.Enemy;
 import com.mygdx.game.Character.Player;
 import com.mygdx.game.RPGGame;
@@ -98,7 +99,6 @@ public class BattleScreen implements Screen {
     private String fleeMessage;
     private boolean escaped;
 
-    private boolean battleStart;
     private boolean battleFinished;
     private String[] victoryMessages;
     private int currentVictoryIndex;
@@ -172,7 +172,9 @@ public class BattleScreen implements Screen {
         playerBattleSprite.setPosition(Gdx.graphics.getWidth() * 5/24 * 1.25f, Gdx.graphics.getHeight() * 7/24 * 1.3f);
         enemyBattleSprite = new Sprite(enemy.getBattleSprite(),  150, 230);
         enemyBattleSprite.setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight()/3);
-        enemyBattleSprite.setScale(0.8f);
+        // Scale sprite up for bosses
+        if(enemy instanceof Boss) enemyBattleSprite.setScale(1.2f);
+        else enemyBattleSprite.setScale(0.8f);
 
         if(location == Location.FOREST) background = new Texture("environment_forest_evening.png");
         else if (location == Location.CAVE) {
@@ -195,7 +197,6 @@ public class BattleScreen implements Screen {
         fleeMessage = "";
         battleMessage = "";
 
-        battleStart = true;
         battleFinished = false;
         generalMessage = enemy.getName() + " ambushes " + player.getName() + "!";
 
@@ -282,10 +283,7 @@ public class BattleScreen implements Screen {
                 case CHOOSING:
                     drawText(spriteBatch, generalMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                             Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
-                            (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, battleStart, 2);
-
-                    // Only displays intro message once
-                    if (!textAnimating) battleStart = false;
+                            (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, !generalMessage.equals("How will you proceed?"), 2);
 
                     // Draw the appropriate buttons while the player selects a move
                     if (!inAttacks && !inItems) {
@@ -477,7 +475,7 @@ public class BattleScreen implements Screen {
 
     private void update() {
         // Swaps general message to the player prompt after the battle intro message has finished.
-        if(!battleStart && !generalMessage.equals("How will you proceed?")) {
+        if(!textAnimating && !generalMessage.equals("How will you proceed?")) {
             generalMessage = "How will you proceed?";
             textAnimating = true;
         }
@@ -526,7 +524,13 @@ public class BattleScreen implements Screen {
                     playerAttack.decrementPP();
                     playerChoice = PlayerChoice.ATTACK;
                 } else if (runButton.justPressed()) {
-                    playerChoice = PlayerChoice.RUN;
+                    // Can't run from a boss
+                    if(enemy instanceof Boss) {
+                        generalMessage = "Can't run!";
+                        textAnimating = true;
+                    } else {
+                        playerChoice = PlayerChoice.RUN;
+                    }
                 }
 
                 break;
@@ -586,7 +590,7 @@ public class BattleScreen implements Screen {
                         textAnimating = true;
                         battleMessage = enemyAttack.battleMessage(enemy.getName()) + ".\n It did " + BattleCharacter.damageTaken(player, playerDamage) + " damage!";
                         animatingPlayerHP = true;
-                        flashTimer = 0;
+                        flashTimer = 1;
                         enemyTurnComplete = true;
                     }
                     //Player lost

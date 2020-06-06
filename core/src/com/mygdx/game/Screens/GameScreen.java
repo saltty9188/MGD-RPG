@@ -19,6 +19,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Button;
+import com.mygdx.game.Character.Boss;
 import com.mygdx.game.Character.Character;
 import com.mygdx.game.Character.Enemy;
 import com.mygdx.game.Character.MadBat;
@@ -63,6 +64,8 @@ public class GameScreen implements Screen {
     private NPC shopkeeper;
     private NPC talkingNPC;
     private boolean nearNPC;
+
+    private Boss boss;
 
     private Enemy[] forestEnemies;
     private Enemy[] caveEnemies;
@@ -115,8 +118,8 @@ public class GameScreen implements Screen {
         caveMap = temp.load("Cave.tmx");
         forestMap = temp.load("Forest.tmx");
 
-        currentMap = townMap;
-        //currentMap = caveMap;
+        //currentMap = townMap;
+        currentMap = caveMap;
         //currentMap = forestMap;
 
         // Store the exit rectangles for each map
@@ -152,7 +155,7 @@ public class GameScreen implements Screen {
         playerDeltaRectangle = new Rectangle(0, 0, player.getWidth(), player.getHeight());
 
         forestEnemies = new Enemy[10];
-        caveEnemies = new Enemy[7];
+        caveEnemies = new Enemy[15];
         currentEnemies = forestEnemies;
 
         NPCs = new NPC[7];
@@ -171,7 +174,7 @@ public class GameScreen implements Screen {
         shopkeeper = new NPC();
         shopkeeper.setAnimation(3);
 
-        initialiseMap("Start");
+        initialiseMap("Forest");
 
         cutsceneNPC = new NPC("Man that guy really beat the snot out of you.", "You're lucky I was able to drag you out of there!",
                 "Looks like you've regained your strength. So I'm gonna leave you to it.", "Be more careful next time, OK?");
@@ -242,6 +245,10 @@ public class GameScreen implements Screen {
 
         } else if (currentMap == caveMap) {
             currentEnemies = caveEnemies;
+            // Spawn the boss
+            boss = new Boss();
+            RectangleMapObject bossSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Boss");
+            boss.setPosition(bossSpawn.getRectangle().x, bossSpawn.getRectangle().y);
         } else if(currentMap == forestMap){
             currentEnemies = forestEnemies;
         }
@@ -535,6 +542,14 @@ public class GameScreen implements Screen {
                 game.setScreen(RPGGame.battleScreen);
             }
         }
+
+        if(currentMap == caveMap && onScreen(boss) && boss.getBoundingRectangle().overlaps(player.getBoundingRectangle())) {
+            RPGGame.battleScreen.setLocation(BattleScreen.Location.CAVE);
+            RPGGame.battleScreen.setEnemy(boss);
+            RPGGame.battleScreen.setPlayer(player);
+
+            game.setScreen(RPGGame.battleScreen);
+        }
     }
 
     /**
@@ -601,6 +616,7 @@ public class GameScreen implements Screen {
                     enemy.draw(spriteBatch);
                 }
             }
+            if(currentMap == caveMap && onScreen(boss)) boss.draw(spriteBatch);
         } else {
             for (NPC npc : NPCs) {
                 if (onScreen(npc)) {
