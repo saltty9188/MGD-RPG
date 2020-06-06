@@ -228,7 +228,7 @@ public class GameScreen implements Screen {
 
         // Assumes all maps will have a spawn layer
         MapLayer spawnLayer = currentMap.getLayers().get("Spawns");
-        RectangleMapObject playerSpawn = (RectangleMapObject)spawnLayer.getObjects().get("Start");
+        RectangleMapObject playerSpawn = (RectangleMapObject)spawnLayer.getObjects().get(entrance);
         player.setCenter(playerSpawn.getRectangle().x, playerSpawn.getRectangle().y);
 
         // Will very likely have similar statements for other maps

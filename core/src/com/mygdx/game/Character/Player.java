@@ -55,6 +55,8 @@ public class Player extends BattleCharacter {
         if(HP > maxHP) HP = maxHP;
     }
 
+
+
     public Attack getAttack(int index) {
         return attacks[index];
     }
