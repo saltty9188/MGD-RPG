@@ -536,9 +536,10 @@ public class GameScreen implements Screen {
             npc.closeTo(player)) {
                 nearNPC = true;
                 // Set talking NPC is the button is pressed
-                if(Gdx.input.isKeyPressed(Input.Keys.SPACE) || talkButton.isDown) {
+                if((Gdx.input.isKeyPressed(Input.Keys.SPACE) || talkButton.isDown) && player.facing(npc)) {
                     talkButton.isDown = true;
                     talkingNPC = npc;
+                    npc.face(player);
                 }
             }
         }
@@ -546,7 +547,7 @@ public class GameScreen implements Screen {
         if(gameCam.frustum.pointInFrustum(shopkeeper.getX(), shopkeeper.getY(), 0) &&
                 shopkeeper.closeTo(player)) {
             nearNPC = true;
-            if(Gdx.input.isKeyPressed(Input.Keys.SPACE) || talkButton.isDown) {
+            if((Gdx.input.isKeyPressed(Input.Keys.SPACE) || talkButton.isDown) && player.facing(shopkeeper)) {
                 talkButton.isDown = true;
                 RPGGame.shopScreen.setPlayer(player);
                 game.setScreen(RPGGame.shopScreen);

@@ -295,6 +295,24 @@ public class NPC extends Character {
     }
 
     /**
+     * Makes the NPC face the player (used when talking)
+     * @param player The player.
+     */
+    public void face(Player player) {
+        // NPC to the left of the player
+        if(getX() + getWidth() < player.getX()) currentAni = walkRightAni;
+        // NPC above
+        else if(getY() > player.getY() + player.getHeight()) currentAni = idleAni;
+        // NPC to the right
+        else if(getX() > player.getX() + player.getWidth()) currentAni = walkLeftAni;
+        // NPC below
+        else currentAni = walkUpAni;
+
+        // Make change take effect
+        update(0);
+    }
+
+    /**
      * Returns true if this NPC has more dialogue.
      * @return True if this NPC has more dialogue, false otherwise.
      */
