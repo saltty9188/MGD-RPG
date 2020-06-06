@@ -437,8 +437,6 @@ public class GameScreen implements Screen {
             playCutscene(delta);
         }
 
-        boolean checkTouch = Gdx.input.justTouched();
-
         if(currentMap == townMap) {
             fountain.update(delta);
             for(int i = 0; i < flags.length; i++) {
@@ -447,7 +445,7 @@ public class GameScreen implements Screen {
         }
 
         if(talkingNPC != null) {
-            if(checkTouch) {
+            if(Gdx.input.justTouched()) {
                 if(talkingNPC.hasNextDialogueLine()) {
                     talkingNPC.nextDialogueLine();
                 } else {
@@ -456,18 +454,32 @@ public class GameScreen implements Screen {
                 }
             }
         } else if(!inCutscene) {
+            boolean checkTouch;
+            int touchX;
+            int touchY;
+            // manually reset buttons
+            walkDownButton.isDown = false;
+            walkRightButton.isDown = false;
+            walkLeftButton.isDown = false;
+            walkUpButton.isDown = false;
+            talkButton.isDown = false;
+            sprintButton.isDown = false;
             // update the buttons
-            checkTouch = Gdx.input.isTouched();
-            int touchX = Gdx.input.getX();
-            int touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
+            for(int i = 0; i < 20; i++ ) { // Check all finger IDs (max 20) in case someone wants to sprint
+                checkTouch = Gdx.input.isTouched(i);
+                 if(checkTouch) {
+                     touchX = Gdx.input.getX(i);
+                     touchY = Gdx.graphics.getHeight() - Gdx.input.getY(i);
 
-            walkUpButton.update(checkTouch, touchX, touchY);
-            walkRightButton.update(checkTouch, touchX, touchY);
-            walkDownButton.update(checkTouch, touchX, touchY);
-            walkLeftButton.update(checkTouch, touchX, touchY);
+                     walkUpButton.update(checkTouch, touchX, touchY);
+                     walkRightButton.update(checkTouch, touchX, touchY);
+                     walkDownButton.update(checkTouch, touchX, touchY);
+                     walkLeftButton.update(checkTouch, touchX, touchY);
 
-            if(nearNPC) talkButton.update(checkTouch, touchX, touchY);
-            else sprintButton.update(checkTouch, touchX, touchY);
+                     if (nearNPC) talkButton.update(checkTouch, touchX, touchY);
+                     else sprintButton.update(checkTouch, touchX, touchY);
+                 }
+            }
 
             handleInput(delta);
             player.update(delta);

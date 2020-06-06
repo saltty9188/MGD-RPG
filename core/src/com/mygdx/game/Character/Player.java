@@ -28,7 +28,7 @@ public class Player extends BattleCharacter {
         super(new Texture("character.png"), 15, 23, new Texture("character-battle2.png"),
                 50, 10, 5, 5, 1, "Hero");
 
-       // HP = 1;
+        //HP = 1;
 
         potion = new Potion();
         ether = new Ether();
