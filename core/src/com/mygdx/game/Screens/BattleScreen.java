@@ -176,8 +176,9 @@ public class BattleScreen implements Screen {
         if(enemy instanceof Boss) enemyBattleSprite.setScale(1.2f);
         else enemyBattleSprite.setScale(0.8f);
 
-        if(location == Location.FOREST) background = new Texture("environment_forest_evening.png");
-        else if (location == Location.CAVE) {
+        if(location == Location.FOREST) {
+            background = new Texture("environment_forest_evening.png");
+        } else if (location == Location.CAVE) {
             background = new Texture("fossil_cave.png");
         }
 
