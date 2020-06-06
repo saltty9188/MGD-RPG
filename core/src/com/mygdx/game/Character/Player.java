@@ -40,7 +40,7 @@ public class Player extends BattleCharacter {
 
         stateTimer = 0.0f;
         genAnimations();
-        currentAni = itsAllAboutThePirouettes;
+        currentAni = idleAni;
 
         InfiniteAttack attack1 = new InfiniteAttack(0, "Sword Slash");
         Attack attack2 = new Attack(5, 20, "Whirlwind Blade");

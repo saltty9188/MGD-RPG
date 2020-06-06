@@ -79,6 +79,7 @@ public class GameScreen implements Screen {
     private RectangleMapObject forestToTown;
     private RectangleMapObject forestToCave;
     private RectangleMapObject caveToForest;
+    private float movementPause;
 
     // UI Buttons
     private Texture buttonUp;
@@ -132,6 +133,8 @@ public class GameScreen implements Screen {
 
         exitLayer = caveMap.getLayers().get("Exits");
         caveToForest = (RectangleMapObject) exitLayer.getObjects().get("Forest");
+
+        movementPause = 0;
 
         //create can used to follow Character through the game world
         float w = Gdx.graphics.getWidth();
@@ -208,6 +211,11 @@ public class GameScreen implements Screen {
      * @param entrance A String corresponding to where the player will spawn on the new map. Defined in the "Spawns" layer of the map.
      */
     public void initialiseMap(String entrance) {
+
+        //Make it so the player can't move for a bit so that they can get their bearings
+        movementPause = 0.2f;
+        // Reset the player's animation
+        player.setAnimation(0);
 
         renderer = new OrthogonalTiledMapRenderer(currentMap);
         MapProperties properties = currentMap.getProperties();
@@ -313,10 +321,6 @@ public class GameScreen implements Screen {
         }
 
         player.translate(playerDelta.x, playerDelta.y);
-        gameCam.position.x = player.getX();
-        gameCam.position.y = player.getY();
-
-        cameraBounds();
     }
 
     public void checkCollision() {
@@ -409,9 +413,13 @@ public class GameScreen implements Screen {
     }
 
     /**
-     * Adjusts the camera's location so that it doesn't go out of the tile map bounds.
+     * Moves the camera to the player's position and adjusts the camera's location so that it doesn't go out of the tile map bounds.
      */
-    private void cameraBounds() {
+    private void moveCamera() {
+        // Move the camera to the player
+        gameCam.position.x = player.getX();
+        gameCam.position.y = player.getY();
+
         //Get the edges of the camera by adding/subtracting half of the viewport width/height
         if(gameCam.position.x -  gameCam.viewportWidth/ 2 < 0) gameCam.position.x = 0 + gameCam.viewportWidth/2;
         else if (gameCam.position.x + gameCam.viewportWidth/ 2 > mapWidth) gameCam.position.x = mapWidth - gameCam.viewportWidth/2;
@@ -437,7 +445,7 @@ public class GameScreen implements Screen {
 
             gameCam.position.x = player.getX();
             gameCam.position.y = player.getY();
-            cameraBounds();
+            moveCamera();
             player.revive();
             inCutscene = true;
         } else if (inCutscene) {
@@ -488,7 +496,9 @@ public class GameScreen implements Screen {
                  }
             }
 
-            handleInput(delta);
+            if(movementPause > 0) movementPause -= delta;
+            else handleInput(delta);
+            moveCamera();
             player.update(delta);
             moveActors(delta);
             if(currentMap != townMap) checkEnemies();
