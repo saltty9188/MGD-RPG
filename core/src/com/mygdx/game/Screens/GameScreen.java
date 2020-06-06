@@ -119,8 +119,8 @@ public class GameScreen implements Screen {
         caveMap = temp.load("Cave.tmx");
         forestMap = temp.load("Forest.tmx");
 
-        //currentMap = townMap;
-        currentMap = caveMap;
+        currentMap = townMap;
+        //currentMap = caveMap;
         //currentMap = forestMap;
 
         // Store the exit rectangles for each map
@@ -228,7 +228,7 @@ public class GameScreen implements Screen {
 
         // Assumes all maps will have a spawn layer
         MapLayer spawnLayer = currentMap.getLayers().get("Spawns");
-        RectangleMapObject playerSpawn = (RectangleMapObject)spawnLayer.getObjects().get(entrance);
+        RectangleMapObject playerSpawn = (RectangleMapObject)spawnLayer.getObjects().get("Start");
         player.setCenter(playerSpawn.getRectangle().x, playerSpawn.getRectangle().y);
 
         // Will very likely have similar statements for other maps
