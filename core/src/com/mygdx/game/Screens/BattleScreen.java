@@ -551,6 +551,7 @@ public class BattleScreen implements Screen {
                     }
                 } else if(potionButton.justPressed() && player.getItem(0).getQty() > 0) {
                     player.getItem(0).use();
+                    animatingPlayerHP = true;
                 } else if(etherButton.justPressed()) {
                     player.getItem(1).use();
                 }
