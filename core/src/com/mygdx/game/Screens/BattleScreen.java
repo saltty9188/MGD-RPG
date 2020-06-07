@@ -409,7 +409,7 @@ public class BattleScreen implements Screen {
 
         if (textAnimating) {
             textTime += delta;
-            if (textTime >= 0.01f) {
+            if (textTime >= 0.03f) {
                 if (textIndex < text.length()) textBuilder += text.charAt(textIndex++);
                 textTime = 0;
             }
