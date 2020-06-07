@@ -496,13 +496,14 @@ public class GameScreen implements Screen {
                      touchX = Gdx.input.getX(i);
                      touchY = Gdx.graphics.getHeight() - Gdx.input.getY(i);
 
-                     walkUpButton.update(checkTouch, touchX, touchY);
-                     walkRightButton.update(checkTouch, touchX, touchY);
-                     walkDownButton.update(checkTouch, touchX, touchY);
-                     walkLeftButton.update(checkTouch, touchX, touchY);
+                     // Only update a button if it hasn't already been registered as being pressed this frame
+                     if(!walkUpButton.isDown) walkUpButton.update(checkTouch, touchX, touchY);
+                     if(!walkRightButton.isDown) walkRightButton.update(checkTouch, touchX, touchY);
+                     if(!walkDownButton.isDown) walkDownButton.update(checkTouch, touchX, touchY);
+                     if(!walkLeftButton.isDown) walkLeftButton.update(checkTouch, touchX, touchY);
 
-                     if (nearNPC) talkButton.update(checkTouch, touchX, touchY);
-                     else sprintButton.update(checkTouch, touchX, touchY);
+                     if (nearNPC && !talkButton.isDown) talkButton.update(checkTouch, touchX, touchY);
+                     else if(!sprintButton.isDown) sprintButton.update(checkTouch, touchX, touchY);
                  }
             }
 
