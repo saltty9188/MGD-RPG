@@ -58,4 +58,8 @@ public class Attack {
     public int getPP() {
         return PP;
     }
+
+    public int getMaxPP() {
+        return maxPP;
+    }
 }

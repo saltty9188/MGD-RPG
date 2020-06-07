@@ -45,6 +45,7 @@ public class Player extends BattleCharacter {
         Item item1 = new Potion("Potion", this);
         item1.addItems(5);
         Item item2 = new Ether("Ether", this);
+        item2.addItems(5);
 
         setAttacks(attack1, attack2, attack3, attack4);
         setItems(item1, item2);

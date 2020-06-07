@@ -78,7 +78,7 @@ public class BattleScreen implements Screen {
 
     private Item itemUsed;
     private int HPRestored;
-
+    private boolean usingEther;
 
     private boolean inAttacks;
     private boolean inItems;
@@ -306,12 +306,13 @@ public class BattleScreen implements Screen {
                         attackButton.draw(spriteBatch, "Attack");
                         itemButton.draw(spriteBatch, "Items");
                         runButton.draw(spriteBatch, "Run Away");
-                    } else if (inAttacks) {
-                        playerAttackButton1.draw(spriteBatch, player.getAttack(0).getName(), player.getAttack(0).getPPStatus(), player.getAttack(0).getPP() == 0);
+                    } else if (inAttacks || usingEther) {
+                        // Want the infinite attack to be shown as red when using an ether
+                        playerAttackButton1.draw(spriteBatch, player.getAttack(0).getName(), player.getAttack(0).getPPStatus(), usingEther);
                         playerAttackButton2.draw(spriteBatch, player.getAttack(1).getName(), player.getAttack(1).getPPStatus(), player.getAttack(1).getPP() == 0);
                         playerAttackButton3.draw(spriteBatch, player.getAttack(2).getName(), player.getAttack(2).getPPStatus(), player.getAttack(2).getPP() == 0);
                         playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus(), player.getAttack(3).getPP() == 0);
-                    } else if(inItems) {
+                    } else if(inItems && !usingEther) {
                         potionButton.draw(spriteBatch, player.getItem(0).getName(), "Stock: " + player.getItem(0).getQty(), player.getItem(0).getQty() == 0);
                         etherButton.draw(spriteBatch, player.getItem(1).getName(), "Stock: " + player.getItem(1).getQty(), player.getItem(1).getQty() == 0);
                     }
@@ -368,10 +369,21 @@ public class BattleScreen implements Screen {
                     }
 
                     // Player attack message
-                    if (textAnimating && animatingEnemyHP) {
+                    if (!(itemUsed instanceof  Ether) && textAnimating && animatingEnemyHP) {
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                                 Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
                                 (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false, 2);
+                    } else if (itemUsed instanceof Ether && textAnimating && animatingEnemyHP ) {
+                        drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
+                                Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
+                                (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, true, 2);
+                    } else if (itemUsed instanceof Ether && pauseTime > 0 && playerTurnComplete) { // keep the ether battle message up
+                        drawStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING);
+                        drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
+                                Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
+                                (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, true, 2);
+                        // Set to false so the battle can continue once the pause time is up
+                        animatingEnemyHP = false;
                     }
 
                     // Animate the player's HP bar and display the enemy's battle message
@@ -380,13 +392,13 @@ public class BattleScreen implements Screen {
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                                 Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
                                 (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false, 2);
-                    }
-                    // Animate the player's HP bar up and display the player's battle message if a potion was used
-                    else if (itemUsed instanceof Potion && !textAnimating && animatingEnemyHP) {
+
+                    } else if (itemUsed instanceof Potion && !textAnimating && animatingEnemyHP) { // Animate the player's HP bar up and display the player's battle message if a potion was used
                         animateStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING, delta, 0, false);
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                                 Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
                                 (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false,2);
+
                     } else {
                         drawStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING);
                     }
@@ -551,8 +563,8 @@ public class BattleScreen implements Screen {
                     itemButton.update(checkTouch, touchX, touchY);
                     runButton.update(checkTouch, touchX, touchY);
                 }
-                // Only poll for attack buttons when selecting an attack
-                else if (inAttacks) {
+                // Only poll for attack buttons when selecting an attack or restoring an attack with an ether
+                else if (inAttacks || usingEther) {
                     playerAttackButton1.update(checkTouch, touchX, touchY);
                     playerAttackButton2.update(checkTouch, touchX, touchY);
                     playerAttackButton3.update(checkTouch, touchX, touchY);
@@ -571,20 +583,22 @@ public class BattleScreen implements Screen {
                     inItems = true;
                 } else if (backButton.justPressed()) {
                     inAttacks = false;
-                    inItems = false;
-                } else if (playerAttackButton1.justPressed() && player.getAttack(0).getPP() > 0) {
+                    // Only go back by one choice
+                    if(usingEther) usingEther = false;
+                    else inItems = false;
+                } else if (!usingEther && playerAttackButton1.justPressed() && player.getAttack(0).getPP() > 0) {
                     playerAttack = player.getAttack(0);
                     playerAttack.decrementPP();
                     playerChoice = PlayerChoice.ATTACK;
-                } else if (playerAttackButton2.justPressed() && player.getAttack(1).getPP() > 0) {
+                } else if (!usingEther && playerAttackButton2.justPressed() && player.getAttack(1).getPP() > 0) {
                     playerAttack = player.getAttack(1);
                     playerAttack.decrementPP();
                     playerChoice = PlayerChoice.ATTACK;
-                } else if (playerAttackButton3.justPressed() && player.getAttack(2).getPP() > 0) {
+                } else if (!usingEther && playerAttackButton3.justPressed() && player.getAttack(2).getPP() > 0) {
                     playerAttack = player.getAttack(2);
                     playerAttack.decrementPP();
                     playerChoice = PlayerChoice.ATTACK;
-                } else if (playerAttackButton4.justPressed() && player.getAttack(3).getPP() > 0) {
+                } else if (!usingEther && playerAttackButton4.justPressed() && player.getAttack(3).getPP() > 0) {
                     playerAttack = player.getAttack(3);
                     playerAttack.decrementPP();
                     playerChoice = PlayerChoice.ATTACK;
@@ -600,7 +614,20 @@ public class BattleScreen implements Screen {
                     itemUsed = player.getItem(0);
                     playerChoice = PlayerChoice.ITEM;
                 } else if(etherButton.justPressed()) {
-                    player.getItem(1).use();
+                   itemUsed = player.getItem(1);
+                   usingEther = true;
+                } else if(usingEther && playerAttackButton2.justPressed()) { // Jump straight to the second attack because the first attack has infinite PP
+                    itemUsed.use();
+                    playerAttack = player.getAttack(1);
+                    playerChoice = PlayerChoice.ITEM;
+                } else if(usingEther && playerAttackButton3.justPressed()) {
+                    itemUsed.use();
+                    playerAttack = player.getAttack(2);
+                    playerChoice = PlayerChoice.ITEM;
+                } else if(usingEther && playerAttackButton4.justPressed()) {
+                    itemUsed.use();
+                    playerAttack = player.getAttack(3);
+                    playerChoice = PlayerChoice.ITEM;
                 }
 
                 break;
@@ -699,15 +726,22 @@ public class BattleScreen implements Screen {
                 // Player uses their item first
                 if (!playerTurnComplete && itemUsed instanceof Potion) {
                     // Get how much health is to be restored
-                    HPRestored = Math.min(20, player.getMaxHP() - player.getHP());
-                    HPTransition = player.getHP(); //TODO: set variable for restored HP
+                    Potion potion = (Potion) itemUsed;
+                    HPRestored = Math.min(potion.getHealth(), player.getMaxHP() - player.getHP());
+                    HPTransition = player.getHP();
                     playerTurnComplete = true;
                     // Set to true for flow control even if its not actually true
                     animatingEnemyHP = true;
                     textAnimating = true;
                     battleMessage = itemUsed.getBattleMessage(player.getName()) + "\n It restored " + HPRestored + " HP!";
                 } else if (!playerTurnComplete && itemUsed instanceof Ether) {
-                    // TODO: Ether stuff
+                    Ether ether = (Ether) itemUsed;
+                    playerTurnComplete = true;
+                    animatingEnemyHP = true;
+                    textAnimating = true;
+                    int PPRestored = Math.min(ether.getPPRestored(), playerAttack.getMaxPP() - playerAttack.getPP());
+                    playerAttack.restorePP(ether.getPPRestored());
+                    battleMessage = itemUsed.getBattleMessage(player.getName()) + "\n And restored " + PPRestored + " PP to " + playerAttack.getName() + "!";
                 } else {
                     // Enemy attacks second
                     if (!animatingEnemyHP && !enemyTurnComplete) {
@@ -751,7 +785,7 @@ public class BattleScreen implements Screen {
                 } else {
                     // If the first message has finished animating play the failure message
                     if(fleeMessage.equals(player.getName() + " is attempting to escape!") && !textAnimating) {
-                        fleeMessage = "It failed";
+                        fleeMessage = "It failed.";
                         textAnimating = true;
                     } else if (!enemyTurnComplete && !textAnimating) { // Enemy gets to attack the player
                         enemyAttack = enemy.attack();
@@ -782,6 +816,7 @@ public class BattleScreen implements Screen {
             animatingPlayerHP = false;
             inAttacks = false;
             inItems = false;
+            usingEther = false;
             // Reset textAnimating to true so the prompt animates again
             textAnimating = true;
         }
