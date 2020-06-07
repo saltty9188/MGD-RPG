@@ -20,7 +20,6 @@ public abstract class BattleCharacter extends Character {
     protected String name;
 
     protected Attack[] attacks;
-    protected Item[] items;
 
     protected boolean alive;
 
@@ -47,9 +46,7 @@ public abstract class BattleCharacter extends Character {
         this.attacks = attacks;
     }
 
-    public void setItems(Item... items) {
-        this.items = items;
-    }
+
 
     /**
      * Returns the percentage of HP remaining for this Character.

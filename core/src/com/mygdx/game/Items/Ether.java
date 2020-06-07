@@ -41,6 +41,11 @@ public class Ether extends Item {
         removeItems(this);
     }
 
+    @Override
+    public String getBattleMessage(String name) {
+        return null;
+    }
+
     public String getName() {
         return name;
     }

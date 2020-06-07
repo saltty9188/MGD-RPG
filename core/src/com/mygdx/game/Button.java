@@ -67,6 +67,7 @@ public class Button {
         }
         batch.setColor(1,1,1,1);
     }
+
     public void draw(SpriteBatch batch, String text) {
         GlyphLayout glyphLayout = new GlyphLayout();
         bmfont.getData().setScale(2f);

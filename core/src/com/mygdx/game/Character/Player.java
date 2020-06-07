@@ -18,8 +18,7 @@ public class Player extends BattleCharacter {
     private int currentExp;
     private int toNextLevel;
 
-    private Potion potion;
-    private Ether ether;
+    private Item[] items;
 
     private Random rand;
 
@@ -44,6 +43,7 @@ public class Player extends BattleCharacter {
         Attack attack4 = new Attack(10, 15, "Low Blow");
 
         Item item1 = new Potion("Potion", this);
+        item1.addItems(5);
         Item item2 = new Ether("Ether", this);
 
         setAttacks(attack1, attack2, attack3, attack4);
@@ -108,6 +108,10 @@ public class Player extends BattleCharacter {
                 currentAni = itsAllAboutThePirouettes;
                 break;
         }
+    }
+
+    public void setItems(Item... items) {
+        this.items = items;
     }
 
     public void addItem(Item item) {

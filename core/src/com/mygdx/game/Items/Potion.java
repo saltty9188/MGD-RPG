@@ -6,7 +6,6 @@ import com.mygdx.game.RPGGame;
 
 public class Potion extends Item {
     private Player character;
-    private RPGGame game;
     private int potionHealth;
     private String name;
 
@@ -16,35 +15,21 @@ public class Potion extends Item {
         this.character = player;
     }
 
-    public Potion(RPGGame game, Player character) {
-        this.game = game;
-        this.character = character;
-        potionHealth = 20;
-    }
-
-    public int getItems() {
-        return items.length;
-    }
-
-    public void addItems(Item item) {
-        character.addItem(item);
-    }
-
-    public void removeItems(Item item) {
-        //items.remove(item);
-    }
-
     public int getHealth() {
         return potionHealth;
     }
 
     public void use() {
         character.restoreHealth(getHealth());
-        removeItems(this);
+        removeItem();
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getBattleMessage(String name) {
+        return name + " used a " + getName();
     }
 
 }

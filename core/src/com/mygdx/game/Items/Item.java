@@ -10,21 +10,17 @@ public abstract class Item {
 
     private String name;
 
-    public abstract int getItems();
+    public void removeItem() {
+        qty--;
+    }
 
-    public abstract void removeItems(Item item);
-
-    public abstract void addItems(Item item);
+    public void addItems(int qty) {
+        this.qty += qty;
+    }
 
     public abstract void use();
 
-    public String toString(int qty) {
-        return Integer.toString(qty);
-    }
-
-    public String getQtyString() {
-        return toString(qty);
-    }
+    public abstract String getBattleMessage(String name);
 
     public int getQty() {
         return qty;
