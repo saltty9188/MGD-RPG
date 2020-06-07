@@ -8,14 +8,30 @@ public abstract class Item {
 
     Item[] items;
 
+    private String name;
+
     public abstract int getItems();
 
     public abstract void removeItems(Item item);
 
     public abstract void addItems(Item item);
 
+    public abstract void use();
+
+    public String toString(int qty) {
+        return Integer.toString(qty);
+    }
+
+    public String getQtyString() {
+        return toString(qty);
+    }
+
     public int getQty() {
         return qty;
+    }
+
+    public String getName() {
+        return name;
     }
 
 }

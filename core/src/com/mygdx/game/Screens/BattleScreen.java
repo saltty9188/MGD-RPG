@@ -65,6 +65,10 @@ public class BattleScreen implements Screen {
     private Button playerAttackButton3;
     private Button playerAttackButton4;
 
+    //Item buttons
+    private Button potionButton;
+    private Button etherButton;
+
     // Store the attacks for the turn
     private Attack playerAttack;
     private Attack enemyAttack;
@@ -160,6 +164,11 @@ public class BattleScreen implements Screen {
         playerAttackButton3 = new Button(Gdx.graphics.getWidth() / 2 + PADDING, 0, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
                 Gdx.graphics.getHeight() * 7/48 - PADDING, buttonUp, buttonDown);
         playerAttackButton4 = new Button(Gdx.graphics.getWidth() * 3 / 4 + PADDING, 0, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
+                Gdx.graphics.getHeight() * 7/48 - PADDING, buttonUp, buttonDown);
+
+        potionButton = new Button(Gdx.graphics.getWidth() / 2 + PADDING, Gdx.graphics.getHeight() * 7/48 + PADDING, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
+                Gdx.graphics.getHeight() * 7/48 - 2 * PADDING, buttonUp, buttonDown);
+        etherButton = new Button(Gdx.graphics.getWidth() * 3 / 4 + PADDING, Gdx.graphics.getHeight() * 7/48, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
                 Gdx.graphics.getHeight() * 7/48 - PADDING, buttonUp, buttonDown);
     }
 
@@ -296,6 +305,9 @@ public class BattleScreen implements Screen {
                         playerAttackButton2.draw(spriteBatch, player.getAttack(1).getName(), player.getAttack(1).getPPStatus(), player.getAttack(1).getPP() == 0);
                         playerAttackButton3.draw(spriteBatch, player.getAttack(2).getName(), player.getAttack(2).getPPStatus(), player.getAttack(2).getPP() == 0);
                         playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus(), player.getAttack(3).getPP() == 0);
+                    } else if(inItems) {
+                        potionButton.draw(spriteBatch, player.getItem(0).getName(), player.getItem(0).getQtyString(), player.getItem(0).getQty() == 0);
+                        etherButton.draw(spriteBatch, player.getItem(1).getName(), player.getItem(1).getQtyString(), player.getItem(1).getQty() == 0);
                     }
 
                     if (inAttacks || inItems) backButton.draw(spriteBatch, backGraphic);
@@ -498,6 +510,9 @@ public class BattleScreen implements Screen {
                     playerAttackButton2.update(checkTouch, touchX, touchY);
                     playerAttackButton3.update(checkTouch, touchX, touchY);
                     playerAttackButton4.update(checkTouch, touchX, touchY);
+                } else if(inItems) {
+                    potionButton.update(checkTouch, touchX, touchY);
+                    etherButton.update(checkTouch, touchX, touchY);
                 }
 
                 if (inAttacks || inItems) backButton.update(checkTouch, touchX, touchY);
@@ -505,6 +520,8 @@ public class BattleScreen implements Screen {
                 // Handle button presses
                 if (attackButton.justPressed()) {
                     inAttacks = true;
+                } else if(itemButton.justPressed()) {
+                    inItems = true;
                 } else if (backButton.justPressed()) {
                     inAttacks = false;
                     inItems = false;
@@ -532,6 +549,10 @@ public class BattleScreen implements Screen {
                     } else {
                         playerChoice = PlayerChoice.RUN;
                     }
+                } else if(potionButton.justPressed() && player.getItem(0).getQty() > 0) {
+                    player.getItem(0).use();
+                } else if(etherButton.justPressed() && player.getItem(1).getQty() > 0) {
+                    player.getItem(1).use();
                 }
 
                 break;

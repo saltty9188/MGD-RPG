@@ -8,9 +8,10 @@ public class Ether extends Item {
     private RPGGame game;
     private Player player;
     private int etherRestore;
+    private String name;
 
-    public Ether() {
-
+    public Ether(String name) {
+        this.name = name;
     }
 
     public Ether(RPGGame game, Player player) {
@@ -35,8 +36,11 @@ public class Ether extends Item {
         return etherRestore;
     }
 
-    public void useEther(Ether ether) {
-        removeItems(ether);
+    public void use() {
+        removeItems(this);
+    }
 
+    public String getName() {
+        return name;
     }
 }

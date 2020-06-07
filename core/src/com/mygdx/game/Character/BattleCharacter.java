@@ -2,6 +2,7 @@ package com.mygdx.game.Character;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.mygdx.game.Attack;
+import com.mygdx.game.Items.Item;
 
 public abstract class BattleCharacter extends Character {
     // Sprite used on the BattleScreen
@@ -19,6 +20,7 @@ public abstract class BattleCharacter extends Character {
     protected String name;
 
     protected Attack[] attacks;
+    protected Item[] items;
 
     protected boolean alive;
 
@@ -43,6 +45,10 @@ public abstract class BattleCharacter extends Character {
 
     public void setAttacks(Attack... attacks) {
         this.attacks = attacks;
+    }
+
+    public void setItems(Item... items) {
+        this.items = items;
     }
 
     /**

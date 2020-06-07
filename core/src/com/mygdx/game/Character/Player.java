@@ -22,16 +22,12 @@ public class Player extends BattleCharacter {
     private Ether ether;
 
     private Random rand;
-    private Item[] items;
 
     public Player(){
         super(new Texture("character.png"), 15, 23, new Texture("character-battle2.png"),
                 50, 10, 5, 5, 1, "Hero");
 
         //HP = 1;
-
-        potion = new Potion();
-        ether = new Ether();
 
         currentExp = 0;
         toNextLevel = (int) (6.1 * Math.pow(level + 1, 2) + 1.4 * (level + 1) - 11.4);
@@ -47,7 +43,11 @@ public class Player extends BattleCharacter {
         Attack attack3 = new Attack(15, 10, "Mighty Stab");
         Attack attack4 = new Attack(10, 15, "Low Blow");
 
+        Item item1 = new Potion("Potion");
+        Item item2 = new Ether("Ether");
+
         setAttacks(attack1, attack2, attack3, attack4);
+        setItems(item1, item2);
     }
 
     public void restoreHealth(int health) {
@@ -55,10 +55,12 @@ public class Player extends BattleCharacter {
         if(HP > maxHP) HP = maxHP;
     }
 
-
-
     public Attack getAttack(int index) {
         return attacks[index];
+    }
+
+    public Item getItem(int index) {
+        return items[index];
     }
 
     /**
