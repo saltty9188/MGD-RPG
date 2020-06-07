@@ -19,7 +19,7 @@ import com.mygdx.game.RPGGame;
  */
 public class ShopScreen implements Screen {
 
-    private static final float PADDING = 0.5f;
+    private static final float PADDING = 1f;
 
     private RPGGame game;
     private Player player;
@@ -47,7 +47,10 @@ public class ShopScreen implements Screen {
     private Button exitButton;
 
     //buttons for the items on sale
-    private Button testItemButton;
+    private Button potionButton;
+    private Button hiPotionButton;
+    private Button etherButton;
+    private Button hiEtherButton;
 
     //buttons for items in player's inventory to sell
 
@@ -56,8 +59,11 @@ public class ShopScreen implements Screen {
     private Button qtyUp;
     private Button qtyDown;
     private Button purchaseItem;
+    private Button sellItem;
     private Button cancel;
     private int buyQty;
+
+    private Texture background;
 
     public ShopScreen(RPGGame game) {
         this.game = game;
@@ -86,6 +92,7 @@ public class ShopScreen implements Screen {
                 false);
 
         textWindow = new Texture("window_blue.png");
+        background = new Texture("Backgrounds/shop-background.png");
 
         buttonUp = new Texture("buttonUp.png");
         buttonDown = new Texture("buttonDown.png");
@@ -97,7 +104,13 @@ public class ShopScreen implements Screen {
         exitButton = new Button(5* PADDING + Gdx.graphics.getWidth() * 2/3, Gdx.graphics.getHeight() * 33/48 - PADDING, Gdx.graphics.getWidth() / 3 - 2*PADDING, Gdx.graphics.getHeight() * 7/48 - PADDING,
                 buttonUp, buttonDown);
 
-        testItemButton = new Button(PADDING, Gdx.graphics.getHeight() * 13/24 - 2*PADDING, Gdx.graphics.getWidth() - 2*PADDING, Gdx.graphics.getHeight() * 7/48 - 2*PADDING,
+        potionButton = new Button(PADDING, Gdx.graphics.getHeight() * 13/24 - 4*PADDING, Gdx.graphics.getWidth() - 2*PADDING, Gdx.graphics.getHeight() * 7/48 - 2*PADDING,
+                buttonUp, buttonDown);
+        hiPotionButton = new Button(PADDING, Gdx.graphics.getHeight() * 19/48 - 6*PADDING, Gdx.graphics.getWidth() - 2*PADDING, Gdx.graphics.getHeight() * 7/48 - 2*PADDING,
+                buttonUp, buttonDown);
+        etherButton = new Button(PADDING, Gdx.graphics.getHeight() * 12/48 - 8*PADDING, Gdx.graphics.getWidth() - 2*PADDING, Gdx.graphics.getHeight() * 7/48 - 2*PADDING,
+                buttonUp, buttonDown);
+        hiEtherButton = new Button(PADDING, Gdx.graphics.getHeight() * 5/48 - 10*PADDING, Gdx.graphics.getWidth() - 2*PADDING, Gdx.graphics.getHeight() * 7/48 - 2*PADDING,
                 buttonUp, buttonDown);
 
 
@@ -107,6 +120,8 @@ public class ShopScreen implements Screen {
         qtyDown = new Button(Gdx.graphics.getWidth()* 3/10, Gdx.graphics.getHeight()/3, Gdx.graphics.getWidth()/20, Gdx.graphics.getWidth()/16, buttonUp,
                 buttonDown);
         purchaseItem = new Button(Gdx.graphics.getWidth() * 9/20 + 3 * PADDING, Gdx.graphics.getHeight()/3, Gdx.graphics.getWidth() / 8 - 2 * PADDING,
+                Gdx.graphics.getWidth()/16 , buttonUp, buttonDown);
+        sellItem = new Button(Gdx.graphics.getWidth() * 9/20 + 3 * PADDING, Gdx.graphics.getHeight()/3, Gdx.graphics.getWidth() / 8 - 2 * PADDING,
                 Gdx.graphics.getWidth()/16 , buttonUp, buttonDown);
         cancel = new Button(Gdx.graphics.getWidth() * 23/40 + 4 * PADDING, Gdx.graphics.getHeight()/3, Gdx.graphics.getWidth() / 8 - 2 * PADDING,
                 Gdx.graphics.getWidth()/16, buttonUp, buttonDown);
@@ -134,6 +149,7 @@ public class ShopScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.begin();
+        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.draw(textWindow, 0, Gdx.graphics.getHeight() * 5/6, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()/6);
         displayText(batch, shopMessage, delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()/6, 0, Gdx.graphics.getHeight() * 5/6);
 
@@ -142,13 +158,21 @@ public class ShopScreen implements Screen {
         exitButton.draw(batch, "Exit");
 
         if(buying) {
-            testItemButton.draw(batch, "Test Item", "Stock: 3 \t\t Price: 50G", false);
+           // testItemButton.draw(batch, "Test Item", "Stock: 3 \t\t Price: 50G", false);
+            potionButton.draw(batch, "Potion", "Stock: " + player.getItem(0).getQty() + " \t\t Price " + player.getItem(0).getValue(), false);
+            hiPotionButton.draw(batch, "Hi-Potion", "Stock: " + player.getItem(1).getQty() + " \t\t Price " + player.getItem(1).getValue(), false);
+            etherButton.draw(batch, "Ether", "Stock: " + player.getItem(2).getQty() + " \t\t Price " + player.getItem(2).getValue(), false);
+            hiEtherButton.draw(batch, "Hi-Ether", "Stock: " + player.getItem(3).getQty() + " \t\t Price " + player.getItem(3).getValue(), false);
         } else if(selling) {
-            //draw sell buttons
+            //draw sell button
+            potionButton.draw(batch, "Potion", "Stock: " + player.getItem(0).getQty() + " \t\t Price " + player.getItem(0).getValue()/2, false);
+            hiPotionButton.draw(batch, "Hi-Potion", "Stock: " + player.getItem(1).getQty() + " \t\t Price " + player.getItem(1).getValue()/2, false);
+            etherButton.draw(batch, "Ether", "Stock: " + player.getItem(2).getQty() + " \t\t Price " + player.getItem(2).getValue()/2, false);
+            hiEtherButton.draw(batch, "Hi-Ether", "Stock: " + player.getItem(3).getQty() + " \t\t Price " + player.getItem(3).getValue()/2, false);
         }
 
         if(itemSelected) {
-            drawQtySelector(batch, delta);
+            drawQtySelector(batch, delta, buying);
         }
         batch.end();
     }
@@ -222,53 +246,99 @@ public class ShopScreen implements Screen {
             game.setScreen(RPGGame.gameScreen);
         }
 
-        if(buying && !itemSelected) {
-            // Want button to stay down while in the buy menu
-            buyButton.isDown = true;
+        if((buying || selling) && !itemSelected) {
+            // Want button to stay down while in the correct menu
+            buyButton.isDown = buying;
+            sellButton.isDown = selling;
             // update purchase buttons
-            testItemButton.update(checkTouch, touchX, touchY);
+            potionButton.update(checkTouch, touchX, touchY);
+            hiPotionButton.update(checkTouch, touchX, touchY);
+            etherButton.update(checkTouch, touchX, touchY);
+            hiEtherButton.update(checkTouch, touchX, touchY);
 
-            if(testItemButton.justPressed()) {
-                //Draw qty menu
+            // handle item button presses
+            if(potionButton.justPressed()) {
                 itemSelected = true;
-                //selectedItem = item;
+                selectedItem = player.getItem(0);
+            } else if(hiPotionButton.justPressed()) {
+                itemSelected = true;
+                selectedItem = player.getItem(1);
+            } else if(etherButton.justPressed()) {
+                itemSelected = true;
+                selectedItem = player.getItem(2);
+            } else if(hiEtherButton.justPressed()) {
+                itemSelected = true;
+                selectedItem = player.getItem(3);
             }
-        } else if(selling && !itemSelected) {
-            sellButton.isDown = true;
-        } else if(itemSelected) {
+        }  else if(itemSelected) {
             qtyDown.update(checkTouch, touchX, touchY);
             qtyUp.update(checkTouch, touchX, touchY);
-            purchaseItem.update(checkTouch, touchX, touchY);
+            if(buying) purchaseItem.update(checkTouch, touchX, touchY);
+            else if (selling) sellItem.update(checkTouch, touchX, touchY);
             cancel.update(checkTouch, touchX, touchY);
         }
 
-        if(qtyDown.justPressed()) {
-            buyQty--;
-            if(buyQty < 1) buyQty = 1;
-        } else if(qtyUp.justPressed()) {
-            buyQty++;
-            if(buyQty > 99) buyQty = 99;
-        } else if(purchaseItem.justPressed()) {
-            //do buying stuff
-        } else if(cancel.justPressed()) {
-            itemSelected = false;
-            //selectedItem = null;
-            buyQty = 1;
+        if(buying && itemSelected) {
+            if (qtyDown.justPressed()) {
+                buyQty--;
+                if (buyQty < 1) buyQty = 1;
+            } else if (qtyUp.justPressed()) {
+                buyQty++;
+                if (buyQty > 99) buyQty = 99;
+            } else if (purchaseItem.justPressed() && player.getGold() >= buyQty * selectedItem.getValue()) {
+                player.spendGold(buyQty*selectedItem.getValue());
+                selectedItem.addItems(buyQty);
+                itemSelected = false;
+                selectedItem = null;
+                buyQty = 1;
+            } else if (cancel.justPressed()) {
+                itemSelected = false;
+                selectedItem = null;
+                buyQty = 1;
+            }
+        } else if(selling && itemSelected) {
+            if (qtyDown.justPressed()) {
+                buyQty--;
+                if (buyQty < 1) buyQty = 1;
+            } else if (qtyUp.justPressed()) {
+                buyQty++;
+                if (buyQty > 99) buyQty = 99;
+            } else if (sellItem.justPressed() && selectedItem.getQty() >= buyQty) {
+                player.earnGold(buyQty * selectedItem.getValue()/2);
+                selectedItem.removeItems(buyQty);
+                itemSelected = false;
+                selectedItem = null;
+                buyQty = 1;
+            } else if (cancel.justPressed()) {
+                itemSelected = false;
+                selectedItem = null;
+                buyQty = 1;
+            }
         }
 
     }
 
-    private void drawQtySelector(SpriteBatch batch, float delta) {
+    private void drawQtySelector(SpriteBatch batch, float delta, boolean buying) {
         textAnimating = false;
         batch.draw(textWindow, Gdx.graphics.getWidth()/8, Gdx.graphics.getHeight()/8, Gdx.graphics.getWidth() * 3/4, Gdx.graphics.getHeight() * 3/4);
-        displayText(batch, "Potion\nRestores 20HP", delta, Gdx.graphics.getWidth() * 3/4, Gdx.graphics.getHeight()/4, Gdx.graphics.getWidth()/8, Gdx.graphics.getHeight()/2);
+        displayText(batch, selectedItem.getName() + "\n" + selectedItem.getDescription(), delta, Gdx.graphics.getWidth() * 3/4,
+                Gdx.graphics.getHeight()/4, Gdx.graphics.getWidth()/8, Gdx.graphics.getHeight()/2);
+
+        int total = (buying ? buyQty * selectedItem.getValue() : buyQty * selectedItem.getValue() / 2);
+        displayText(batch, "Total: " + total + "G", delta, Gdx.graphics.getWidth() * 3/4,
+                Gdx.graphics.getHeight()/4, Gdx.graphics.getWidth()/8, Gdx.graphics.getHeight() * 3/8);
+
 
         qtyDown.draw(batch, "-");
         displayText(batch, Integer.toString(buyQty), delta, Gdx.graphics.getWidth()/20 - 2*PADDING, Gdx.graphics.getHeight()/16,
-                Gdx.graphics.getWidth() * 7/20 + PADDING, Gdx.graphics.getHeight()/3 + 6);
+                Gdx.graphics.getWidth() * 7/20 + PADDING, Gdx.graphics.getHeight()/3 + 10);
         qtyUp.draw(batch, "+");
-        purchaseItem.draw(batch, "Buy");
+        if(buying) purchaseItem.draw(batch, "Buy", "", player.getGold() < buyQty * selectedItem.getValue());
+        else sellItem.draw(batch, "Sell", "", selectedItem.getQty() < buyQty);
         cancel.draw(batch, "Cancel");
+
+        displayText(batch, "Gold: " + player.getGold() + "G", delta,Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/16,
+                Gdx.graphics.getWidth() * 12/20 + PADDING, Gdx.graphics.getHeight()/4);
     }
 
     @Override

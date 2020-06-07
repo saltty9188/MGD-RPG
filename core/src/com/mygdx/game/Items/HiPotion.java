@@ -9,6 +9,7 @@ public class HiPotion extends Potion {
         this.name = "Hi-Potion";
         this.restoration = 50;
 
+        description = "Restores 50 HP.";
         value = 30;
     }
 }

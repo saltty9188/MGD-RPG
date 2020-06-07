@@ -6,10 +6,11 @@ public abstract class Item {
 
     private int qty;
     protected String name;
+    protected String description;
     protected int value;
 
-    public void removeItem() {
-        qty--;
+    public void removeItems(int qty) {
+        this.qty -= qty;
     }
 
     public void addItems(int qty) {
@@ -26,6 +27,14 @@ public abstract class Item {
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int getValue() {
+        return value;
     }
 
 }

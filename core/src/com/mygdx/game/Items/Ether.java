@@ -11,11 +11,12 @@ public class Ether extends Item {
         this.name = "Ether";
         this.restoration = 5;
 
+        description = "Restores 5 PP to a single attack.";
         value = 30;
     }
 
     public void use() {
-        removeItem();
+        removeItems(1);
     }
 
     public int getRestoration() {

@@ -13,6 +13,7 @@ public class Potion extends Item {
         this.restoration = 20;
         this.character = player;
 
+        description = "Restores 20 HP.";
         value = 10;
     }
 
@@ -22,7 +23,7 @@ public class Potion extends Item {
 
     public void use() {
         character.restoreHealth(getRestoration());
-        removeItem();
+        removeItems(1);
     }
 
     public String getName() {
