@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.Button;
 import com.mygdx.game.Character.Player;
+import com.mygdx.game.Items.Item;
 import com.mygdx.game.RPGGame;
 
 /**
@@ -26,6 +27,7 @@ public class ShopScreen implements Screen {
     private boolean buying;
     private boolean selling;
     private boolean itemSelected;
+    private Item selectedItem;
 
     private SpriteBatch batch;
     
@@ -66,6 +68,7 @@ public class ShopScreen implements Screen {
         buying = false;
         selling = false;
         itemSelected = false;
+        selectedItem = null;
 
         buyQty = 1;
 

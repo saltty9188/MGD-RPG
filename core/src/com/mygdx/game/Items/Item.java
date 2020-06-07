@@ -4,11 +4,9 @@ import java.util.ArrayList;
 
 public abstract class Item {
 
-    int qty;
-
-    Item[] items;
-
-    private String name;
+    private int qty;
+    protected String name;
+    protected int value;
 
     public void removeItem() {
         qty--;

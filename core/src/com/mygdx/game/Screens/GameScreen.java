@@ -112,7 +112,7 @@ public class GameScreen implements Screen {
         bgm = Gdx.audio.newMusic(Gdx.files.internal("Music/Blippy Trance.mp3"));
         bgm.setLooping(true);
         bgm.setVolume(1);
-        bgm.play();
+        //bgm.play();
 
         spriteBatch = new SpriteBatch();
         uiBatch = new SpriteBatch();

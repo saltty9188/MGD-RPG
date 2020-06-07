@@ -5,12 +5,13 @@ import com.mygdx.game.RPGGame;
 
 public class Ether extends Item {
 
-    private int restoration;
-    private String name;
+    protected int restoration;
 
-    public Ether(String name, int restoration) {
-        this.name = name;
-        this.restoration = restoration;
+    public Ether() {
+        this.name = "Ether";
+        this.restoration = 5;
+
+        value = 30;
     }
 
     public void use() {

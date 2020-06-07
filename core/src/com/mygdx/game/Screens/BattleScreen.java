@@ -231,7 +231,7 @@ public class BattleScreen implements Screen {
 
         victoryMessages = new String[3];
         victoryMessages[0] = "You Won!";
-        victoryMessages[1] = "You earned " + enemy.getExp() + " experience points!";
+        victoryMessages[1] = "You earned " + enemy.getExp() + " experience points and got " + enemy.getGold() + " gold!";
         currentVictoryIndex = 0;
 
 
@@ -678,14 +678,7 @@ public class BattleScreen implements Screen {
 
                     if (!enemy.isAlive() && playerTurnComplete) {
                         //Player won
-                        battleFinished = true;
-                        textAnimating = true;
-                        // If the player levels up
-                        if(player.receiveExp(enemy.getExp())) {
-                            player.levelUp();
-                            victoryMessages[2] = "You leveled up!\nYou are now level " + player.getLevel() + "!";
-                        }
-                        System.out.println("WIN");
+                        victory();
                     } else {
                         // Enemy attacks second
                         if (!animatingEnemyHP && !enemyTurnComplete) {
@@ -703,7 +696,6 @@ public class BattleScreen implements Screen {
                         if (!player.isAlive() && enemyTurnComplete) {
                             battleFinished = true;
                             textAnimating = true;
-                            System.out.println("LOSE");
                         }
                     }
                 } else {
@@ -723,7 +715,6 @@ public class BattleScreen implements Screen {
                     if (!player.isAlive()) {
                         battleFinished = true;
                         textAnimating = true;
-                        System.out.println("LOSE");
                     } else {
                         //Player attacks second
                         if (!animatingPlayerHP && !playerTurnComplete) {
@@ -739,14 +730,7 @@ public class BattleScreen implements Screen {
 
                         if (!enemy.isAlive()) {
                             //Player won
-                            battleFinished = true;
-                            textAnimating = true;
-                            // If the player levels up
-                            if(player.receiveExp(enemy.getExp())) {
-                                player.levelUp();
-                                victoryMessages[2] = "You leveled up!\nYou are now level " + player.getLevel() + "!";
-                            }
-                            System.out.println("WIN");
+                            victory();
                         }
                     }
                 }
@@ -788,7 +772,6 @@ public class BattleScreen implements Screen {
                     if (!player.isAlive() && enemyTurnComplete) {
                         battleFinished = true;
                         textAnimating = true;
-                        System.out.println("LOSE");
                     }
                 }
 
@@ -809,7 +792,6 @@ public class BattleScreen implements Screen {
                     } else if(!textAnimating) { // Then leave the battle and remove the enemy from the field
                         enemy.die();
                         game.setScreen(RPGGame.gameScreen);
-                        System.out.println("FLEE");
                     }
                 } else {
                     // If the first message has finished animating play the failure message
@@ -830,7 +812,6 @@ public class BattleScreen implements Screen {
                         if (!player.isAlive() && enemyTurnComplete) {
                             battleFinished = true;
                             textAnimating = true;
-                            System.out.println("LOSE");
                         }
                     }
                 }
@@ -902,6 +883,17 @@ public class BattleScreen implements Screen {
         }
         battleSprite.draw(spriteBatch);
         spriteBatch.setShader(null);
+    }
+
+    public void victory() {
+        battleFinished = true;
+        textAnimating = true;
+        // If the player levels up
+        if(player.receiveExp(enemy.getExp())) {
+            player.levelUp();
+            victoryMessages[2] = "You leveled up!\nYou are now level " + player.getLevel() + "!";
+        }
+        player.earnGold(enemy.getGold());
     }
 
     @Override

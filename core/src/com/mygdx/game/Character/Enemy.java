@@ -18,10 +18,11 @@ import java.util.Random;
 public abstract class Enemy extends BattleCharacter {
 
     private int exp;
+    protected int gold;
 
-    Random rand;
-    float walkDuration;
-    int direction;
+    private Random rand;
+    private float walkDuration;
+    private int direction;
 
     public Enemy(Texture spriteSheet, int width, int height, Texture battleSprite,
                  int maxHP, int strength, int defence, int speed, int level, String name, int exp) {
@@ -126,4 +127,7 @@ public abstract class Enemy extends BattleCharacter {
         return exp;
     }
 
+    public int getGold() {
+        return gold;
+    }
 }
