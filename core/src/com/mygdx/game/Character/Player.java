@@ -134,16 +134,16 @@ public class Player extends BattleCharacter {
      */
     public boolean facing(NPC npc) {
         // To the left of the NPC
-        if(getX() + getWidth() < npc.getX() && (getY() < npc.getY() + npc.getHeight()/2 && getY() + getHeight() > npc.getY() + npc.getHeight()/2)
+        if(getX() + getWidth() < npc.getX() && (getY() < npc.getY() + npc.getHeight() * 3/4 && getY() + getHeight() > npc.getY() + npc.getHeight()/4)
                 && currentAni == walkRightAni) {
             return true;
-        } else if (getY() > npc.getY() + npc.getHeight() && (getX() < npc.getX() + npc.getWidth()/2 && getX() + getWidth() > npc.getX() + npc.getWidth()/2)
+        } else if (getY() > npc.getY() + npc.getHeight() && (getX() < npc.getX() + npc.getWidth() * 3/4 && getX() + getWidth() > npc.getX() + npc.getWidth()/4)
                     && (currentAni == walkDownAni || currentAni == idleAni)) { // Behind the NPC
             return true;
-        } else if (getX() > npc.getX() + npc.getWidth() && (getY() < npc.getY() + npc.getHeight()/2 && getY() + getHeight() > npc.getY() + npc.getHeight()/2)
+        } else if (getX() > npc.getX() + npc.getWidth() && (getY() < npc.getY() + npc.getHeight() * 3/4 && getY() + getHeight() > npc.getY() + npc.getHeight()/4)
                     && currentAni == walkLeftAni) { // To the right of the NPC
             return true;
-        } else if (getY() + getHeight() < npc.getY() && (getX() < npc.getX() + npc.getWidth()/2 && getX() + getWidth() > npc.getX() + npc.getWidth()/2)
+        } else if (getY() + getHeight() < npc.getY() && (getX() < npc.getX() + npc.getWidth() * 3/4 && getX() + getWidth() > npc.getX() + npc.getWidth()/4)
                     && currentAni == walkUpAni) { // In front of the NPC
             return true;
         }

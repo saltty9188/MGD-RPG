@@ -541,7 +541,7 @@ public class GameScreen implements Screen {
             for(int i = 0; i < NPCs.length; i++) {
                 roamBox = (RectangleMapObject) roamZones.getObjects().get("NPC " + Integer.toString(i + 1));
                 //Stationary NPCs have no roam box
-                if(roamBox != null) NPCs[i].update(delta, roamBox.getRectangle(), player);
+                if(roamBox != null && !NPCs[i].closeTo(player)) NPCs[i].update(delta, roamBox.getRectangle(), player);
                 else NPCs[i].setDefaultPose(0);
             }
         }

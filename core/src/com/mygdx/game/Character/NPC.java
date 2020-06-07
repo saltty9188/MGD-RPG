@@ -29,7 +29,8 @@ public class NPC extends Character {
     private String currentDialogue;
     private int currentDialogueIndex;
 
-    private Animation defaultPose;
+    private Animation nextLinePrompt;
+    private Texture nextLine;
 
     Random rand;
     float walkDuration;
@@ -46,10 +47,12 @@ public class NPC extends Character {
     public NPC(Texture spriteSheet, int width, int height, String ... dialogue) {
         super(spriteSheet, width, height);
         this.dialogue = dialogue;
+
+        loadAssets();
+
         currentDialogue = dialogue[0];
         currentDialogueIndex = 0;
 
-        this.spriteSheet = spriteSheet;
         stateTimer = 0.0f;
         genAnimations();
         currentAni = idleAni;
@@ -62,8 +65,6 @@ public class NPC extends Character {
         textIndex = 0;
         textBuilder = "";
         textTime = 0;
-
-        loadAssets();
     }
 
     public void genAnimations() {
@@ -90,6 +91,13 @@ public class NPC extends Character {
         fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 1, 7, 14, 21),
             new TextureRegion(spriteSheet, 33, 7, 14, 21)};
         idleAni = new Animation<TextureRegion>(AFS, fFrames);
+
+        TextureRegion[][] temp = TextureRegion.split(nextLine, nextLine.getWidth()/4, nextLine.getHeight());
+        nextLinePrompt = new Animation<TextureRegion>(AFS, temp[0]);
+    }
+
+    private void updateNextLine(float delta) {
+        stateTimer += delta;
     }
 
     private void loadAssets() {
@@ -99,6 +107,8 @@ public class NPC extends Character {
                 false);
 
         textWindow = new Texture("window_blue.png");
+
+        nextLine = new Texture("next line.png");
     }
 
     public TextureRegion getFrame(float dt) {
@@ -220,6 +230,10 @@ public class NPC extends Character {
      * @param delta The time passed since the last frame.
      */
     public void displayDialogue(SpriteBatch batch, float delta) {
+        updateNextLine(delta);
+        float arrowWidth = Gdx.graphics.getWidth() * 0.025f;
+        float arrowHeight = arrowWidth;
+
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight()/6;
         float x = 0;
@@ -230,7 +244,7 @@ public class NPC extends Character {
         width = Gdx.graphics.getWidth() - 2 * WINDOW_BORDER_RATIO * Gdx.graphics.getWidth();
         height = Gdx.graphics.getHeight()/6 - 2 * WINDOW_BORDER_RATIO * Gdx.graphics.getHeight();
         x = Gdx.graphics.getWidth() * WINDOW_BORDER_RATIO;
-        y = Gdx.graphics.getHeight() * 5/6 + Gdx.graphics.getHeight() * WINDOW_BORDER_RATIO;
+        y = Gdx.graphics.getHeight() * 5/6 + Gdx.graphics.getHeight() * 5/6 * WINDOW_BORDER_RATIO;
 
         bmfont.getData().setScale(2);
         GlyphLayout glyphLayout = new GlyphLayout();
@@ -263,6 +277,7 @@ public class NPC extends Character {
             }
         } else {
             bmfont.draw(batch, currentDialogue, textX, textY, glyphLayout.width, 1, true);
+            batch.draw((TextureRegion) nextLinePrompt.getKeyFrame(stateTimer, true), x + width - arrowWidth, y - arrowHeight/2, arrowWidth, arrowHeight);
         }
 
         // Error catching, resets if there is an issue with the textBuilder. Only happens if the player spam clicks through dialogue
@@ -270,6 +285,7 @@ public class NPC extends Character {
             textIndex = 0;
             textBuilder = "";
         }
+
     }
 
     /**
@@ -302,16 +318,13 @@ public class NPC extends Character {
      */
     public void face(Player player) {
         // NPC to the left of the player
-        if(getX() + getWidth() < player.getX()) currentAni = walkRightAni;
+        if(getX() + getWidth() < player.getX()) setDefaultPose(4);
         // NPC above
-        else if(getY() > player.getY() + player.getHeight()) currentAni = idleAni;
+        else if(getY() > player.getY() + player.getHeight()) setDefaultPose(0);
         // NPC to the right
-        else if(getX() > player.getX() + player.getWidth()) currentAni = walkLeftAni;
+        else if(getX() > player.getX() + player.getWidth()) setDefaultPose(2);
         // NPC below
-        else currentAni = walkUpAni;
-
-        // Make change take effect
-        update(0);
+        else setDefaultPose(1);
     }
 
     /**
