@@ -10,8 +10,10 @@ public class Potion extends Item {
     private int potionHealth;
     private String name;
 
-    public Potion(String name) {
+    public Potion(String name, Player player) {
         this.name = name;
+        potionHealth = 20;
+        this.character = player;
     }
 
     public Potion(RPGGame game, Player character) {
@@ -37,8 +39,8 @@ public class Potion extends Item {
     }
 
     public void use() {
+        character.restoreHealth(getHealth());
         removeItems(this);
-        character.restoreHealth(this.getHealth());
     }
 
     public String getName() {

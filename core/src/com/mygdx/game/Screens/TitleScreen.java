@@ -11,7 +11,9 @@ public class TitleScreen  implements Screen {
 
     private Batch batch;
 
-    public TitleScreen(RPGGame game) {this.game = game;}
+    public TitleScreen(RPGGame game) {
+        this.game = game;
+    }
 
     @Override
     public void show() {

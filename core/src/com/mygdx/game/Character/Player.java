@@ -43,8 +43,8 @@ public class Player extends BattleCharacter {
         Attack attack3 = new Attack(15, 10, "Mighty Stab");
         Attack attack4 = new Attack(10, 15, "Low Blow");
 
-        Item item1 = new Potion("Potion");
-        Item item2 = new Ether("Ether");
+        Item item1 = new Potion("Potion", this);
+        Item item2 = new Ether("Ether", this);
 
         setAttacks(attack1, attack2, attack3, attack4);
         setItems(item1, item2);
@@ -52,7 +52,9 @@ public class Player extends BattleCharacter {
 
     public void restoreHealth(int health) {
         HP += health;
-        if(HP > maxHP) HP = maxHP;
+        if(HP > maxHP) {
+            HP = maxHP;
+        }
     }
 
     public Attack getAttack(int index) {

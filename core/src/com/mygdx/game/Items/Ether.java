@@ -10,8 +10,9 @@ public class Ether extends Item {
     private int etherRestore;
     private String name;
 
-    public Ether(String name) {
+    public Ether(String name, Player player) {
         this.name = name;
+        this.player = player;
     }
 
     public Ether(RPGGame game, Player player) {
