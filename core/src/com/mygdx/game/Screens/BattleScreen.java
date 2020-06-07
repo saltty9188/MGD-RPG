@@ -70,7 +70,9 @@ public class BattleScreen implements Screen {
 
     //Item buttons
     private Button potionButton;
+    private Button hiPotionButton;
     private Button etherButton;
+    private Button hiEtherButton;
 
     // Store the attacks for the turn
     private Attack playerAttack;
@@ -174,7 +176,11 @@ public class BattleScreen implements Screen {
 
         potionButton = new Button(Gdx.graphics.getWidth() / 2 + PADDING, Gdx.graphics.getHeight() * 7/48 + PADDING, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
                 Gdx.graphics.getHeight() * 7/48 - 2 * PADDING, buttonUp, buttonDown);
-        etherButton = new Button(Gdx.graphics.getWidth() * 3 / 4 + PADDING, Gdx.graphics.getHeight() * 7/48, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
+        hiPotionButton = new Button(Gdx.graphics.getWidth() * 3 / 4 + PADDING, Gdx.graphics.getHeight() * 7/48, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
+                Gdx.graphics.getHeight() * 7/48 - PADDING, buttonUp, buttonDown);
+        etherButton = new Button(Gdx.graphics.getWidth() / 2 + PADDING, 0, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
+                Gdx.graphics.getHeight() * 7/48 - PADDING, buttonUp, buttonDown);
+        hiEtherButton = new Button(Gdx.graphics.getWidth() * 3 / 4 + PADDING, 0, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
                 Gdx.graphics.getHeight() * 7/48 - PADDING, buttonUp, buttonDown);
     }
 
@@ -299,7 +305,7 @@ public class BattleScreen implements Screen {
                 case CHOOSING:
                     drawText(spriteBatch, generalMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                             Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
-                            (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, !generalMessage.equals("How will you proceed?"), 2);
+                            (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, (!(generalMessage.equals("How will you proceed?") || usingEther)), 2);
 
                     // Draw the appropriate buttons while the player selects a move
                     if (!inAttacks && !inItems) {
@@ -314,7 +320,9 @@ public class BattleScreen implements Screen {
                         playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus(), player.getAttack(3).getPP() == 0);
                     } else if(inItems && !usingEther) {
                         potionButton.draw(spriteBatch, player.getItem(0).getName(), "Stock: " + player.getItem(0).getQty(), player.getItem(0).getQty() == 0);
-                        etherButton.draw(spriteBatch, player.getItem(1).getName(), "Stock: " + player.getItem(1).getQty(), player.getItem(1).getQty() == 0);
+                        hiPotionButton.draw(spriteBatch, player.getItem(1).getName(), "Stock: " + player.getItem(1).getQty(), player.getItem(1).getQty() == 0);
+                        etherButton.draw(spriteBatch, player.getItem(2).getName(), "Stock: " + player.getItem(2).getQty(), player.getItem(2).getQty() == 0);
+                        hiEtherButton.draw(spriteBatch, player.getItem(3).getName(), "Stock: " + player.getItem(3).getQty(), player.getItem(3).getQty() == 0);
                     }
 
                     if (inAttacks || inItems) backButton.draw(spriteBatch, backGraphic);
@@ -491,6 +499,11 @@ public class BattleScreen implements Screen {
             bmfont.draw(batch, text, textX, textY, glyphLayout.width, 1, true);
         }
 
+        // Error catching, resets if there is an issue with the textBuilder.
+        if(!text.contains(textBuilder)) {
+            textIndex = 0;
+            textBuilder = "";
+        }
     }
 
     /**
@@ -546,8 +559,8 @@ public class BattleScreen implements Screen {
     }
 
     private void update() {
-        // Swaps general message to the player prompt after the battle intro message has finished.
-        if(!textAnimating && !generalMessage.equals("How will you proceed?")) {
+        // Swaps general message to the player prompt after the battle intro message has finished. Also lets the prompt for using an ether remain until the turn is finished.
+        if(!textAnimating && !generalMessage.equals("How will you proceed?") && !usingEther) {
             generalMessage = "How will you proceed?";
             textAnimating = true;
         }
@@ -571,7 +584,9 @@ public class BattleScreen implements Screen {
                     playerAttackButton4.update(checkTouch, touchX, touchY);
                 } else if(inItems) {
                     potionButton.update(checkTouch, touchX, touchY);
+                    hiPotionButton.update(checkTouch, touchX, touchY);
                     etherButton.update(checkTouch, touchX, touchY);
+                    hiEtherButton.update(checkTouch, touchX, touchY);
                 }
 
                 if (inAttacks || inItems) backButton.update(checkTouch, touchX, touchY);
@@ -586,6 +601,10 @@ public class BattleScreen implements Screen {
                     // Only go back by one choice
                     if(usingEther) usingEther = false;
                     else inItems = false;
+                    // reset text fields in case text was still scrolling
+                    textAnimating = false;
+                    textIndex = 0;
+                    textBuilder = "";
                 } else if (!usingEther && playerAttackButton1.justPressed() && player.getAttack(0).getPP() > 0) {
                     playerAttack = player.getAttack(0);
                     playerAttack.decrementPP();
@@ -613,9 +632,19 @@ public class BattleScreen implements Screen {
                 } else if(potionButton.justPressed() && player.getItem(0).getQty() > 0) {
                     itemUsed = player.getItem(0);
                     playerChoice = PlayerChoice.ITEM;
-                } else if(etherButton.justPressed()) {
-                   itemUsed = player.getItem(1);
+                } else if(hiPotionButton.justPressed() && player.getItem(1).getQty() > 0) {
+                    itemUsed = player.getItem(1);
+                    playerChoice = PlayerChoice.ITEM;
+                } else if(etherButton.justPressed() && player.getItem(2).getQty() > 0) {
+                   itemUsed = player.getItem(2);
                    usingEther = true;
+                   textAnimating = true;
+                   generalMessage = "Which attack will you use it on?";
+                } else if(hiEtherButton.justPressed() && player.getItem(3).getQty() > 0) {
+                    itemUsed = player.getItem(3);
+                    usingEther = true;
+                    textAnimating = true;
+                    generalMessage = "Which attack will you use it on?";
                 } else if(usingEther && playerAttackButton2.justPressed()) { // Jump straight to the second attack because the first attack has infinite PP
                     itemUsed.use();
                     playerAttack = player.getAttack(1);
@@ -727,7 +756,7 @@ public class BattleScreen implements Screen {
                 if (!playerTurnComplete && itemUsed instanceof Potion) {
                     // Get how much health is to be restored
                     Potion potion = (Potion) itemUsed;
-                    HPRestored = Math.min(potion.getHealth(), player.getMaxHP() - player.getHP());
+                    HPRestored = Math.min(potion.getRestoration(), player.getMaxHP() - player.getHP());
                     HPTransition = player.getHP();
                     playerTurnComplete = true;
                     // Set to true for flow control even if its not actually true
@@ -739,9 +768,9 @@ public class BattleScreen implements Screen {
                     playerTurnComplete = true;
                     animatingEnemyHP = true;
                     textAnimating = true;
-                    int PPRestored = Math.min(ether.getPPRestored(), playerAttack.getMaxPP() - playerAttack.getPP());
-                    playerAttack.restorePP(ether.getPPRestored());
-                    battleMessage = itemUsed.getBattleMessage(player.getName()) + "\n And restored " + PPRestored + " PP to " + playerAttack.getName() + "!";
+                    int PPRestored = Math.min(ether.getRestoration(), playerAttack.getMaxPP() - playerAttack.getPP());
+                    playerAttack.restorePP(ether.getRestoration());
+                    battleMessage = itemUsed.getBattleMessage(player.getName()) + "\n and restored " + PPRestored + " PP to " + playerAttack.getName() + "!";
                 } else {
                     // Enemy attacks second
                     if (!animatingEnemyHP && !enemyTurnComplete) {
@@ -817,8 +846,6 @@ public class BattleScreen implements Screen {
             inAttacks = false;
             inItems = false;
             usingEther = false;
-            // Reset textAnimating to true so the prompt animates again
-            textAnimating = true;
         }
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) game.setScreen(RPGGame.gameScreen);
     }

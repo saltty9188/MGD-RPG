@@ -6,21 +6,21 @@ import com.mygdx.game.RPGGame;
 
 public class Potion extends Item {
     private Player character;
-    private int potionHealth;
+    private int restoration;
     private String name;
 
-    public Potion(String name, Player player) {
+    public Potion(String name, int restoration, Player player) {
         this.name = name;
-        potionHealth = 20;
+        this.restoration = restoration;
         this.character = player;
     }
 
-    public int getHealth() {
-        return potionHealth;
+    public int getRestoration() {
+        return restoration;
     }
 
     public void use() {
-        character.restoreHealth(getHealth());
+        character.restoreHealth(getRestoration());
         removeItem();
     }
 

@@ -42,13 +42,18 @@ public class Player extends BattleCharacter {
         Attack attack3 = new Attack(15, 10, "Mighty Stab");
         Attack attack4 = new Attack(10, 15, "Low Blow");
 
-        Item item1 = new Potion("Potion", this);
+        Item item1 = new Potion("Potion", 20, this);
         item1.addItems(5);
-        Item item2 = new Ether("Ether", this);
-        item2.addItems(5);
+        Item item2 = new Potion("Hi-Potion", 50, this);
+
+        Item item3 = new Ether("Ether", 5);
+        item3.addItems(1);
+        Item item4 = new Ether("Hi-Ether", 10);
+
+
 
         setAttacks(attack1, attack2, attack3, attack4);
-        setItems(item1, item2);
+        setItems(item1, item2, item3, item4);
     }
 
     public void restoreHealth(int health) {
