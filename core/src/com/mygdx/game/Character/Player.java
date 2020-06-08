@@ -78,32 +78,44 @@ public class Player extends BattleCharacter {
     /**
      * Gives the player exp from a fallen enemy after battle. Also returns whether or not the player will level up.
      * @param exp The amount of exp given to the player
-     * @return True if the player will gain a level from this exp, false otherwise.
+     * @return The number of levels gained from this exp
      */
-    public boolean receiveExp(int exp) {
+    public int receiveExp(int exp) {
         currentExp += exp;
+        int numLevels = 0;
         if(currentExp >= toNextLevel) {
-            currentExp -= toNextLevel;
-            return true;
+            while(currentExp >= toNextLevel) {
+                currentExp -= toNextLevel;
+                numLevels++;
+                calculateNextLevelExp(level + numLevels);
+            }
+            return numLevels;
         }
-        return false;
+        return 0;
     }
 
     /**
-     * Increase the player's level and sets the exp required for the next level.
+     * Calculates the exp needed to reach the next level
+     * @param nextLevel
+     */
+    public void calculateNextLevelExp(int nextLevel) {
+        toNextLevel = (int) (6.1 * Math.pow(nextLevel, 2) + 1.4 * (nextLevel) - 11.4);
+    }
+
+    /**
+     * Increase the player's level by the given amount.
      * Increases the player's stats by a variable amount as well.
      */
-    public void levelUp() {
-        level += 1;
-        toNextLevel = (int) (6.1 * Math.pow(level + 1, 2) + 1.4 * (level + 1) - 11.4);
+    public void levelUp(int numLevels) {
+        level += numLevels;
 
-        int HPIncrease = rand.nextInt(10) + 5;
+        int HPIncrease = (rand.nextInt(10) + 5) * numLevels;
 
         maxHP += HPIncrease;
         HP += HPIncrease;
-        strength += rand.nextInt(5) + 1;
-        defence += rand.nextInt(5) + 1;
-        speed += rand.nextInt(3) + 1;
+        strength += (rand.nextInt(5) + 1) * numLevels;
+        defence += (rand.nextInt(5) + 1) * numLevels;
+        speed += (rand.nextInt(3) + 1) * numLevels;
     }
 
     public int getLevel() {

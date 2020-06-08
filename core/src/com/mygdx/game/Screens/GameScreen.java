@@ -103,19 +103,12 @@ public class GameScreen implements Screen {
 
     private SpriteBatch uiBatch;
 
-    private Music bgm;
-
     public GameScreen(RPGGame game) {
         this.game = game;
         create();
     }
 
     private void create() {
-
-        //Background Music
-        bgm = Gdx.audio.newMusic(Gdx.files.internal("Music/Blippy Trance.mp3"));
-        bgm.setLooping(true);
-        bgm.setVolume(1);
 
         spriteBatch = new SpriteBatch();
         uiBatch = new SpriteBatch();
@@ -131,7 +124,7 @@ public class GameScreen implements Screen {
         caveMap = temp.load("Cave.tmx");
         forestMap = temp.load("Forest.tmx");
 
-        currentMap = townMap;
+        //currentMap = townMap;
         //currentMap = caveMap;
         //currentMap = forestMap;
 
@@ -231,7 +224,6 @@ public class GameScreen implements Screen {
         inGameCompleteCutscene = false;
         fadeOutOpacity = 0;
 
-        bgm.play();
         gameCam.position.set(player.getX(), player.getY(), 0);
     }
 
@@ -308,11 +300,33 @@ public class GameScreen implements Screen {
             }
         }
 
+        RPGGame.currentTrack.stop();
+        if(currentMap == townMap) {
+            RPGGame.currentTrack = RPGGame.townTheme;
+            RPGGame.currentTrack.play();
+        } else if(currentMap == forestMap) {
+            RPGGame.currentTrack = RPGGame.forestTheme;
+            RPGGame.currentTrack.play();
+        } else if(currentMap == caveMap) {
+            RPGGame.currentTrack = RPGGame.caveTheme;
+            RPGGame.currentTrack.play();
+        }
+
     }
 
     @Override
     public void show() {
-
+        RPGGame.currentTrack.stop();
+        if(currentMap == townMap) {
+            RPGGame.currentTrack = RPGGame.townTheme;
+            RPGGame.currentTrack.play();
+        } else if(currentMap == forestMap) {
+            RPGGame.currentTrack = RPGGame.forestTheme;
+            RPGGame.currentTrack.play();
+        } else if(currentMap == caveMap) {
+            RPGGame.currentTrack = RPGGame.caveTheme;
+            RPGGame.currentTrack.play();
+        }
     }
 
     public void handleInput(float delta){
@@ -591,7 +605,7 @@ public class GameScreen implements Screen {
             }
         }
 
-        if(currentMap == caveMap && onScreen(boss) && boss.getBoundingRectangle().overlaps(player.getBoundingRectangle())) {
+        if(currentMap == caveMap && boss.isAlive() && onScreen(boss) && boss.getBoundingRectangle().overlaps(player.getBoundingRectangle())) {
             RPGGame.battleScreen.setLocation(BattleScreen.Location.CAVE);
             RPGGame.battleScreen.setEnemy(boss);
             RPGGame.battleScreen.setPlayer(player);
@@ -739,6 +753,11 @@ public class GameScreen implements Screen {
 
     private void playGameCompleteCutscene(float delta) {
         cutsceneDelta += delta;
+        if(!RPGGame.currentTrack.equals(RPGGame.creditsTheme)) {
+            RPGGame.currentTrack.stop();
+            RPGGame.currentTrack = RPGGame.creditsTheme;
+            RPGGame.currentTrack.play();
+        }
 
         if(cutsceneDelta == delta) {
             talkingNPC = gameCompleteCutsceneNPC;
@@ -750,8 +769,8 @@ public class GameScreen implements Screen {
 
         if(fadeOutOpacity >= 1) {
             //TODO: change to credit screen
+            game.setScreen(RPGGame.creditsScreen);
             inGameCompleteCutscene = false;
-            game.setScreen(RPGGame.shopScreen);
         }
     }
 

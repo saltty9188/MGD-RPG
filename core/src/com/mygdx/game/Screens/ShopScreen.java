@@ -2,6 +2,7 @@ package com.mygdx.game.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -52,9 +53,6 @@ public class ShopScreen implements Screen {
     private Button etherButton;
     private Button hiEtherButton;
 
-    //buttons for items in player's inventory to sell
-
-
     //Buttons for purchasing and selecting quantity
     private Button qtyUp;
     private Button qtyDown;
@@ -62,6 +60,9 @@ public class ShopScreen implements Screen {
     private Button sellItem;
     private Button cancel;
     private int buyQty;
+
+    private Sound buySound;
+    private Sound sellSound;
 
     private Texture background;
 
@@ -125,6 +126,9 @@ public class ShopScreen implements Screen {
                 Gdx.graphics.getWidth()/16 , buttonUp, buttonDown);
         cancel = new Button(Gdx.graphics.getWidth() * 23/40 + 4 * PADDING, Gdx.graphics.getHeight()/3, Gdx.graphics.getWidth() / 8 - 2 * PADDING,
                 Gdx.graphics.getWidth()/16, buttonUp, buttonDown);
+
+        buySound = Gdx.audio.newSound(Gdx.files.internal("Music/ka_ching.wav"));
+        sellSound = Gdx.audio.newSound(Gdx.files.internal("Music/leather_inventory.wav"));
     }
 
     public void setPlayer(Player player) {
@@ -139,6 +143,10 @@ public class ShopScreen implements Screen {
         shopMessage = "How can I help you?";
         textAnimating = true;
         buyQty = 1;
+
+        RPGGame.currentTrack.stop();
+        RPGGame.currentTrack = RPGGame.shopTheme;
+        RPGGame.currentTrack.play();
     }
 
     @Override
@@ -287,6 +295,7 @@ public class ShopScreen implements Screen {
                 if (buyQty > 99) buyQty = 99;
             } else if (purchaseItem.justPressed() && player.getGold() >= buyQty * selectedItem.getValue()) {
                 player.spendGold(buyQty*selectedItem.getValue());
+                buySound.play();
                 selectedItem.addItems(buyQty);
                 itemSelected = false;
                 selectedItem = null;
@@ -305,6 +314,7 @@ public class ShopScreen implements Screen {
                 if (buyQty > 99) buyQty = 99;
             } else if (sellItem.justPressed() && selectedItem.getQty() >= buyQty) {
                 player.earnGold(buyQty * selectedItem.getValue()/2);
+                sellSound.play();
                 selectedItem.removeItems(buyQty);
                 itemSelected = false;
                 selectedItem = null;

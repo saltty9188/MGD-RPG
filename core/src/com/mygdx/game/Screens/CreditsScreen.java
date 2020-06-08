@@ -64,7 +64,12 @@ public class CreditsScreen implements Screen {
 
     @Override
     public void show() {
-
+        // Change the song if coming from the title screen
+        if(!RPGGame.currentTrack.equals(RPGGame.creditsTheme)) {
+            RPGGame.currentTrack.stop();
+            RPGGame.currentTrack = RPGGame.creditsTheme;
+            RPGGame.currentTrack.play();
+        }
     }
 
     @Override
@@ -78,14 +83,13 @@ public class CreditsScreen implements Screen {
 
         batch.begin();
         //Draw the credits to the screen
-        int scale = (currentText.equals(credits.get(0)) ? 2 : 1);
-        float speed = (currentText.equals(credits.get(0)) ? 0.03f : 0.01f);
+        int scale = ((currentText.equals(credits.get(0)) || currentText.equals(credits.get(credits.size() - 1))) ? 2 : 1);
+        float speed = ((currentText.equals(credits.get(0)) || currentText.equals(credits.get(credits.size() - 1))) ? 0.03f : 0.01f);
         drawText(batch, currentText, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, delta, scale, speed);
         batch.end();
     }
 
     private void update() {
-        System.out.println(currentText);
         if(Gdx.input.justTouched()) {
             if(iterator.hasNext()) {
                 currentText = iterator.next();

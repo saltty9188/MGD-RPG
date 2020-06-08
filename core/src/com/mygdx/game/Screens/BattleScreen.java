@@ -3,6 +3,7 @@ package com.mygdx.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -123,6 +124,8 @@ public class BattleScreen implements Screen {
     private Texture background;
     private Texture backGraphic;
 
+    private Sound hitSound;
+
     public BattleScreen(RPGGame game) {
 
         this.game = game;
@@ -184,6 +187,8 @@ public class BattleScreen implements Screen {
                 Gdx.graphics.getHeight() * 7/48 - PADDING, buttonUp, buttonDown);
         hiEtherButton = new Button(Gdx.graphics.getWidth() * 3 / 4 + PADDING, 0, Gdx.graphics.getWidth() / 4 - 2 * PADDING,
                 Gdx.graphics.getHeight() * 7/48 - PADDING, buttonUp, buttonDown);
+
+        hitSound = Gdx.audio.newSound(Gdx.files.internal("Music/hit.wav"));
     }
 
     /**
@@ -254,6 +259,13 @@ public class BattleScreen implements Screen {
     @Override
     public void show() {
         battleStart();
+        RPGGame.currentTrack.stop();
+        if(enemy instanceof Boss) {
+            RPGGame.currentTrack = RPGGame.bossTheme;
+        } else {
+            RPGGame.currentTrack = RPGGame.battleTheme;
+        }
+        RPGGame.currentTrack.play();
     }
 
     @Override
@@ -674,6 +686,7 @@ public class BattleScreen implements Screen {
                         playerTurnComplete = true;
                         animatingEnemyHP = true;
                         textAnimating = true;
+                        hitSound.play();
                         flashTimer = 1;
                         battleMessage = playerAttack.battleMessage(player.getName()) + ".\n It did " + BattleCharacter.damageTaken(enemy, enemyDamage) + " damage!";
                     }
@@ -691,13 +704,13 @@ public class BattleScreen implements Screen {
                             animatingPlayerHP = true;
                             enemyTurnComplete = true;
                             textAnimating = true;
+                            hitSound.play();
                             flashTimer = 1;
                             battleMessage = enemyAttack.battleMessage(enemy.getName()) + ".\n It did " + BattleCharacter.damageTaken(player, playerDamage) + " damage!";
                         }
                         //Player lost
                         if (!player.isAlive() && enemyTurnComplete) {
-                            battleFinished = true;
-                            textAnimating = true;
+                            lose();
                         }
                     }
                 } else {
@@ -710,13 +723,13 @@ public class BattleScreen implements Screen {
                         textAnimating = true;
                         battleMessage = enemyAttack.battleMessage(enemy.getName()) + ".\n It did " + BattleCharacter.damageTaken(player, playerDamage) + " damage!";
                         animatingPlayerHP = true;
+                        hitSound.play();
                         flashTimer = 1;
                         enemyTurnComplete = true;
                     }
                     //Player lost
                     if (!player.isAlive()) {
-                        battleFinished = true;
-                        textAnimating = true;
+                        lose();
                     } else {
                         //Player attacks second
                         if (!animatingPlayerHP && !playerTurnComplete) {
@@ -726,6 +739,7 @@ public class BattleScreen implements Screen {
                             playerTurnComplete = true;
                             animatingEnemyHP = true;
                             textAnimating = true;
+                            hitSound.play();
                             flashTimer = 1;
                             battleMessage = playerAttack.battleMessage(player.getName()) + ".\n It did " + BattleCharacter.damageTaken(enemy, enemyDamage) + " damage!";
                         }
@@ -767,13 +781,13 @@ public class BattleScreen implements Screen {
                         animatingPlayerHP = true;
                         enemyTurnComplete = true;
                         textAnimating = true;
+                        hitSound.play();
                         flashTimer = 1;
                         battleMessage = enemyAttack.battleMessage(enemy.getName()) + ".\n It did " + BattleCharacter.damageTaken(player, playerDamage) + " damage!";
                     }
                     //Player lost
                     if (!player.isAlive() && enemyTurnComplete) {
-                        battleFinished = true;
-                        textAnimating = true;
+                        lose();
                     }
                 }
 
@@ -808,12 +822,12 @@ public class BattleScreen implements Screen {
                         textAnimating = true;
                         battleMessage = enemyAttack.battleMessage(enemy.getName()) + ".\n It did " + BattleCharacter.damageTaken(player, playerDamage) + " damage!";
                         animatingPlayerHP = true;
+                        hitSound.play();
                         flashTimer = 1;
                         enemyTurnComplete = true;
                         //Player lost
                         if (!player.isAlive() && enemyTurnComplete) {
-                            battleFinished = true;
-                            textAnimating = true;
+                            lose();
                         }
                     }
                 }
@@ -891,11 +905,23 @@ public class BattleScreen implements Screen {
         battleFinished = true;
         textAnimating = true;
         // If the player levels up
-        if(player.receiveExp(enemy.getExp())) {
-            player.levelUp();
+        int levels = player.receiveExp(enemy.getExp());
+        if(levels > 0) {
+            player.levelUp(levels);
             victoryMessages[2] = "You leveled up!\nYou are now level " + player.getLevel() + "!";
         }
         player.earnGold(enemy.getGold());
+        RPGGame.currentTrack.stop();
+        RPGGame.currentTrack = RPGGame.victoryTheme;
+        RPGGame.currentTrack.play();
+    }
+
+    public void lose() {
+        battleFinished = true;
+        textAnimating = true;
+        RPGGame.currentTrack.stop();
+        RPGGame.currentTrack = RPGGame.gameOverTheme;
+        RPGGame.currentTrack.play();
     }
 
     @Override
