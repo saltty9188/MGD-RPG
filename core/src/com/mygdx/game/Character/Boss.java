@@ -9,7 +9,7 @@ public class Boss extends Enemy {
 
     public Boss() {
         super(new Texture("pumpkin_monster.png"), 27, 47, new Texture("pumpkin-boss-battle.png"),
-                1, 15, 10, 7, 10, "Pumpkin Menace", 10000);
+                300, 15, 10, 7, 10, "Pumpkin Menace", 10000);
 
         // Boss doesn't move and therefore does not need animations so we set the region here
         setRegion(new TextureRegion(spriteSheet, 35, 15, 27, 47));
