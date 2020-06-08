@@ -141,7 +141,7 @@ public class Button {
         }
     }
 
-    public void draw(SpriteBatch batch, Texture graphic) {
+    public void draw(SpriteBatch batch, Texture graphic, float opacity) {
 
         float graphicX = x + 5;
         float graphicY = y + 5;
@@ -152,7 +152,7 @@ public class Button {
             graphicWidth = Math.min(graphicWidth, grapicHeight);
             grapicHeight = graphicWidth;
         }
-
+        batch.setColor(1, 1, 1, opacity);
         if(isDown) {
             batch.draw(downTexture, x, y, width, height);
             batch.draw(graphic, graphicX, graphicY - 1, graphicWidth, grapicHeight);
@@ -161,6 +161,7 @@ public class Button {
             batch.draw(upTexture, x, y, width, height);
             batch.draw(graphic, graphicX, graphicY, graphicWidth, grapicHeight);
         }
+        batch.setColor(1, 1, 1, 1);
     }
 
     /**

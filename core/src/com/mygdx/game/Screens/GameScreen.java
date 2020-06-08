@@ -89,6 +89,8 @@ public class GameScreen implements Screen {
     // UI Buttons
     private Texture buttonUp;
     private Texture buttonDown;
+    private Texture runGraphic;
+    private Texture talkGraphic;
 
     private Button walkUpButton;
     private Button walkRightButton;
@@ -195,6 +197,9 @@ public class GameScreen implements Screen {
 
         buttonUp = new Texture("buttonUp.png");
         buttonDown = new Texture("buttonDown.png");
+
+        runGraphic = new Texture("Buttons/run-graphic.png");
+        talkGraphic = new Texture("Buttons/talk-graphic.png");
 
         walkUpButton = new Button(2 * PADDING + buttonWidth, 2 * buttonHeight + 3 * PADDING, buttonWidth, buttonHeight, buttonUp, buttonDown);
         walkRightButton = new Button(3 * PADDING + 2 * buttonWidth, 2 * PADDING + buttonHeight, buttonWidth, buttonHeight, buttonUp, buttonDown);
@@ -723,8 +728,8 @@ public class GameScreen implements Screen {
         walkDownButton.draw(uiBatch, 0.8f);
         walkLeftButton.draw(uiBatch, 0.8f);
 
-        if(nearNPC) talkButton.draw(uiBatch, 0.8f);
-        else sprintButton.draw(uiBatch, 0.8f);
+        if(nearNPC) talkButton.draw(uiBatch, talkGraphic, 0.8f);
+        else sprintButton.draw(uiBatch, runGraphic, 0.8f);
 
         // Fade to black once the text is over
         if(inGameCompleteCutscene && talkingNPC == null) {

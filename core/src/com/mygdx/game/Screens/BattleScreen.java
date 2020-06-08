@@ -339,7 +339,7 @@ public class BattleScreen implements Screen {
                         hiEtherButton.draw(spriteBatch, player.getItem(3).getName(), "Stock: " + player.getItem(3).getQty(), player.getItem(3).getQty() == 0);
                     }
 
-                    if (inAttacks || inItems) backButton.draw(spriteBatch, backGraphic);
+                    if (inAttacks || inItems) backButton.draw(spriteBatch, backGraphic, 1);
 
                     drawStatBox(spriteBatch, enemy, Gdx.graphics.getWidth() *  3/4 - PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288);
                     drawStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING);
