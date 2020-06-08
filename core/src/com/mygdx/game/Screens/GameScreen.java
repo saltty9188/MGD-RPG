@@ -27,6 +27,7 @@ import com.mygdx.game.Character.MadBat;
 import com.mygdx.game.Character.NPC;
 import com.mygdx.game.Character.Player;
 import com.mygdx.game.Character.RestlessLeaves;
+import com.mygdx.game.Character.WanderingShroom;
 import com.mygdx.game.WorldAnimations.Flag;
 import com.mygdx.game.WorldAnimations.Fountain;
 import com.mygdx.game.RPGGame;
@@ -296,7 +297,8 @@ public class GameScreen implements Screen {
             for (int i = 0; i < currentEnemies.length; i++) {
                 // respawn enemies
                 if (currentEnemies == forestEnemies) {
-                    currentEnemies[i] = new RestlessLeaves();
+                    if(i % 2 == 0) currentEnemies[i] = new WanderingShroom();
+                    else currentEnemies[i] = new RestlessLeaves();
                 } else if (currentEnemies == caveEnemies) {
                     currentEnemies[i] = new MadBat();
                 }
