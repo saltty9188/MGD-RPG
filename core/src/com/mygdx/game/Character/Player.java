@@ -79,7 +79,6 @@ public class Player extends BattleCharacter {
     public int receiveExp(int exp) {
         currentExp += exp;
         int numLevels = 0;
-        System.out.println(toNextLevel);
         if(currentExp >= toNextLevel) {
             while(currentExp >= toNextLevel) {
                 currentExp -= toNextLevel;

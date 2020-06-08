@@ -239,7 +239,7 @@ public class BattleScreen implements Screen {
 
         victoryMessages = new String[3];
         victoryMessages[0] = "You Won!";
-        victoryMessages[1] = "You earned " + enemy.getExp() + " experience points and got " + enemy.getGold() + " gold!";
+        victoryMessages[1] = "You earned " + enemy.getExp() + " experience points \nand got " + enemy.getGold() + " gold!";
         currentVictoryIndex = 0;
 
 

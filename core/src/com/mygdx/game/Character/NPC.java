@@ -268,7 +268,6 @@ public class NPC extends Character {
 
         if (textAnimating) {
             textTime += delta;
-            System.out.println(textTime);
             if (textTime >= 0.03f) {
                 if (textIndex < currentDialogue.length()) textBuilder += currentDialogue.charAt(textIndex++);
                 textTime = 0;
