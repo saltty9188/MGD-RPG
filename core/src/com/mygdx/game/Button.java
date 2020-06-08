@@ -179,4 +179,8 @@ public class Button {
         }
         return false;
     }
+
+    public void dispose() {
+        bmfont.dispose();
+    }
 }

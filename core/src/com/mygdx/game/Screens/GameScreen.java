@@ -40,7 +40,8 @@ public class GameScreen implements Screen {
     private SpriteBatch spriteBatch;
     private OrthographicCamera gameCam;
     private FitViewport gamePort;
-    private Rectangle tileRectangle, playerDeltaRectangle;
+    private Rectangle tileRectangle;
+    private Rectangle playerDeltaRectangle;
 
     private Vector2 playerDelta;
 
@@ -57,8 +58,8 @@ public class GameScreen implements Screen {
 
     private Player player;
     private Fountain fountain;
-    //private Flag flag;
     private Flag[] flags;
+
     private NPC[] NPCs;
     private NPC gameOverCutsceneNPC;
     private NPC gameCompleteCutsceneNPC;
@@ -102,6 +103,7 @@ public class GameScreen implements Screen {
     //The layer that holds the enemies/NPCs roaming areas
     private MapLayer roamZones;
 
+    // Sprite batch for drawing UI without camera transforms
     private SpriteBatch uiBatch;
 
     public GameScreen(RPGGame game) {
@@ -125,10 +127,6 @@ public class GameScreen implements Screen {
         caveMap = temp.load("Tile Maps/Cave.tmx");
         forestMap = temp.load("Tile Maps/Forest.tmx");
 
-        //currentMap = townMap;
-        //currentMap = caveMap;
-        //currentMap = forestMap;
-
         // Store the exit rectangles for each map
         MapLayer exitLayer = townMap.getLayers().get("Exits");
         townToForest = (RectangleMapObject)exitLayer.getObjects().get("Forest");
@@ -142,7 +140,7 @@ public class GameScreen implements Screen {
 
         movementPause = 0;
 
-        //create can used to follow Character through the game world
+        //create camera used to follow Character through the game world
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
         gameCam = new OrthographicCamera();
@@ -215,7 +213,7 @@ public class GameScreen implements Screen {
     /**
      * Resets values for starting a new game.
      */
-    public void newGame() {
+    void newGame() {
 
         player = new Player();
         playerDeltaRectangle = new Rectangle(0, 0, player.getWidth(), player.getHeight());
@@ -239,7 +237,7 @@ public class GameScreen implements Screen {
      *
      * @param entrance A String corresponding to where the player will spawn on the new map. Defined in the "Spawns" layer of the map.
      */
-    public void initialiseMap(String entrance) {
+    private void initialiseMap(String entrance) {
 
         //Make it so the player can't move for a bit so that they can get their bearings
         movementPause = 0.2f;
@@ -260,7 +258,7 @@ public class GameScreen implements Screen {
         RectangleMapObject playerSpawn = (RectangleMapObject)spawnLayer.getObjects().get(entrance);
         player.setCenter(playerSpawn.getRectangle().x, playerSpawn.getRectangle().y);
 
-        // Will very likely have similar statements for other maps
+        // Set map specific spawns
         if(currentMap == townMap) {
             RectangleMapObject fountainSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Fountain");
             fountain.setCenter(fountainSpawn.getRectangle().x, fountainSpawn.getRectangle().y);
@@ -289,7 +287,6 @@ public class GameScreen implements Screen {
             currentEnemies = forestEnemies;
         }
 
-        // May need to change this for different maps
         if(currentMap != townMap) {
             RectangleMapObject enemySpawn;
             for (int i = 0; i < currentEnemies.length; i++) {
@@ -333,7 +330,7 @@ public class GameScreen implements Screen {
         }
     }
 
-    public void handleInput(float delta){
+    private void handleInput(float delta){
         playerDelta.x = 0;
         playerDelta.y = 0;
 
@@ -360,8 +357,6 @@ public class GameScreen implements Screen {
             walkRightButton.isDown = true;
             player.setAnimation(4);
             playerDelta.x = playerSpeed * delta;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.X)){
-            player.setAnimation(9);
         } else {
             player.setAnimation(0);
         }
@@ -373,7 +368,7 @@ public class GameScreen implements Screen {
         player.translate(playerDelta.x, playerDelta.y);
     }
 
-    public void checkCollision() {
+    private void checkCollision() {
         tileRectangle = new Rectangle();
         MapLayer collisionLayer = currentMap.getLayers().get("Collision");
         TiledMapTileLayer tileLayer = (TiledMapTileLayer) collisionLayer;
@@ -488,13 +483,10 @@ public class GameScreen implements Screen {
 
             player.setCenter(fountain.getX(), fountain.getY() - 30);
             // Make the player face the NPC
-            player.setAnimation(4);
-            player.update(delta);
+            player.setDefaultPose(4);
 
             gameOverCutsceneNPC.setPosition(player.getX() + player.getWidth() + 5, player.getY());
 
-            gameCam.position.x = player.getX();
-            gameCam.position.y = player.getY();
             moveCamera();
             player.revive();
             inGameOverCutscene = true;
@@ -507,6 +499,7 @@ public class GameScreen implements Screen {
             playGameCompleteCutscene(delta);
         }
 
+        // Update the flag and fountain animations in the town
         if(currentMap == townMap) {
             fountain.update(delta);
             for (Flag flag : flags) {
@@ -569,7 +562,7 @@ public class GameScreen implements Screen {
      * Acts under the assumption that the "roamboxes" follow the same naming pattern as their respective spawns
      * (e.g. "Enemy 1", "Enemy 2" etc.)
      */
-    public void moveActors(float delta) {
+    private void moveActors(float delta) {
         RectangleMapObject roamBox;
         // Only update enemies if on the forest or cave map
         if(currentMap != townMap) {
@@ -582,7 +575,6 @@ public class GameScreen implements Screen {
                 }
             }
         } else { // Only update NPCs if on the town map
-            // Add for loop for all NPCs
             for(int i = 0; i < NPCs.length; i++) {
                 roamBox = (RectangleMapObject) roamZones.getObjects().get("NPC " + Integer.toString(i + 1));
                 //Stationary NPCs have no roam box
@@ -596,7 +588,7 @@ public class GameScreen implements Screen {
      * Checks all the enemies of the current map for a collision with the player and transitions to the battle screen
      * if one has occurred.
      */
-    public void checkEnemies() {
+    private void checkEnemies() {
         for (Enemy enemy : currentEnemies) {
             if (enemy.isAlive() && gameCam.frustum.pointInFrustum(enemy.getX(), enemy.getY(), 0) &&
                     enemy.getBoundingRectangle().overlaps(player.getBoundingRectangle())) {
@@ -621,7 +613,7 @@ public class GameScreen implements Screen {
     /**
      * Checks if the player is next to an NPC and displays their dialogue if the player interacts with them.
      */
-    public void checkNPCs() {
+    private void checkNPCs() {
         nearNPC = false;
 
         for (NPC npc : NPCs) {
@@ -653,8 +645,7 @@ public class GameScreen implements Screen {
     /**
      * Checks to see if the player is about to exit the current map and loads the next map if they are.
      */
-    public void checkExits() {
-
+    private void checkExits() {
         if(currentMap == townMap && player.getBoundingRectangle().overlaps(townToForest.getRectangle())) {
             currentMap = forestMap;
             initialiseMap("Town");
@@ -668,21 +659,19 @@ public class GameScreen implements Screen {
             currentMap = forestMap;
             initialiseMap("Cave");
         }
-
-
     }
 
     /**
      * Draws the NPCs/Enemies to the screen if they are on camera.
      */
-    public void drawActors() {
+    private void drawActors() {
         if(currentMap != townMap) {
             for (Enemy enemy : currentEnemies) {
                 if (enemy.isAlive() && onScreen(enemy)) {
                     enemy.draw(spriteBatch);
                 }
             }
-            if(currentMap == caveMap && onScreen(boss)) boss.draw(spriteBatch);
+            if(currentMap == caveMap && onScreen(boss) && boss.isAlive()) boss.draw(spriteBatch);
         } else {
             for (NPC npc : NPCs) {
                 if (onScreen(npc)) {
@@ -698,6 +687,7 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         update(delta);
+        // Clear screen
         Gdx.gl.glClearColor(0,0,0,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -706,14 +696,15 @@ public class GameScreen implements Screen {
 
         spriteBatch.begin();
         spriteBatch.setProjectionMatrix(gameCam.combined);
+
         drawActors();
         if(inGameOverCutscene) gameOverCutsceneNPC.draw(spriteBatch);
         player.draw(spriteBatch);
-        spriteBatch.setProjectionMatrix(gameCam.combined);
+
         if(currentMap == townMap) {
             spriteBatch.draw(fountain, fountain.getX(), fountain.getY());
-            for(int i = 0; i < flags.length; i++) {
-                spriteBatch.draw(flags[i], flags[i].getX(), flags[i].getY());
+            for (Flag flag : flags) {
+                spriteBatch.draw(flag, flag.getX(), flag.getY());
             }
         }
         spriteBatch.end();
@@ -730,7 +721,7 @@ public class GameScreen implements Screen {
         if(nearNPC) talkButton.draw(uiBatch, talkGraphic, 0.8f);
         else sprintButton.draw(uiBatch, runGraphic, 0.8f);
 
-        // Fade to black once the text is over
+        // Fade to black once the text is over in the end game cutscene
         if(inGameCompleteCutscene && talkingNPC == null) {
             uiBatch.setColor(1, 1, 1, fadeOutOpacity);
             uiBatch.draw(fadeOut, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -739,7 +730,10 @@ public class GameScreen implements Screen {
         uiBatch.end();
     }
 
-    public void playGameOverCutscene(float delta) {
+    /**
+     * Controls the conditions for playing the game over cutscene.
+     */
+    private void playGameOverCutscene(float delta) {
         cutsceneDelta += delta;
 
         // Only set on the first frame
@@ -755,8 +749,12 @@ public class GameScreen implements Screen {
         }
     }
 
+    /**
+     * Controls the conditions for playing the end game cutscene.
+     */
     private void playGameCompleteCutscene(float delta) {
         cutsceneDelta += delta;
+
         if(!RPGGame.currentTrack.equals(RPGGame.creditsTheme)) {
             RPGGame.currentTrack.stop();
             RPGGame.currentTrack = RPGGame.creditsTheme;
@@ -771,13 +769,17 @@ public class GameScreen implements Screen {
             fadeOutOpacity += 0.2f * delta;
         }
 
+        // Switch to credits once the screen has faded to black
         if(fadeOutOpacity >= 1) {
-            //TODO: change to credit screen
             game.setScreen(RPGGame.creditsScreen);
-            inGameCompleteCutscene = false;
         }
     }
 
+    /**
+     * Returns true if the given character is within the bounds of the camera.
+     * @param character The Character being checked.
+     * @return True if the character is onscreen, false otherwise.
+     */
     private boolean onScreen(Character character) {
         return (gameCam.frustum.pointInFrustum(character.getX(), character.getY(), 0) ||
                 gameCam.frustum.pointInFrustum(character.getX() + character.getWidth(), character.getY(), 0) ||
@@ -808,8 +810,10 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         townMap.dispose();
+        forestMap.dispose();
         caveMap.dispose();
         spriteBatch.dispose();
+        uiBatch.dispose();
         player.dispose();
         for(Enemy enemy: forestEnemies) {
             enemy.dispose();
@@ -820,5 +824,25 @@ public class GameScreen implements Screen {
         for (NPC npc : NPCs) {
             npc.dispose();
         }
+        for(Flag flag: flags) {
+            flag.dispose();
+        }
+        fountain.dispose();
+        boss.dispose();
+        gameCompleteCutsceneNPC.dispose();
+        gameOverCutsceneNPC.dispose();
+        shopkeeper.dispose();
+        buttonDown.dispose();
+        buttonUp.dispose();
+        fadeOut.dispose();
+        runGraphic.dispose();
+        talkGraphic.dispose();
+
+        sprintButton.dispose();
+        talkButton.dispose();
+        walkLeftButton.dispose();
+        walkDownButton.dispose();
+        walkRightButton.dispose();
+        walkUpButton.dispose();
     }
 }

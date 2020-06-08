@@ -1,7 +1,5 @@
 package com.mygdx.game.Items;
 
-import java.util.ArrayList;
-
 public abstract class Item {
 
     private int qty;

@@ -46,7 +46,7 @@ public class RestlessLeaves extends Enemy {
     public void setAttacks() {
         Attack attack1 = new InfiniteAttack(0, "Leaf Slice");
         Attack attack2 = new Attack(5, 10, "Fallen Branch");
-        Attack attack3 = new Attack(10, 3, "Timber!");
+        Attack attack3 = new Attack(10, 3, "Timber");
         setAttacks(attack1, attack2, attack3);
     }
 }

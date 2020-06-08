@@ -30,7 +30,6 @@ public class TitleScreen  implements Screen {
     private Button exitButton;
 
     public TitleScreen(RPGGame game) {
-
         this.game = game;
         create();
     }
@@ -118,6 +117,14 @@ public class TitleScreen  implements Screen {
 
     @Override
     public void dispose() {
-
+        beginButtonUp.dispose();
+        beginButtonDown.dispose();
+        creditsButtonUp.dispose();
+        creditsButtonDown.dispose();
+        exitButtonUp.dispose();
+        exitButtonDown.dispose();
+        beginButton.dispose();
+        creditsButton.dispose();
+        exitButton.dispose();
     }
 }

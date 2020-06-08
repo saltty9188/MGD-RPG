@@ -15,8 +15,12 @@ public class Character extends Sprite {
     protected float stateTimer;
     public static final float AFS = 0.15f;
     protected TextureRegion[] fFrames;
-    protected Animation<TextureRegion> currentAni, idleAni, walkDownAni, walkRightAni, walkLeftAni,
-            walkUpAni;
+    protected Animation<TextureRegion> currentAni;
+    protected Animation<TextureRegion> idleAni;
+    protected Animation<TextureRegion> walkDownAni;
+    protected Animation<TextureRegion>walkRightAni;
+    protected Animation<TextureRegion> walkLeftAni;
+    protected Animation<TextureRegion> walkUpAni;
 
     private int baseWidth;
     private int baseHeight;

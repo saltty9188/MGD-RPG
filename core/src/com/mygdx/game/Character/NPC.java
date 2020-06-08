@@ -67,7 +67,7 @@ public class NPC extends Character {
         textTime = 0;
     }
 
-    public void genAnimations() {
+    private void genAnimations() {
         fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 1, 7, 14, 21),
                 new TextureRegion(spriteSheet, 17, 8, 14, 21),
                 new TextureRegion(spriteSheet, 33, 7, 14, 21),
@@ -118,6 +118,12 @@ public class NPC extends Character {
         return region;
     }
 
+    /**
+     * Moves the NPC and adjusts their animation according to their direction of movement.
+     * NPCs are only able to move within their designated "roam zone".
+     * @param roamZone The Rectangle area that the NPC is allowed to move within.
+     * @param player   The player.
+     */
     public void update(float delta, Rectangle roamZone, Player player) {
         setRegion(getFrame(delta));
         if(walkDuration <= 0) {
@@ -210,13 +216,12 @@ public class NPC extends Character {
 
     /**
      * Updates the cutscene NPC's position and current animation.
-     * @param delta
-     * @param talking
+     * @param talking True if the cutscene NPC is still talking
      */
     public void updateCutscene(float delta, boolean talking) {
         // Face left while he's talking
         if(talking) {
-            setRegion(new TextureRegion(spriteSheet, 1, 103, 14, 21));
+            setDefaultPose(2);
         } else {
             setAnimation(4); // Walks right off of the screen
             translateX(98 * delta);
@@ -339,5 +344,12 @@ public class NPC extends Character {
         textAnimating = true;
         currentDialogue = dialogue[0];
         currentDialogueIndex = 0;
+    }
+
+    public void dispose() {
+        super.dispose();
+        textWindow.dispose();
+        bmfont.dispose();
+        nextLine.dispose();
     }
 }

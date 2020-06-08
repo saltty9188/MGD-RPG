@@ -40,6 +40,7 @@ public class BattleScreen implements Screen {
     private int flashCount;
 
     private static final float PADDING = 0.5f;
+    // The ratio of the border width/height to the text window's width/height, used so text doesn't go past the border
     private static final float WINDOW_BORDER_RATIO = 0.045f;
 
     private RPGGame game;
@@ -127,13 +128,11 @@ public class BattleScreen implements Screen {
     private Sound hitSound;
 
     public BattleScreen(RPGGame game) {
-
         this.game = game;
-
         create();
     }
 
-    public void create() {
+    private void create() {
 
         spriteBatch = new SpriteBatch();
 
@@ -194,7 +193,7 @@ public class BattleScreen implements Screen {
     /**
      * The values that will need to be set/reset at the beginning of every battle.
      */
-    public void battleStart() {
+    private void battleStart() {
         playerBattleSprite = new Sprite(player.getBattleSprite(), 150, 230);
         playerBattleSprite.setScale(1.5f);
         playerBattleSprite.setPosition(Gdx.graphics.getWidth() * 5/24 * 1.25f, Gdx.graphics.getHeight() * 7/24 * 1.3f);
@@ -252,7 +251,7 @@ public class BattleScreen implements Screen {
         this.enemy = enemy;
     }
 
-    public void setLocation(Location location) {
+    void setLocation(Location location) {
         this.location = location;
     }
 
@@ -294,9 +293,9 @@ public class BattleScreen implements Screen {
         }
 
         if(battleFinished) {
+            // Display victory messages if the player one
             if(!enemy.isAlive()) {
                 victoryMessage(delta);
-
                 if(Gdx.input.justTouched() && !textAnimating) {
                     if (currentVictoryIndex < victoryMessages.length - 1 && victoryMessages[currentVictoryIndex + 1] != null) {
                         currentVictoryIndex++;
@@ -343,25 +342,24 @@ public class BattleScreen implements Screen {
 
                     drawStatBox(spriteBatch, enemy, Gdx.graphics.getWidth() *  3/4 - PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288);
                     drawStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING);
-
                     break;
 
                 case ATTACK:
-                    // Enemy attack message
+                    // Animate enemy attack message
                     if (textAnimating && animatingPlayerHP) {
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                                 Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
                                 (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false, 2);
                     }
 
-                    // Player attack message
+                    // Animate player attack message
                     if (textAnimating && animatingEnemyHP) {
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                                 Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
                                 (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false, 2);
                     }
 
-                    // Animate the player's HP bar and display the enemy's battle message
+                    // Animate the player's HP bar and continue to display the enemy's battle message
                     if (!textAnimating && animatingPlayerHP) {
                         animateStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING, delta, playerDamage, true);
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
@@ -371,7 +369,7 @@ public class BattleScreen implements Screen {
                         drawStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING);
                     }
 
-                    // Animate the enemy's HP bar and display the player's battle message
+                    // Animate the enemy's HP bar and continue to display the player's battle message
                     if (!textAnimating && animatingEnemyHP) {
                         animateStatBox(spriteBatch, enemy, Gdx.graphics.getWidth() *  3/4 - PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288, delta, enemyDamage, true);
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
@@ -383,23 +381,25 @@ public class BattleScreen implements Screen {
                     break;
 
                 case ITEM:
-                    // Enemy attack message
+                    // Animate enemy attack message
                     if (textAnimating && animatingPlayerHP) {
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                                 Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
                                 (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false, 2);
                     }
 
-                    // Player attack message
+                    // Animate player item message
                     if (!(itemUsed instanceof  Ether) && textAnimating && animatingEnemyHP) {
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                                 Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
                                 (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false, 2);
+
                     } else if (itemUsed instanceof Ether && textAnimating && animatingEnemyHP ) {
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                                 Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
                                 (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, true, 2);
-                    } else if (itemUsed instanceof Ether && pauseTime > 0 && playerTurnComplete) { // keep the ether battle message up
+
+                    } else if (itemUsed instanceof Ether && pauseTime > 0 && playerTurnComplete) { // keep the ether battle message up for a second after its been animated
                         drawStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING);
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                                 Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
@@ -408,14 +408,14 @@ public class BattleScreen implements Screen {
                         animatingEnemyHP = false;
                     }
 
-                    // Animate the player's HP bar and display the enemy's battle message
+                    // Animate the player's HP bar and continue to display the enemy's battle message
                     if (!textAnimating && animatingPlayerHP) {
                         animateStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING, delta, playerDamage, true);
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                                 Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
                                 (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO), (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO), delta, false, 2);
 
-                    } else if (itemUsed instanceof Potion && !textAnimating && animatingEnemyHP) { // Animate the player's HP bar up and display the player's battle message if a potion was used
+                    } else if (itemUsed instanceof Potion && !textAnimating && animatingEnemyHP) { // Animate the player's HP bar up and continue to display the player's battle message if a potion was used
                         animateStatBox(spriteBatch, player, PADDING, Gdx.graphics.getHeight() * 7/24 + PADDING, delta, 0, false);
                         drawText(spriteBatch, battleMessage, Gdx.graphics.getWidth() / 2 - (Gdx.graphics.getWidth()/2 * WINDOW_BORDER_RATIO * 2),
                                 Gdx.graphics.getHeight() * 7/24 - (Gdx.graphics.getHeight() * 7/24 * WINDOW_BORDER_RATIO * 2),
@@ -426,7 +426,6 @@ public class BattleScreen implements Screen {
                     }
 
                     drawStatBox(spriteBatch, enemy, Gdx.graphics.getWidth() *  3/4 - PADDING, Gdx.graphics.getHeight() - PADDING - Gdx.graphics.getHeight() * 35/288);
-
                     break;
 
                 case RUN:
@@ -479,7 +478,6 @@ public class BattleScreen implements Screen {
      */
     private void drawText(SpriteBatch batch, String text, float boundingWidth, float boundingHeight, float x, float y, float delta, boolean pause, int scale) {
         bmfont.getData().setScale(scale);
-        System.out.println(text);
         GlyphLayout glyphLayout = new GlyphLayout();
         // Remove any newlines so we can get an accurate value for the font height
         glyphLayout.setText(bmfont, text.replace("\n", ""));
@@ -538,7 +536,7 @@ public class BattleScreen implements Screen {
     }
 
     /**
-     * Animates the given character's HP status to its new value after taking damage to the screen and displays their name.
+     * Animates the given character's HP status to its new value after taking damage/restoring health to the screen and displays their name.
      * @param batch         The SpriteBatch used to draw the sections of the box.
      * @param character     The BattleCharacter whose information will be displayed in the box.
      * @param x             The lower left x co-ordinate for the box to be drawn from.
@@ -756,6 +754,7 @@ public class BattleScreen implements Screen {
                 if (!playerTurnComplete && itemUsed instanceof Potion) {
                     // Get how much health is to be restored
                     Potion potion = (Potion) itemUsed;
+                    // Can't restore past the player's max HP
                     HPRestored = Math.min(potion.getRestoration(), player.getMaxHP() - player.getHP());
                     HPTransition = player.getHP();
                     playerTurnComplete = true;
@@ -766,6 +765,7 @@ public class BattleScreen implements Screen {
                 } else if (!playerTurnComplete && itemUsed instanceof Ether) {
                     Ether ether = (Ether) itemUsed;
                     playerTurnComplete = true;
+                    // Set to true for flow control even if its not actually true
                     animatingEnemyHP = true;
                     textAnimating = true;
                     int PPRestored = Math.min(ether.getRestoration(), playerAttack.getMaxPP() - playerAttack.getPP());
@@ -790,7 +790,6 @@ public class BattleScreen implements Screen {
                         lose();
                     }
                 }
-
                 break;
 
             case RUN:
@@ -798,6 +797,7 @@ public class BattleScreen implements Screen {
                 if (!playerTurnComplete) {
                     fleeMessage = player.getName() + " is attempting to escape!";
                     textAnimating = true;
+                    // Store the outcome of the escape attempt once
                     escaped = escaped();
                     playerTurnComplete = true;
                 } else if (escaped) {
@@ -844,7 +844,6 @@ public class BattleScreen implements Screen {
             inItems = false;
             usingEther = false;
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) game.setScreen(RPGGame.gameScreen);
     }
 
     /**
@@ -901,7 +900,11 @@ public class BattleScreen implements Screen {
         spriteBatch.setShader(null);
     }
 
-    public void victory() {
+    /**
+     * Handles tasks for when the player wins a battle. Gives the player their earned exp and levels them up if needed.
+     * Also plays the victory music.
+     */
+    private void victory() {
         battleFinished = true;
         textAnimating = true;
         // If the player levels up
@@ -916,7 +919,11 @@ public class BattleScreen implements Screen {
         RPGGame.currentTrack.play();
     }
 
-    public void lose() {
+    /**
+     * Handles tasks for when the player loses a battle.
+     * Also plays the game over music.
+     */
+    private void lose() {
         battleFinished = true;
         textAnimating = true;
         RPGGame.currentTrack.stop();
@@ -946,11 +953,35 @@ public class BattleScreen implements Screen {
 
     @Override
     public void dispose() {
+        spriteBatch.dispose();
         bmfont.dispose();
+        alphaShader.dispose();
+
         textWindow.dispose();
+        longTextWindow.dispose();
+        background.dispose();
+        backGraphic.dispose();
         buttonDown.dispose();
         buttonUp.dispose();
         HPEmpty.dispose();
         HPFull.dispose();
+
+        attackButton.dispose();
+        itemButton.dispose();
+        runButton.dispose();
+
+        playerAttackButton1.dispose();
+        playerAttackButton2.dispose();
+        playerAttackButton3.dispose();
+        playerAttackButton4.dispose();
+
+        potionButton.dispose();
+        hiPotionButton.dispose();
+        etherButton.dispose();
+        hiEtherButton.dispose();
+
+        backButton.dispose();
+
+        hitSound.dispose();
     }
 }

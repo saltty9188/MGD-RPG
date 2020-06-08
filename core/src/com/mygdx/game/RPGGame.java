@@ -38,6 +38,7 @@ public class RPGGame extends Game implements ApplicationListener {
 
 	@Override
 	public void create () {
+		// Create songs
 		titleTheme = Gdx.audio.newMusic(Gdx.files.internal("Music/Blippy Trance.mp3"));
 		titleTheme.setLooping(true);
 		townTheme = Gdx.audio.newMusic(Gdx.files.internal("Music/Town Theme.mp3"));
@@ -78,6 +79,16 @@ public class RPGGame extends Game implements ApplicationListener {
 	@Override
 	public void dispose () {
 		super.dispose();
+		titleTheme.dispose();
+		townTheme.dispose();
+		shopTheme.dispose();
+		forestTheme.dispose();
+		battleTheme.dispose();
+		victoryTheme.dispose();
+		gameOverTheme.dispose();
+		caveTheme.dispose();
+		bossTheme.dispose();
+		creditsTheme.dispose();
 	}
 
 	@Override

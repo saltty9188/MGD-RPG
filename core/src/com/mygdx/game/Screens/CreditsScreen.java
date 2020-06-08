@@ -41,7 +41,7 @@ public class CreditsScreen implements Screen {
 
         batch = new SpriteBatch();
 
-        // Make the array larget
+        // Make the array list for the credits
         credits = new ArrayList<String>(5);
 
         //Write all the lines from the credits text file to a String array list
@@ -127,7 +127,8 @@ public class CreditsScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        batch.dispose();
+        bmfont.dispose();
     }
 
     /**

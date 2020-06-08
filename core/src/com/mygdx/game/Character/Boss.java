@@ -19,7 +19,7 @@ public class Boss extends Enemy {
 
     @Override
     protected void genAnimations() {
-
+        // Boss doesn't move so he doesn't need animations
     }
 
     @Override

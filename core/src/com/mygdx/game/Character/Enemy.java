@@ -35,7 +35,6 @@ public abstract class Enemy extends BattleCharacter {
         genAnimations();
         currentAni = idleAni;
 
-        //Do attack stuff later
         setAttacks();
 
         rand = new Random();
@@ -53,6 +52,11 @@ public abstract class Enemy extends BattleCharacter {
 
     public abstract void setAttacks();
 
+    /**
+     * Moves the Enemy and adjusts their animation according to their direction of movement.
+     * Enemies are only able to move within their designated "roam zone".
+     * @param roamZone The Rectangle area the Enemy is allowed to move in.
+     */
     public void update(float delta, Rectangle roamZone) {
         setRegion(getFrame(delta));
         if(walkDuration <= 0) {
@@ -104,7 +108,6 @@ public abstract class Enemy extends BattleCharacter {
         if(enemyDelta.len2() <= 0) {
             currentAni = idleAni;
         }
-
         translate(enemyDelta.x, enemyDelta.y);
 
         walkDuration -= delta;
@@ -118,7 +121,7 @@ public abstract class Enemy extends BattleCharacter {
         Attack attack;
         do {
             attack = attacks[rand.nextInt(attacks.length)];
-        } while(attack.getPP() == 0);
+        } while(attack.getPP() == 0); // Can't use an attack with 0 PP
         attack.decrementPP();
         return attack;
     }

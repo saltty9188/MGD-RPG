@@ -151,7 +151,7 @@ public class ShopScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        update(delta);
+        update();
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -159,6 +159,7 @@ public class ShopScreen implements Screen {
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.draw(textWindow, 0, Gdx.graphics.getHeight() * 5/6, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()/6);
+
         displayText(batch, shopMessage, delta, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()/6, 0, Gdx.graphics.getHeight() * 5/6);
 
         buyButton.draw(batch, "Buy");
@@ -166,17 +167,16 @@ public class ShopScreen implements Screen {
         exitButton.draw(batch, "Exit");
 
         if(buying) {
-           // testItemButton.draw(batch, "Test Item", "Stock: 3 \t\t Price: 50G", false);
             potionButton.draw(batch, "Potion", "Stock: " + player.getItem(0).getQty() + " \t\t Price " + player.getItem(0).getValue(), false);
             hiPotionButton.draw(batch, "Hi-Potion", "Stock: " + player.getItem(1).getQty() + " \t\t Price " + player.getItem(1).getValue(), false);
             etherButton.draw(batch, "Ether", "Stock: " + player.getItem(2).getQty() + " \t\t Price " + player.getItem(2).getValue(), false);
             hiEtherButton.draw(batch, "Hi-Ether", "Stock: " + player.getItem(3).getQty() + " \t\t Price " + player.getItem(3).getValue(), false);
         } else if(selling) {
-            //draw sell button
-            potionButton.draw(batch, "Potion", "Stock: " + player.getItem(0).getQty() + " \t\t Price " + player.getItem(0).getValue()/2, false);
-            hiPotionButton.draw(batch, "Hi-Potion", "Stock: " + player.getItem(1).getQty() + " \t\t Price " + player.getItem(1).getValue()/2, false);
-            etherButton.draw(batch, "Ether", "Stock: " + player.getItem(2).getQty() + " \t\t Price " + player.getItem(2).getValue()/2, false);
-            hiEtherButton.draw(batch, "Hi-Ether", "Stock: " + player.getItem(3).getQty() + " \t\t Price " + player.getItem(3).getValue()/2, false);
+            // Items are sold at half of their cost
+            potionButton.draw(batch, "Potion", "Stock: " + player.getItem(0).getQty() + " \t\t Value " + player.getItem(0).getValue()/2, false);
+            hiPotionButton.draw(batch, "Hi-Potion", "Stock: " + player.getItem(1).getQty() + " \t\t Value " + player.getItem(1).getValue()/2, false);
+            etherButton.draw(batch, "Ether", "Stock: " + player.getItem(2).getQty() + " \t\t Value " + player.getItem(2).getValue()/2, false);
+            hiEtherButton.draw(batch, "Hi-Ether", "Stock: " + player.getItem(3).getQty() + " \t\t Value " + player.getItem(3).getValue()/2, false);
         }
 
         if(itemSelected) {
@@ -185,8 +185,7 @@ public class ShopScreen implements Screen {
         batch.end();
     }
 
-    public void displayText(SpriteBatch batch, String text, float delta, float boundingWidth, float boundingHeight, float x, float y) {
-
+    private void displayText(SpriteBatch batch, String text, float delta, float boundingWidth, float boundingHeight, float x, float y) {
         bmfont.getData().setScale(2);
         GlyphLayout glyphLayout = new GlyphLayout();
         glyphLayout.setText(bmfont, text.replace("\n", ""));
@@ -227,7 +226,7 @@ public class ShopScreen implements Screen {
         }
     }
 
-    private void update(float delta) {
+    private void update() {
         boolean checkTouch = Gdx.input.isTouched();
         int touchX = Gdx.input.getX();
         int touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
@@ -328,6 +327,11 @@ public class ShopScreen implements Screen {
 
     }
 
+    /**
+     * Draws a window where the player specifies the quantity of the selected item they wish to buy/sell.
+     * @param batch  The sprite batch used to draw.
+     * @param buying True if the player wishes to buy or false if they wish to sell
+     */
     private void drawQtySelector(SpriteBatch batch, float delta, boolean buying) {
         textAnimating = false;
         batch.draw(textWindow, Gdx.graphics.getWidth()/8, Gdx.graphics.getHeight()/8, Gdx.graphics.getWidth() * 3/4, Gdx.graphics.getHeight() * 3/4);
@@ -373,6 +377,26 @@ public class ShopScreen implements Screen {
 
     @Override
     public void dispose() {
+        buySound.dispose();
+        sellSound.dispose();
+        buttonUp.dispose();
+        buttonDown.dispose();
+        textWindow.dispose();
 
+        buyButton.dispose();
+        sellButton.dispose();
+        exitButton.dispose();
+        potionButton.dispose();
+        hiPotionButton.dispose();
+        etherButton.dispose();
+        hiEtherButton.dispose();
+        qtyUp.dispose();
+        qtyDown.dispose();
+        purchaseItem.dispose();
+        sellItem.dispose();
+        cancel.dispose();
+        bmfont.dispose();
+        background.dispose();
+        batch.dispose();
     }
 }

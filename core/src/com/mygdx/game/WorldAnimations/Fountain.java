@@ -38,11 +38,14 @@ public class Fountain extends Sprite {
         setRegion(getFrame(dt));
     }
 
-    public TextureRegion getFrame(float dt) {
+    private TextureRegion getFrame(float dt) {
         TextureRegion region;
         region = fountainAnimation.getKeyFrame(stateTime, true);
         stateTime += dt;
         return region;
     }
 
+    public void dispose() {
+        fountainSheet.dispose();
+    }
 }

@@ -45,4 +45,8 @@ public class Flag extends Sprite {
         return region;
     }
 
+    public void dispose() {
+        flagSheet.dispose();
+    }
+
 }

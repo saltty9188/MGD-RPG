@@ -1,8 +1,6 @@
 package com.mygdx.game.Items;
 
-import com.badlogic.gdx.Game;
 import com.mygdx.game.Character.Player;
-import com.mygdx.game.RPGGame;
 
 public class Potion extends Item {
     private Player character;

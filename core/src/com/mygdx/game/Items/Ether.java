@@ -1,8 +1,5 @@
 package com.mygdx.game.Items;
 
-import com.mygdx.game.Character.Player;
-import com.mygdx.game.RPGGame;
-
 public class Ether extends Item {
 
     protected int restoration;

@@ -15,8 +15,6 @@ import java.util.Random;
 
 public class Player extends BattleCharacter {
 
-    Animation<TextureRegion> itsAllAboutThePirouettes;
-
     private int currentExp;
     private int toNextLevel;
 
@@ -29,8 +27,6 @@ public class Player extends BattleCharacter {
     public Player(){
         super(new Texture("Characters/character.png"), 15, 23, new Texture("Characters/character-battle.png"),
                 50, 10, 5, 5, 1, "Hero");
-
-        //HP = 1;
 
         currentExp = 0;
         toNextLevel = (int) (6.1 * Math.pow(level + 1, 2) + 1.4 * (level + 1) - 11.4);
@@ -83,11 +79,13 @@ public class Player extends BattleCharacter {
     public int receiveExp(int exp) {
         currentExp += exp;
         int numLevels = 0;
+        System.out.println(toNextLevel);
         if(currentExp >= toNextLevel) {
             while(currentExp >= toNextLevel) {
                 currentExp -= toNextLevel;
                 numLevels++;
-                calculateNextLevelExp(level + numLevels);
+                calculateNextLevelExp(level + numLevels + 1);
+                System.out.println(toNextLevel);
             }
             return numLevels;
         }
@@ -96,9 +94,9 @@ public class Player extends BattleCharacter {
 
     /**
      * Calculates the exp needed to reach the next level
-     * @param nextLevel
+     * @param nextLevel The next level to be reached.
      */
-    public void calculateNextLevelExp(int nextLevel) {
+    private void calculateNextLevelExp(int nextLevel) {
         toNextLevel = (int) (6.1 * Math.pow(nextLevel, 2) + 1.4 * (nextLevel) - 11.4);
     }
 
@@ -122,16 +120,6 @@ public class Player extends BattleCharacter {
         return level;
     }
 
-    public void setAnimation(int i) {
-        super.setAnimation(i);
-        switch(i) {
-            case 9:
-                this.setSize(32,32);
-                currentAni = itsAllAboutThePirouettes;
-                break;
-        }
-    }
-
     public void setItems(Item... items) {
         this.items = items;
     }
@@ -148,11 +136,14 @@ public class Player extends BattleCharacter {
         return gold;
     }
 
+    /**
+     * Gives the player max HP and PP for all attacks.
+     */
     public void revive() {
         alive = true;
         HP = maxHP;
         for(Attack attack : attacks) {
-            attack.restorePP(100);
+            attack.restorePP(attack.getMaxPP());
         }
     }
 
@@ -181,7 +172,7 @@ public class Player extends BattleCharacter {
         }
     }
 
-    //character specific for sprite sheet dimensions
+
     private void genAnimations(){
         //Walk Down Animation
         fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 1, 5, 15, 23),
@@ -211,11 +202,5 @@ public class Player extends BattleCharacter {
         fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 1, 5, 15,23),
                 new TextureRegion(spriteSheet, 81,5, 15, 23)};
         idleAni  = new Animation<TextureRegion>(0.5f, fFrames);
-        //SpinnyBOY
-        fFrames = new TextureRegion[]{new TextureRegion(spriteSheet, 32, 128, 32, 32),
-                new TextureRegion(spriteSheet, 32,192, 32, 32),
-                new TextureRegion(spriteSheet, 32, 160 , 32, 32),
-                new TextureRegion(spriteSheet, 32, 224, 32, 32)};
-        itsAllAboutThePirouettes = new Animation<TextureRegion>(AFS, fFrames);
     }
 }
