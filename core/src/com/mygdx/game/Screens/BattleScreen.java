@@ -126,6 +126,7 @@ public class BattleScreen implements Screen {
     private Texture backGraphic;
 
     private Sound hitSound;
+    private Sound drinkSound;
 
     public BattleScreen(RPGGame game) {
         this.game = game;
@@ -188,6 +189,7 @@ public class BattleScreen implements Screen {
                 Gdx.graphics.getHeight() * 7/48 - PADDING, buttonUp, buttonDown);
 
         hitSound = Gdx.audio.newSound(Gdx.files.internal("Music/hit.wav"));
+        drinkSound = Gdx.audio.newSound(Gdx.files.internal("Music/Drink_02.wav"));
     }
 
     /**
@@ -752,6 +754,7 @@ public class BattleScreen implements Screen {
             case ITEM:
                 // Player uses their item first
                 if (!playerTurnComplete && itemUsed instanceof Potion) {
+                    drinkSound.play();
                     // Get how much health is to be restored
                     Potion potion = (Potion) itemUsed;
                     // Can't restore past the player's max HP
@@ -983,5 +986,6 @@ public class BattleScreen implements Screen {
         backButton.dispose();
 
         hitSound.dispose();
+        drinkSound.dispose();
     }
 }
