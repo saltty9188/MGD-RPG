@@ -3,7 +3,6 @@ package com.mygdx.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -27,7 +26,6 @@ import com.mygdx.game.Character.MadBat;
 import com.mygdx.game.Character.NPC;
 import com.mygdx.game.Character.Player;
 import com.mygdx.game.Character.RestlessLeaves;
-import com.mygdx.game.Character.WanderingShroom;
 import com.mygdx.game.WorldAnimations.Flag;
 import com.mygdx.game.WorldAnimations.Fountain;
 import com.mygdx.game.RPGGame;
@@ -297,8 +295,7 @@ public class GameScreen implements Screen {
             for (int i = 0; i < currentEnemies.length; i++) {
                 // respawn enemies
                 if (currentEnemies == forestEnemies) {
-                    if(i % 2 == 0) currentEnemies[i] = new WanderingShroom();
-                    else currentEnemies[i] = new RestlessLeaves();
+                    currentEnemies[i] = new RestlessLeaves();
                 } else if (currentEnemies == caveEnemies) {
                     currentEnemies[i] = new MadBat();
                 }
