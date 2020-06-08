@@ -91,7 +91,7 @@ public class ShopScreen implements Screen {
                 Gdx.files.internal("font/good_neighbors.png"),
                 false);
 
-        textWindow = new Texture("window_blue.png");
+        textWindow = new Texture("window_blue_long.png");
         background = new Texture("Backgrounds/shop-background.png");
 
         buttonUp = new Texture("buttonUp.png");

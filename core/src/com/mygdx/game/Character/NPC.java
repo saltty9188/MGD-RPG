@@ -106,7 +106,7 @@ public class NPC extends Character {
                 Gdx.files.internal("font/good_neighbors.png"),
                 false);
 
-        textWindow = new Texture("window_blue.png");
+        textWindow = new Texture("window_blue_long.png");
 
         nextLine = new Texture("next line.png");
     }

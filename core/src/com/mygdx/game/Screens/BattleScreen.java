@@ -54,6 +54,7 @@ public class BattleScreen implements Screen {
     private BitmapFont bmfont;
 
     private Texture textWindow;
+    private Texture longTextWindow;
     private Texture HPFull;
     private Texture HPEmpty;
 
@@ -146,6 +147,7 @@ public class BattleScreen implements Screen {
         bmfont.getData().setScale(2);
 
         textWindow = new Texture("window_blue.png");
+        longTextWindow = new Texture("window_blue_long.png");
 
         HPFull = new Texture("HP-full.png");
         HPEmpty = new Texture("HP-empty.png");
@@ -854,7 +856,7 @@ public class BattleScreen implements Screen {
         float height = Gdx.graphics.getHeight() * 7/24;
         float x = 0;
         float y = 0;
-        spriteBatch.draw(textWindow, x, y, width, height);
+        spriteBatch.draw(longTextWindow, x, y, width, height);
         drawText(spriteBatch, victoryMessages[currentVictoryIndex], width, height, x, y, delta, false, 3);
     }
 
@@ -866,7 +868,7 @@ public class BattleScreen implements Screen {
         float height = Gdx.graphics.getHeight() * 7/24;
         float x = 0;
         float y = 0;
-        spriteBatch.draw(textWindow, x, y, width, height);
+        spriteBatch.draw(longTextWindow, x, y, width, height);
         drawText(spriteBatch, "Game over.", width, height, x, y, delta, false, 3);
     }
 
