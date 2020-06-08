@@ -1,5 +1,6 @@
 package com.mygdx.game.Screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.mygdx.game.RPGGame;
@@ -22,7 +23,7 @@ public class TitleScreen  implements Screen {
 
     @Override
     public void render(float delta) {
-
+        if(Gdx.input.justTouched()) game.setScreen(RPGGame.creditsScreen);
     }
 
     @Override

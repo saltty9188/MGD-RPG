@@ -212,6 +212,7 @@ public class GameScreen implements Screen {
         // Talk button will replace sprint button when near an NPC
         talkButton = new Button(Gdx.graphics.getWidth() - PADDING - 2*buttonWidth, PADDING + 0.5f*buttonHeight, 1.5f*buttonWidth, 1.5f*buttonHeight, buttonUp, buttonDown);
 
+        newGame();
     }
 
     /**
@@ -311,7 +312,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        newGame();
+
     }
 
     public void handleInput(float delta){

@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.Screens.BattleScreen;
+import com.mygdx.game.Screens.CreditsScreen;
 import com.mygdx.game.Screens.GameScreen;
 import com.mygdx.game.Screens.ShopScreen;
 import com.mygdx.game.Screens.TitleScreen;
@@ -16,11 +17,11 @@ public class RPGGame extends Game implements ApplicationListener {
 
 	public static final int WIDTH = 400;
 	public static final int HEIGHT = 240;
-	public static final float PPM = 100;
 	public static GameScreen gameScreen;
 	public static BattleScreen battleScreen;
 	public static TitleScreen titleScreen;
 	public static ShopScreen shopScreen;
+	public static CreditsScreen creditsScreen;
 
 	@Override
 	public void create () {
@@ -28,7 +29,8 @@ public class RPGGame extends Game implements ApplicationListener {
 		battleScreen = new BattleScreen(this);
 		titleScreen = new TitleScreen(this);
 		shopScreen = new ShopScreen(this);
-		setScreen(gameScreen);
+		creditsScreen = new CreditsScreen(this);
+		setScreen(creditsScreen);
 	}
 
 	@Override
