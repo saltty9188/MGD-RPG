@@ -61,7 +61,8 @@ public class GameScreen implements Screen {
     //private Flag flag;
     private Flag[] flags;
     private NPC[] NPCs;
-    private NPC cutsceneNPC;
+    private NPC gameOverCutsceneNPC;
+    private NPC gameCompleteCutsceneNPC;
     private NPC shopkeeper;
     private NPC talkingNPC;
     private boolean nearNPC;
@@ -73,7 +74,10 @@ public class GameScreen implements Screen {
     private Enemy[] currentEnemies;
 
     private float cutsceneDelta;
-    private boolean inCutscene;
+    private boolean inGameOverCutscene;
+    private boolean inGameCompleteCutscene;
+    private float fadeOutOpacity;
+    private Texture fadeOut;
 
     // Map exits
     private RectangleMapObject townToForest;
@@ -112,7 +116,6 @@ public class GameScreen implements Screen {
         bgm = Gdx.audio.newMusic(Gdx.files.internal("Music/Blippy Trance.mp3"));
         bgm.setLooping(true);
         bgm.setVolume(1);
-        //bgm.play();
 
         spriteBatch = new SpriteBatch();
         uiBatch = new SpriteBatch();
@@ -125,7 +128,6 @@ public class GameScreen implements Screen {
         TmxMapLoader temp = new TmxMapLoader();
 
         townMap = temp.load("Town.tmx");
-        // TODO: Load other maps here
         caveMap = temp.load("Cave.tmx");
         forestMap = temp.load("Forest.tmx");
 
@@ -165,7 +167,6 @@ public class GameScreen implements Screen {
             flags[i] = new Flag();
         }
         playerDelta = new Vector2();
-        playerDeltaRectangle = new Rectangle(0, 0, player.getWidth(), player.getHeight());
 
         forestEnemies = new Enemy[10];
         caveEnemies = new Enemy[15];
@@ -187,12 +188,14 @@ public class GameScreen implements Screen {
         shopkeeper = new NPC();
         shopkeeper.setAnimation(3);
 
-        initialiseMap("Forest");
-
-        cutsceneNPC = new NPC("Man that guy really beat the snot out of you.", "You're lucky I was able to drag you out of there!",
+        gameOverCutsceneNPC = new NPC("Man that guy really beat the snot out of you.", "You're lucky I was able to drag you out of there!",
                 "Looks like you've regained your strength. So I'm gonna leave you to it.", "Be more careful next time, OK?");
+        gameCompleteCutsceneNPC = new NPC("You found Medical Supplies!", "Looks like you saved the day...", "Let's head back to town and tell everyone the good news.");
         cutsceneDelta = 0;
-        inCutscene = false;
+        inGameOverCutscene = false;
+        inGameCompleteCutscene = false;
+        fadeOutOpacity = 0;
+        fadeOut = new Texture("placeholder.png");
 
         float buttonWidth = Gdx.graphics.getHeight() * 7/48 - 2 * PADDING;
         float buttonHeight = buttonWidth;
@@ -209,9 +212,26 @@ public class GameScreen implements Screen {
         // Talk button will replace sprint button when near an NPC
         talkButton = new Button(Gdx.graphics.getWidth() - PADDING - 2*buttonWidth, PADDING + 0.5f*buttonHeight, 1.5f*buttonWidth, 1.5f*buttonHeight, buttonUp, buttonDown);
 
+    }
+
+    /**
+     * Resets values for starting a new game.
+     */
+    public void newGame() {
+
+        player = new Player();
+        playerDeltaRectangle = new Rectangle(0, 0, player.getWidth(), player.getHeight());
+
+        currentMap = townMap;
+        initialiseMap("Start");
+
+        cutsceneDelta = 0;
+        inGameOverCutscene = false;
+        inGameCompleteCutscene = false;
+        fadeOutOpacity = 0;
+
+        bgm.play();
         gameCam.position.set(player.getX(), player.getY(), 0);
-
-
     }
 
     /**
@@ -259,7 +279,6 @@ public class GameScreen implements Screen {
             RectangleMapObject flagSpawn;
             for(int i = 0; i < flags.length; i++) {
                 flagSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Flag " + Integer.toString(i + 1));
-                System.out.println(flags[i]);
                 flags[i].setPosition(flagSpawn.getRectangle().x, flagSpawn.getRectangle().y);
             }
 
@@ -292,7 +311,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-
+        newGame();
     }
 
     public void handleInput(float delta){
@@ -453,21 +472,26 @@ public class GameScreen implements Screen {
             player.setAnimation(4);
             player.update(delta);
 
-            cutsceneNPC.setPosition(player.getX() + player.getWidth() + 5, player.getY());
+            gameOverCutsceneNPC.setPosition(player.getX() + player.getWidth() + 5, player.getY());
 
             gameCam.position.x = player.getX();
             gameCam.position.y = player.getY();
             moveCamera();
             player.revive();
-            inCutscene = true;
-        } else if (inCutscene) {
-            playCutscene(delta);
+            inGameOverCutscene = true;
+        } else if (inGameOverCutscene) {
+            playGameOverCutscene(delta);
+        }
+        // Player defeated the boss
+        if(currentMap == caveMap && !boss.isAlive()) {
+            inGameCompleteCutscene = true;
+            playGameCompleteCutscene(delta);
         }
 
         if(currentMap == townMap) {
             fountain.update(delta);
-            for(int i = 0; i < flags.length; i++) {
-                flags[i].update(delta);
+            for (Flag flag : flags) {
+                flag.update(delta);
             }
         }
 
@@ -480,7 +504,7 @@ public class GameScreen implements Screen {
                     talkingNPC = null;
                 }
             }
-        } else if(!inCutscene) {
+        } else if(!inGameOverCutscene && !inGameCompleteCutscene) {
             boolean checkTouch;
             int touchX;
             int touchY;
@@ -664,7 +688,7 @@ public class GameScreen implements Screen {
         spriteBatch.begin();
         spriteBatch.setProjectionMatrix(gameCam.combined);
         drawActors();
-        if(inCutscene) cutsceneNPC.draw(spriteBatch);
+        if(inGameOverCutscene) gameOverCutsceneNPC.draw(spriteBatch);
         player.draw(spriteBatch);
         spriteBatch.setProjectionMatrix(gameCam.combined);
         if(currentMap == townMap) {
@@ -686,27 +710,48 @@ public class GameScreen implements Screen {
 
         if(nearNPC) talkButton.draw(uiBatch, 0.8f);
         else sprintButton.draw(uiBatch, 0.8f);
+
+        // Fade to black once the text is over
+        if(inGameCompleteCutscene && talkingNPC == null) {
+            uiBatch.setColor(1, 1, 1, fadeOutOpacity);
+            uiBatch.draw(fadeOut, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            uiBatch.setColor(1, 1, 1, 1);
+        }
         uiBatch.end();
     }
 
-    public void playCutscene(float delta) {
+    public void playGameOverCutscene(float delta) {
         cutsceneDelta += delta;
-
-        System.out.println(delta);
-        System.out.println(cutsceneDelta);
 
         // Only set on the first frame
         if(cutsceneDelta == delta) {
-            talkingNPC = cutsceneNPC;
+            talkingNPC = gameOverCutsceneNPC;
         }
 
-        cutsceneNPC.updateCutscene(delta, talkingNPC != null);
+        gameOverCutsceneNPC.updateCutscene(delta, talkingNPC != null);
 
-        if(!onScreen(cutsceneNPC)) {
-            inCutscene = false;
+        if(!onScreen(gameOverCutsceneNPC)) {
+            inGameOverCutscene = false;
             cutsceneDelta = 0;
         }
+    }
 
+    private void playGameCompleteCutscene(float delta) {
+        cutsceneDelta += delta;
+
+        if(cutsceneDelta == delta) {
+            talkingNPC = gameCompleteCutsceneNPC;
+        }
+
+        if(talkingNPC == null) {
+            fadeOutOpacity += 0.2f * delta;
+        }
+
+        if(fadeOutOpacity >= 1) {
+            //TODO: change to credit screen
+            inGameCompleteCutscene = false;
+            game.setScreen(RPGGame.shopScreen);
+        }
     }
 
     private boolean onScreen(Character character) {
