@@ -13,6 +13,8 @@ public class Boss extends Enemy {
 
         // Boss doesn't move and therefore does not need animations so we set the region here
         setRegion(new TextureRegion(spriteSheet, 35, 15, 27, 47));
+
+        gold = 1000;
     }
 
     @Override

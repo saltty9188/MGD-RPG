@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.game.Attack;
 import com.mygdx.game.InfiniteAttack;
 import com.mygdx.game.Items.Ether;
+import com.mygdx.game.Items.HiEther;
+import com.mygdx.game.Items.HiPotion;
 import com.mygdx.game.Items.Item;
 import com.mygdx.game.Items.Potion;
 
@@ -21,6 +23,8 @@ public class Player extends BattleCharacter {
     private Item[] items;
 
     private Random rand;
+
+    private int gold;
 
     public Player(){
         super(new Texture("character.png"), 15, 23, new Texture("character-battle2.png"),
@@ -42,18 +46,18 @@ public class Player extends BattleCharacter {
         Attack attack3 = new Attack(15, 10, "Mighty Stab");
         Attack attack4 = new Attack(10, 15, "Low Blow");
 
-        Item item1 = new Potion("Potion", 20, this);
+        Item item1 = new Potion(this);
         item1.addItems(5);
-        Item item2 = new Potion("Hi-Potion", 50, this);
+        Item item2 = new HiPotion(this);
 
-        Item item3 = new Ether("Ether", 5);
+        Item item3 = new Ether();
         item3.addItems(1);
-        Item item4 = new Ether("Hi-Ether", 10);
-
-
+        Item item4 = new HiEther();
 
         setAttacks(attack1, attack2, attack3, attack4);
         setItems(item1, item2, item3, item4);
+
+        gold = 100;
     }
 
     public void restoreHealth(int health) {
@@ -120,17 +124,16 @@ public class Player extends BattleCharacter {
         this.items = items;
     }
 
-    public void addItem(Item item) {
-        Item[] newArray = new Item[items.length + 1];
-        for(int i = 0; i < items.length; i++) {
-            newArray[i] = items[i];
-        }
-        newArray[newArray.length - 1] = item;
-        items = newArray;
+    public void earnGold(int amount) {
+        gold += amount;
     }
 
-    public void removeItem(Item item) {
+    public void spendGold(int amount) {
+        gold -= amount;
+    }
 
+    public int getGold() {
+        return gold;
     }
 
     public void revive() {

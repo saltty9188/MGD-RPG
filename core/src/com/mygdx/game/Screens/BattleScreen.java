@@ -54,6 +54,7 @@ public class BattleScreen implements Screen {
     private BitmapFont bmfont;
 
     private Texture textWindow;
+    private Texture longTextWindow;
     private Texture HPFull;
     private Texture HPEmpty;
 
@@ -146,6 +147,7 @@ public class BattleScreen implements Screen {
         bmfont.getData().setScale(2);
 
         textWindow = new Texture("window_blue.png");
+        longTextWindow = new Texture("window_blue_long.png");
 
         HPFull = new Texture("HP-full.png");
         HPEmpty = new Texture("HP-empty.png");
@@ -231,7 +233,7 @@ public class BattleScreen implements Screen {
 
         victoryMessages = new String[3];
         victoryMessages[0] = "You Won!";
-        victoryMessages[1] = "You earned " + enemy.getExp() + " experience points!";
+        victoryMessages[1] = "You earned " + enemy.getExp() + " experience points and got " + enemy.getGold() + " gold!";
         currentVictoryIndex = 0;
 
 
@@ -678,14 +680,7 @@ public class BattleScreen implements Screen {
 
                     if (!enemy.isAlive() && playerTurnComplete) {
                         //Player won
-                        battleFinished = true;
-                        textAnimating = true;
-                        // If the player levels up
-                        if(player.receiveExp(enemy.getExp())) {
-                            player.levelUp();
-                            victoryMessages[2] = "You leveled up!\nYou are now level " + player.getLevel() + "!";
-                        }
-                        System.out.println("WIN");
+                        victory();
                     } else {
                         // Enemy attacks second
                         if (!animatingEnemyHP && !enemyTurnComplete) {
@@ -703,7 +698,6 @@ public class BattleScreen implements Screen {
                         if (!player.isAlive() && enemyTurnComplete) {
                             battleFinished = true;
                             textAnimating = true;
-                            System.out.println("LOSE");
                         }
                     }
                 } else {
@@ -723,7 +717,6 @@ public class BattleScreen implements Screen {
                     if (!player.isAlive()) {
                         battleFinished = true;
                         textAnimating = true;
-                        System.out.println("LOSE");
                     } else {
                         //Player attacks second
                         if (!animatingPlayerHP && !playerTurnComplete) {
@@ -739,14 +732,7 @@ public class BattleScreen implements Screen {
 
                         if (!enemy.isAlive()) {
                             //Player won
-                            battleFinished = true;
-                            textAnimating = true;
-                            // If the player levels up
-                            if(player.receiveExp(enemy.getExp())) {
-                                player.levelUp();
-                                victoryMessages[2] = "You leveled up!\nYou are now level " + player.getLevel() + "!";
-                            }
-                            System.out.println("WIN");
+                            victory();
                         }
                     }
                 }
@@ -788,7 +774,6 @@ public class BattleScreen implements Screen {
                     if (!player.isAlive() && enemyTurnComplete) {
                         battleFinished = true;
                         textAnimating = true;
-                        System.out.println("LOSE");
                     }
                 }
 
@@ -809,7 +794,6 @@ public class BattleScreen implements Screen {
                     } else if(!textAnimating) { // Then leave the battle and remove the enemy from the field
                         enemy.die();
                         game.setScreen(RPGGame.gameScreen);
-                        System.out.println("FLEE");
                     }
                 } else {
                     // If the first message has finished animating play the failure message
@@ -830,7 +814,6 @@ public class BattleScreen implements Screen {
                         if (!player.isAlive() && enemyTurnComplete) {
                             battleFinished = true;
                             textAnimating = true;
-                            System.out.println("LOSE");
                         }
                     }
                 }
@@ -873,7 +856,7 @@ public class BattleScreen implements Screen {
         float height = Gdx.graphics.getHeight() * 7/24;
         float x = 0;
         float y = 0;
-        spriteBatch.draw(textWindow, x, y, width, height);
+        spriteBatch.draw(longTextWindow, x, y, width, height);
         drawText(spriteBatch, victoryMessages[currentVictoryIndex], width, height, x, y, delta, false, 3);
     }
 
@@ -885,7 +868,7 @@ public class BattleScreen implements Screen {
         float height = Gdx.graphics.getHeight() * 7/24;
         float x = 0;
         float y = 0;
-        spriteBatch.draw(textWindow, x, y, width, height);
+        spriteBatch.draw(longTextWindow, x, y, width, height);
         drawText(spriteBatch, "Game over.", width, height, x, y, delta, false, 3);
     }
 
@@ -902,6 +885,17 @@ public class BattleScreen implements Screen {
         }
         battleSprite.draw(spriteBatch);
         spriteBatch.setShader(null);
+    }
+
+    public void victory() {
+        battleFinished = true;
+        textAnimating = true;
+        // If the player levels up
+        if(player.receiveExp(enemy.getExp())) {
+            player.levelUp();
+            victoryMessages[2] = "You leveled up!\nYou are now level " + player.getLevel() + "!";
+        }
+        player.earnGold(enemy.getGold());
     }
 
     @Override
