@@ -16,7 +16,7 @@ public class Flag extends Sprite {
     private Animation<TextureRegion> flagAnimation;
 
     public Flag() {
-        flagSheet = new Texture(Gdx.files.internal("Flag.png"));
+        flagSheet = new Texture(Gdx.files.internal("Tile Maps/Flag.png"));
         stateTime = 0.0f;
         this.setSize(16, 32);
 

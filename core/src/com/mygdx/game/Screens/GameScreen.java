@@ -122,9 +122,9 @@ public class GameScreen implements Screen {
 
         TmxMapLoader temp = new TmxMapLoader();
 
-        townMap = temp.load("Town.tmx");
-        caveMap = temp.load("Cave.tmx");
-        forestMap = temp.load("Forest.tmx");
+        townMap = temp.load("Tile Maps/Town.tmx");
+        caveMap = temp.load("Tile Maps/Cave.tmx");
+        forestMap = temp.load("Tile Maps/Forest.tmx");
 
         //currentMap = townMap;
         //currentMap = caveMap;
@@ -195,8 +195,8 @@ public class GameScreen implements Screen {
         float buttonWidth = Gdx.graphics.getHeight() * 7/48 - 2 * PADDING;
         float buttonHeight = buttonWidth;
 
-        buttonUp = new Texture("buttonUp.png");
-        buttonDown = new Texture("buttonDown.png");
+        buttonUp = new Texture("Buttons/buttonUp.png");
+        buttonDown = new Texture("Buttons/buttonDown.png");
 
         runGraphic = new Texture("Buttons/run-graphic.png");
         talkGraphic = new Texture("Buttons/talk-graphic.png");

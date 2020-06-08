@@ -95,8 +95,8 @@ public class ShopScreen implements Screen {
         textWindow = new Texture("window_blue_long.png");
         background = new Texture("Backgrounds/shop-background.png");
 
-        buttonUp = new Texture("buttonUp.png");
-        buttonDown = new Texture("buttonDown.png");
+        buttonUp = new Texture("Buttons/buttonUp.png");
+        buttonDown = new Texture("Buttons/buttonDown.png");
 
         buyButton = new Button(PADDING, Gdx.graphics.getHeight() * 33/48 - PADDING, Gdx.graphics.getWidth() / 3 - 2*PADDING, Gdx.graphics.getHeight() * 7/48 - PADDING,
                 buttonUp, buttonDown);

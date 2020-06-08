@@ -27,7 +27,7 @@ public class Player extends BattleCharacter {
     private int gold;
 
     public Player(){
-        super(new Texture("character.png"), 15, 23, new Texture("character-battle2.png"),
+        super(new Texture("Characters/character.png"), 15, 23, new Texture("Characters/character-battle.png"),
                 50, 10, 5, 5, 1, "Hero");
 
         //HP = 1;

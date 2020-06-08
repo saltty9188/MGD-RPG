@@ -37,11 +37,11 @@ public class NPC extends Character {
     int direction;
 
     public NPC() {
-        this(new Texture("NPC_test.png"), 14, 21, "Hello", "Are you still here?");
+        this(new Texture("Characters/NPC_test.png"), 14, 21, "Hello");
     }
 
     public NPC(String ... dialogue) {
-        this(new Texture("NPC_test.png"), 14, 21, dialogue);
+        this(new Texture("Characters/NPC_test.png"), 14, 21, dialogue);
     }
 
     public NPC(Texture spriteSheet, int width, int height, String ... dialogue) {
@@ -108,7 +108,7 @@ public class NPC extends Character {
 
         textWindow = new Texture("window_blue_long.png");
 
-        nextLine = new Texture("next line.png");
+        nextLine = new Texture("Characters/next line.png");
     }
 
     public TextureRegion getFrame(float dt) {

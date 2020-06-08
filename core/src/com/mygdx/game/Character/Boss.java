@@ -8,7 +8,7 @@ import com.mygdx.game.InfiniteAttack;
 public class Boss extends Enemy {
 
     public Boss() {
-        super(new Texture("pumpkin_monster.png"), 27, 47, new Texture("pumpkin-boss-battle.png"),
+        super(new Texture("Characters/pumpkin_monster.png"), 27, 47, new Texture("Characters/pumpkin-boss-battle.png"),
                 300, 15, 10, 7, 10, "Pumpkin Menace", 10000);
 
         // Boss doesn't move and therefore does not need animations so we set the region here

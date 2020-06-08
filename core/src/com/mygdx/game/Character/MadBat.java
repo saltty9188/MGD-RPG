@@ -9,7 +9,7 @@ import com.mygdx.game.InfiniteAttack;
 public class MadBat extends Enemy {
 
     public MadBat() {
-        super(new Texture("bat-SWEN.png"), 20, 23, new Texture("bat-battle.png"),
+        super(new Texture("Characters/bat-SWEN.png"), 20, 23, new Texture("Characters/bat-battle.png"),
                 50, 5, 3, 7, 5, "Mad Bat", 10);
 
         gold = 20;

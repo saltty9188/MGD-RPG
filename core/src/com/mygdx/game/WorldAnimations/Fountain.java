@@ -16,7 +16,7 @@ public class Fountain extends Sprite {
     private Animation<TextureRegion> fountainAnimation;
 
     public Fountain() {
-        fountainSheet = new Texture(Gdx.files.internal("Fountain.png"));
+        fountainSheet = new Texture(Gdx.files.internal("Tile Maps/Fountain.png"));
         stateTime = 0.0f;
         this.setSize(16, 32);
 

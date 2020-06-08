@@ -155,10 +155,10 @@ public class BattleScreen implements Screen {
         HPFull = new Texture("HP-full.png");
         HPEmpty = new Texture("HP-empty.png");
 
-        buttonUp = new Texture("buttonUp.png");
-        buttonDown = new Texture("buttonDown.png");
+        buttonUp = new Texture("Buttons/buttonUp.png");
+        buttonDown = new Texture("Buttons/buttonDown.png");
 
-        backGraphic = new Texture("back-graphic.png");
+        backGraphic = new Texture("Buttons/back-graphic.png");
 
         attackButton = new Button(Gdx.graphics.getWidth() / 2 + PADDING, Gdx.graphics.getHeight() * 7/48 + PADDING, Gdx.graphics.getWidth() / 2 - 2 * PADDING,
                 Gdx.graphics.getHeight() * 7/48 - 2 * PADDING, buttonUp, buttonDown);
@@ -205,9 +205,9 @@ public class BattleScreen implements Screen {
         else enemyBattleSprite.setScale(0.8f);
 
         if(location == Location.FOREST) {
-            background = new Texture("environment_forest_evening.png");
+            background = new Texture("Backgrounds/environment_forest_evening.png");
         } else if (location == Location.CAVE) {
-            background = new Texture("fossil_cave.png");
+            background = new Texture("Backgrounds/fossil_cave.png");
         }
 
         flashTimer = 0;
