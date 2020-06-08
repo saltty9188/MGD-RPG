@@ -67,7 +67,7 @@ public class RPGGame extends Game implements ApplicationListener {
 		shopScreen = new ShopScreen(this);
 		creditsScreen = new CreditsScreen(this);
 
-		setScreen(gameScreen);
+		setScreen(titleScreen);
 	}
 
 	@Override

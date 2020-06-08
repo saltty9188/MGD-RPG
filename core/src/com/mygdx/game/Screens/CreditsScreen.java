@@ -83,8 +83,9 @@ public class CreditsScreen implements Screen {
 
         batch.begin();
         //Draw the credits to the screen
-        int scale = ((currentText.equals(credits.get(0)) || currentText.equals(credits.get(credits.size() - 1))) ? 2 : 1);
-        float speed = ((currentText.equals(credits.get(0)) || currentText.equals(credits.get(credits.size() - 1))) ? 0.03f : 0.01f);
+        int scale = ((currentText.equals(credits.get(0)) || currentText.equals(credits.get(credits.size() - 2))) ? 2 : 1);
+        if(currentText.equals(credits.get(credits.size() - 1))) scale = 4;
+        float speed = ((currentText.equals(credits.get(0)) || currentText.equals(credits.get(credits.size() - 1)) || currentText.equals(credits.get(credits.size() - 2))) ? 0.03f : 0.01f);
         drawText(batch, currentText, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, delta, scale, speed);
         batch.end();
     }
