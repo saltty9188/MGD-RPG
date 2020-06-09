@@ -166,7 +166,7 @@ public class GameScreen implements Screen {
         caveEnemies = new Enemy[15];
         currentEnemies = forestEnemies;
 
-        NPCs = new NPC[7];
+        NPCs = new NPC[8];
         // NPCs that move
         NPCs[0] = new NPC("Hello there traveller.", "Welcome to Erathis's Village");
         NPCs[1] = new NPC("I've always wanted to travel far to the west...", "But the stupid mayor won't let us.");
@@ -175,6 +175,7 @@ public class GameScreen implements Screen {
         NPCs[4] = new NPC("Be careful going that way, that leads to the Eastern Forest", "They say some creature lives in a cave near there.",
                 "I'm gonna stay right here.");
         NPCs[5] = new NPC("Hey you're a fighter right?", "You gotta help us! Some monster stole our medical supplies!", "I'm not sure where he went though...");
+        NPCs[7] = new NPC("Ever since that monster stole our stuff all the markets closed up.", "There's only one man who had enough supplies left to keep running his store.");
 
         //Stationary NPCs
         NPCs[6] = new NPC("I could stay here and look at this lake forever...");
