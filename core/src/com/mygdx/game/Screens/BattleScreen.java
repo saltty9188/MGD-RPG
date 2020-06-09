@@ -330,9 +330,9 @@ public class BattleScreen implements Screen {
                     } else if (inAttacks || usingEther) {
                         // Want the infinite attack to be shown as red when using an ether
                         playerAttackButton1.draw(spriteBatch, player.getAttack(0).getName(), player.getAttack(0).getPPStatus(), usingEther);
-                        playerAttackButton2.draw(spriteBatch, player.getAttack(1).getName(), player.getAttack(1).getPPStatus(), player.getAttack(1).getPP() == 0);
-                        playerAttackButton3.draw(spriteBatch, player.getAttack(2).getName(), player.getAttack(2).getPPStatus(), player.getAttack(2).getPP() == 0);
-                        playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus(), player.getAttack(3).getPP() == 0);
+                        playerAttackButton2.draw(spriteBatch, player.getAttack(1).getName(), player.getAttack(1).getPPStatus(), player.getAttack(1).getPP() == 0 && !usingEther);
+                        playerAttackButton3.draw(spriteBatch, player.getAttack(2).getName(), player.getAttack(2).getPPStatus(), player.getAttack(2).getPP() == 0 && !usingEther);
+                        playerAttackButton4.draw(spriteBatch, player.getAttack(3).getName(), player.getAttack(3).getPPStatus(), player.getAttack(3).getPP() == 0 && !usingEther);
                     } else if(inItems && !usingEther) {
                         potionButton.draw(spriteBatch, player.getItem(0).getName(), "Stock: " + player.getItem(0).getQty(), player.getItem(0).getQty() == 0);
                         hiPotionButton.draw(spriteBatch, player.getItem(1).getName(), "Stock: " + player.getItem(1).getQty(), player.getItem(1).getQty() == 0);
