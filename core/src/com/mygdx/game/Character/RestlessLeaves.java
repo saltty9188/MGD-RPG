@@ -12,7 +12,7 @@ public class RestlessLeaves extends Enemy {
         super(new Texture("Characters/log.png"), 20, 23, new Texture("Characters/log-battle.png"),
                 70, 6, 3, 3, 3, "Restless Leaves", 20);
 
-        gold = 27;
+        gold = 35;
     }
 
     protected void genAnimations() {

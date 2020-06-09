@@ -12,7 +12,7 @@ public class WildEagle extends Enemy {
         super(new Texture("Characters/bird_2_eagle.png"), 18, 14, new Texture("Characters/eagle-battle.png"),
                 50, 5, 1, 10, 2, "Wild Eagle", 10);
 
-        gold = 10;
+        gold = 25;
     }
 
     @Override

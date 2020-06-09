@@ -12,7 +12,7 @@ public class CreepyCrawler extends Enemy {
         super(new Texture("Characters/spider07.png"), 30, 34, new Texture("Characters/spider-battle.png"),
                 80, 7, 5, 5, 7, "Creepy Crawler", 40);
 
-        gold = 31;
+        gold = 50;
     }
 
     @Override

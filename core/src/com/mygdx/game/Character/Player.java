@@ -29,7 +29,7 @@ public class Player extends BattleCharacter {
                 50, 10, 5, 5, 1, "Hero");
 
         currentExp = 0;
-        toNextLevel = (int) (5.1 * Math.pow(level + 1, 2) + 1.4 * (level + 1) - 11.4);
+        toNextLevel = (int) (4 * Math.pow(level + 1, 2) - 1.4 * (level + 1) - 0.4);
 
         rand = new Random();
 
@@ -45,9 +45,9 @@ public class Player extends BattleCharacter {
         Item item1 = new Potion(this);
         item1.addItems(5);
         Item item2 = new HiPotion(this);
-
+        item2.addItems(1);
         Item item3 = new Ether();
-        item3.addItems(1);
+        item3.addItems(3);
         Item item4 = new HiEther();
 
         setAttacks(attack1, attack2, attack3, attack4);
@@ -95,7 +95,7 @@ public class Player extends BattleCharacter {
      * @param nextLevel The next level to be reached.
      */
     private void calculateNextLevelExp(int nextLevel) {
-        toNextLevel = (int) (5.1 * Math.pow(nextLevel, 2) + 1.4 * (nextLevel) - 11.4);
+        toNextLevel = (int) (4 * Math.pow(nextLevel, 2) - 1.4 * (nextLevel) - 0.4);
     }
 
     /**
