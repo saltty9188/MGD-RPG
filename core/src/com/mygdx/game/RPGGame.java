@@ -27,6 +27,7 @@ public class RPGGame extends Game implements ApplicationListener {
 	public static Music currentTrack;
 	public static Music titleTheme;
 	public static Music townTheme;
+	public static Music sleepTheme;
 	public static Music shopTheme;
 	public static Music forestTheme;
 	public static Music battleTheme;
@@ -43,6 +44,14 @@ public class RPGGame extends Game implements ApplicationListener {
 		titleTheme.setLooping(true);
 		townTheme = Gdx.audio.newMusic(Gdx.files.internal("Music/Town Theme.mp3"));
 		townTheme.setLooping(true);
+		sleepTheme = Gdx.audio.newMusic(Gdx.files.internal("Music/sleep_inn.mp3"));
+		sleepTheme.setOnCompletionListener(new Music.OnCompletionListener() {
+			@Override
+			public void onCompletion(Music music) {
+				RPGGame.currentTrack = RPGGame.townTheme;
+				RPGGame.currentTrack.play();
+			}
+		});
 		shopTheme = Gdx.audio.newMusic(Gdx.files.internal("Music/Buy Something!.mp3"));
 		shopTheme.setLooping(true);
 		forestTheme = Gdx.audio.newMusic(Gdx.files.internal("Music/The Outer Forest.mp3"));

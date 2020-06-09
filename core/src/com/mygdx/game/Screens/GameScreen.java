@@ -69,6 +69,11 @@ public class GameScreen implements Screen {
     private NPC talkingNPC;
     private boolean nearNPC;
 
+    private NPC bench;
+    private Rectangle benchRectangle;
+    private boolean sleeping;
+    private float alpha;
+
     private Boss boss;
 
     private Enemy[] forestEnemies;
@@ -93,6 +98,7 @@ public class GameScreen implements Screen {
     private Texture buttonDown;
     private Texture runGraphic;
     private Texture talkGraphic;
+    private Texture questionMarkGraphic;
 
     private Button walkUpButton;
     private Button walkRightButton;
@@ -100,7 +106,7 @@ public class GameScreen implements Screen {
     private Button walkLeftButton;
 
     private Button sprintButton;
-    private Button talkButton;
+    private Button interactButton;
 
     //The layer that holds the enemies/NPCs roaming areas
     private MapLayer roamZones;
@@ -173,7 +179,7 @@ public class GameScreen implements Screen {
         NPCs[2] = new NPC("It's a pretty fountain.");
         NPCs[3] = new NPC("Leave me alone.");
         NPCs[4] = new NPC("Be careful going that way, that leads to the Eastern Forest", "They say some creature lives in a cave near there.",
-                "I'm gonna stay right here.");
+                "Why don't you rest on that bench up there before you go.");
         NPCs[5] = new NPC("Hey you're a fighter right?", "You gotta help us! Some monster stole our medical supplies!", "I'm not sure where he went though...");
         NPCs[7] = new NPC("Ever since that monster stole our stuff all the markets closed up.", "There's only one man who had enough supplies left to keep running his store.");
 
@@ -185,11 +191,16 @@ public class GameScreen implements Screen {
 
         gameOverCutsceneNPC = new NPC("Man that guy really beat the snot out of you.", "You're lucky I was able to drag you out of there!",
                 "Looks like you've regained your strength. So I'm gonna leave you to it.", "Be more careful next time, OK?");
+        // Not actual NPCs but are used to display text
         gameCompleteCutsceneNPC = new NPC("You found Medical Supplies!", "Looks like you saved the day...", "Let's head back to town and tell everyone the good news.");
+        bench = new NPC("This bench is looking pretty comfy right about now...");
+        sleeping = false;
+
         cutsceneDelta = 0;
         inGameOverCutscene = false;
         inGameCompleteCutscene = false;
         fadeOutOpacity = 0;
+        alpha = 0;
         fadeOut = new Texture("placeholder.png");
 
         float buttonWidth = Gdx.graphics.getHeight() * 7/48 - 2 * PADDING;
@@ -200,6 +211,7 @@ public class GameScreen implements Screen {
 
         runGraphic = new Texture("Buttons/run-graphic.png");
         talkGraphic = new Texture("Buttons/talk-graphic.png");
+        questionMarkGraphic = new Texture("Buttons/question-mark-graphic.png");
 
         walkUpButton = new Button(2 * PADDING + buttonWidth, 2 * buttonHeight + 3 * PADDING, buttonWidth, buttonHeight, buttonUp, buttonDown);
         walkRightButton = new Button(3 * PADDING + 2 * buttonWidth, 2 * PADDING + buttonHeight, buttonWidth, buttonHeight, buttonUp, buttonDown);
@@ -208,7 +220,7 @@ public class GameScreen implements Screen {
 
         sprintButton = new Button(Gdx.graphics.getWidth() - PADDING - 2*buttonWidth, PADDING + 0.5f*buttonHeight, 1.5f*buttonWidth, 1.5f*buttonHeight, buttonUp, buttonDown);
         // Talk button will replace sprint button when near an NPC
-        talkButton = new Button(Gdx.graphics.getWidth() - PADDING - 2*buttonWidth, PADDING + 0.5f*buttonHeight, 1.5f*buttonWidth, 1.5f*buttonHeight, buttonUp, buttonDown);
+        interactButton = new Button(Gdx.graphics.getWidth() - PADDING - 2*buttonWidth, PADDING + 0.5f*buttonHeight, 1.5f*buttonWidth, 1.5f*buttonHeight, buttonUp, buttonDown);
 
         newGame();
     }
@@ -279,6 +291,9 @@ public class GameScreen implements Screen {
                 flagSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Flag " + Integer.toString(i + 1));
                 flags[i].setPosition(flagSpawn.getRectangle().x, flagSpawn.getRectangle().y);
             }
+
+            RectangleMapObject benchSpawn = (RectangleMapObject) spawnLayer.getObjects().get("Bench");
+            benchRectangle = benchSpawn.getRectangle();
 
         } else if (currentMap == caveMap) {
             currentEnemies = caveEnemies;
@@ -530,7 +545,7 @@ public class GameScreen implements Screen {
             walkRightButton.isDown = false;
             walkLeftButton.isDown = false;
             walkUpButton.isDown = false;
-            talkButton.isDown = false;
+            interactButton.isDown = false;
             sprintButton.isDown = false;
             // update the buttons
             for(int i = 0; i < 20; i++ ) { // Check all finger IDs (max 20) in case someone wants to sprint
@@ -545,18 +560,23 @@ public class GameScreen implements Screen {
                      if(!walkDownButton.isDown) walkDownButton.update(checkTouch, touchX, touchY);
                      if(!walkLeftButton.isDown) walkLeftButton.update(checkTouch, touchX, touchY);
 
-                     if (nearNPC && !talkButton.isDown) talkButton.update(checkTouch, touchX, touchY);
+                     if (nearNPC && !interactButton.isDown) interactButton.update(checkTouch, touchX, touchY);
                      else if(!sprintButton.isDown) sprintButton.update(checkTouch, touchX, touchY);
                  }
             }
 
             if(movementPause > 0) movementPause -= delta;
-            else handleInput(delta);
+            else if(!sleeping) {
+                handleInput(delta);
+            }
             moveCamera();
             player.update(delta);
             moveActors(delta);
             if(currentMap != townMap) checkEnemies();
-            else checkNPCs();
+            else {
+                checkNPCs();
+                checkBench(delta);
+            }
         }
 
         gameCam.update();
@@ -627,8 +647,8 @@ public class GameScreen implements Screen {
             npc.closeTo(player)) {
                 nearNPC = true;
                 // Set talking NPC is the button is pressed
-                if((Gdx.input.isKeyPressed(Input.Keys.SPACE) || talkButton.isDown) && player.facing(npc)) {
-                    talkButton.isDown = true;
+                if((Gdx.input.isKeyPressed(Input.Keys.SPACE) || interactButton.isDown) && player.facing(npc)) {
+                    interactButton.isDown = true;
                     talkingNPC = npc;
                     npc.face(player);
                 }
@@ -638,12 +658,44 @@ public class GameScreen implements Screen {
         if(gameCam.frustum.pointInFrustum(shopkeeper.getX(), shopkeeper.getY(), 0) &&
                 shopkeeper.closeTo(player)) {
             nearNPC = true;
-            if((Gdx.input.isKeyPressed(Input.Keys.SPACE) || talkButton.isDown) && player.facing(shopkeeper)) {
-                talkButton.isDown = true;
+            if((Gdx.input.isKeyPressed(Input.Keys.SPACE) || interactButton.isDown) && player.facing(shopkeeper)) {
+                interactButton.isDown = true;
                 RPGGame.shopScreen.setPlayer(player);
                 game.setScreen(RPGGame.shopScreen);
             }
 
+        }
+    }
+
+    /**
+     * Checks if the player is interacting with the resting bench and rests them if they do.
+     * Also fades the screen out and back in while playing the sleep music.
+     */
+    private void checkBench(float delta) {
+        if(player.getBoundingRectangle().overlaps(benchRectangle)) {
+            nearNPC = true;
+            if((Gdx.input.isKeyPressed(Input.Keys.SPACE) || interactButton.isDown)) {
+                interactButton.isDown = true;
+                talkingNPC = bench;
+                sleeping = true;
+                player.revive();
+                player.setAnimation(0);
+
+                RPGGame.currentTrack.stop();
+                RPGGame.currentTrack = RPGGame.sleepTheme;
+                RPGGame.currentTrack.play();
+            }
+            // Fade out and in
+            if(sleeping) {
+                alpha += delta;
+                fadeOutOpacity = (float) Math.abs(Math.sin(alpha));
+            }
+            // Faded back in
+            if(alpha >= Math.PI) {
+                sleeping = false;
+                alpha = 0;
+                fadeOutOpacity = 0;
+            }
         }
     }
 
@@ -723,11 +775,14 @@ public class GameScreen implements Screen {
         walkDownButton.draw(uiBatch, 0.8f);
         walkLeftButton.draw(uiBatch, 0.8f);
 
-        if(nearNPC) talkButton.draw(uiBatch, talkGraphic, 0.8f);
+        if(nearNPC) {
+            Texture graphic = (player.getBoundingRectangle().overlaps(benchRectangle) ? questionMarkGraphic : talkGraphic);
+            interactButton.draw(uiBatch, graphic, 0.8f);
+        }
         else sprintButton.draw(uiBatch, runGraphic, 0.8f);
 
-        // Fade to black once the text is over in the end game cutscene
-        if(inGameCompleteCutscene && talkingNPC == null) {
+        // Fade to black once the text is over in the end game cutscene or if restinging on a bench
+        if((inGameCompleteCutscene && talkingNPC == null) || sleeping) {
             uiBatch.setColor(1, 1, 1, fadeOutOpacity);
             uiBatch.draw(fadeOut, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             uiBatch.setColor(1, 1, 1, 1);
@@ -844,7 +899,7 @@ public class GameScreen implements Screen {
         talkGraphic.dispose();
 
         sprintButton.dispose();
-        talkButton.dispose();
+        interactButton.dispose();
         walkLeftButton.dispose();
         walkDownButton.dispose();
         walkRightButton.dispose();

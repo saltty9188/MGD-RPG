@@ -29,7 +29,7 @@ public class Player extends BattleCharacter {
                 50, 10, 5, 5, 1, "Hero");
 
         currentExp = 0;
-        toNextLevel = (int) (6.1 * Math.pow(level + 1, 2) + 1.4 * (level + 1) - 11.4);
+        toNextLevel = (int) (5.1 * Math.pow(level + 1, 2) + 1.4 * (level + 1) - 11.4);
 
         rand = new Random();
 
@@ -95,7 +95,7 @@ public class Player extends BattleCharacter {
      * @param nextLevel The next level to be reached.
      */
     private void calculateNextLevelExp(int nextLevel) {
-        toNextLevel = (int) (6.1 * Math.pow(nextLevel, 2) + 1.4 * (nextLevel) - 11.4);
+        toNextLevel = (int) (5.1 * Math.pow(nextLevel, 2) + 1.4 * (nextLevel) - 11.4);
     }
 
     /**
