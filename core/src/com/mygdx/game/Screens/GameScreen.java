@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Button;
 import com.mygdx.game.Character.Boss;
 import com.mygdx.game.Character.Character;
+import com.mygdx.game.Character.CreepyCrawler;
 import com.mygdx.game.Character.Enemy;
 import com.mygdx.game.Character.MadBat;
 import com.mygdx.game.Character.NPC;
@@ -296,7 +297,8 @@ public class GameScreen implements Screen {
                     if(i % 2 == 0) currentEnemies[i] = new RestlessLeaves();
                     else currentEnemies[i] = new WildEagle();
                 } else if (currentEnemies == caveEnemies) {
-                    currentEnemies[i] = new MadBat();
+                    if(i % 2 == 0) currentEnemies[i] = new CreepyCrawler();
+                    else currentEnemies[i] = new MadBat();
                 }
                 enemySpawn = (RectangleMapObject) spawnLayer.getObjects().get("Enemy " + Integer.toString(i + 1));
                 currentEnemies[i].setCenter(enemySpawn.getRectangle().x, enemySpawn.getRectangle().y);

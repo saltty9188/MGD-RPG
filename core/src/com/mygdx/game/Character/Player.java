@@ -84,7 +84,6 @@ public class Player extends BattleCharacter {
                 currentExp -= toNextLevel;
                 numLevels++;
                 calculateNextLevelExp(level + numLevels + 1);
-                System.out.println(toNextLevel);
             }
             return numLevels;
         }
